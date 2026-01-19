@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Final</title>
+    <title>Comercial GYG - Sistema Final Corregido</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -62,7 +62,6 @@
         .border-abonos { border-top-color: #1565c0; }
         .border-faltantes { border-top-color: #c62828; }
         
-        /* ESTILO DEL TITULO CON TOTAL A LA DERECHA */
         .account-title { 
             display: flex; 
             justify-content: space-between; 
@@ -208,7 +207,7 @@
 
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
     
-    // LISTAS COMPLETAS RESTAURADAS
+    // LISTAS FIJAS CON ZONAS FALTANTES AGREGADAS
     const rutas = { 
         "MIGUEL": ["Elixir","Saba Olanchito", "Zona Saba"], 
         "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
@@ -223,7 +222,7 @@
         document.getElementById('fecha_historial').value = HOY;
         llenarZonas();
         
-        // CARGAR DATOS
+        // CARGA DE DATOS
         db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
@@ -233,7 +232,6 @@
 
     window.cambiar = function(m) {
         MODO = m; cancelar();
-        // UI
         document.querySelectorAll('.tab').forEach(t => t.className='tab');
         document.getElementById('tab-'+m.toLowerCase()).className = `tab active-${m.toLowerCase()}`;
         
@@ -276,8 +274,11 @@
 
     window.guardar = function() {
         const fecha = document.getElementById('fecha').value;
-        const monto = parseFloat(document.getElementById('monto').value);
-        if(!monto) return alert("Falta monto");
+        // VALIDACIÓN MATEMATICA ESTRICTA AL GUARDAR
+        const montoStr = document.getElementById('monto').value;
+        const monto = parseFloat(montoStr);
+        
+        if(isNaN(monto) || monto === 0) return alert("Error: Ingrese un monto válido (número).");
 
         let ruta='', obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
 
@@ -315,6 +316,9 @@
         else db.ref(ruta).push(obj).then(()=>{ alert("Guardado"); cancelar(); });
     };
 
+    // FUNCION DE FORMATO DE MONEDA
+    const fmt = (num) => "L. " + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
     function pintar() {
         const div = document.getElementById('reportes');
         div.innerHTML = "";
@@ -325,62 +329,72 @@
         // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
         if(exc.length){
-            let sub = exc.reduce((a,b)=>a+b.monto,0); total+=sub;
-            let h = `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES <span>L. ${sub.toLocaleString()}</span></h3><table>`;
-            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
+            // CALCULO MATEMATICO SEGURO
+            let sub = exc.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
+            total += sub;
+            let h = `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES <span>${fmt(sub)}</span></h3><table>`;
+            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 2. FALTANTES
         let fal = filtrar(datos.fal);
         if(fal.length){
-            let sub = fal.reduce((a,b)=>a+b.monto,0); total+=sub;
-            let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>L. ${sub.toLocaleString()}</span></h3><table>`;
-            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
+            let sub = fal.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
+            total += sub;
+            let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>${fmt(sub)}</span></h3><table>`;
+            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 3. ABONOS
         let abo = filtrar(datos.abo);
         if(abo.length){
-            let sub = abo.reduce((a,b)=>a+b.monto,0); total+=sub;
-            let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>L. ${sub.toLocaleString()}</span></h3><table>`;
-            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
+            let sub = abo.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
+            total += sub;
+            let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>${fmt(sub)}</span></h3><table>`;
+            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 4. CONTADO
         let con = filtrar(datos.con);
         if(con.length){
-            let sub = con.reduce((a,b)=>a+b.monto,0); total+=sub;
-            let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>L. ${sub.toLocaleString()}</span></h3><table>`;
-            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
+            let sub = con.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
+            total += sub;
+            let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>${fmt(sub)}</span></h3><table>`;
+            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
-        // 5. DEPOSITOS (CON TOTAL ARRIBA Y RESUMEN ZONA ABAJO)
+        // 5. DEPOSITOS
         let dep = filtrar(datos.dep);
         for(let c in cuentas) {
             let list = dep.filter(r => r.cuenta === c);
             if(list.length) {
-                let sub = list.reduce((a,b)=>a+b.monto,0); total+=sub;
+                // CALCULO MATEMATICO SEGURO
+                let sub = list.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
+                total += sub;
+                
                 let resumen = {};
-                let h = `<div class="report-section ${cuentas[c]}"><h3 class="account-title">${c} <span>L. ${sub.toLocaleString()}</span></h3><table>`;
+                let h = `<div class="report-section ${cuentas[c]}"><h3 class="account-title">${c} <span>${fmt(sub)}</span></h3><table>`;
                 
                 list.forEach(r => { 
-                    if(!resumen[r.zona]) resumen[r.zona]=0; resumen[r.zona]+=r.monto;
-                    h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; 
+                    let m = parseFloat(r.monto) || 0;
+                    if(!resumen[r.zona]) resumen[r.zona]=0; 
+                    resumen[r.zona] += m;
+                    h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; 
                 });
                 
                 h += "</table><div class='zone-summary'><b>Resumen por Zona:</b>";
-                for(let z in resumen) h+=`<div class='zone-row'><span>${z}</span><span>L. ${resumen[z].toLocaleString()}</span></div>`;
+                for(let z in resumen) h+=`<div class='zone-row'><span>${z}</span><span>${fmt(resumen[z])}</span></div>`;
                 h += "</div></div>";
                 div.innerHTML += h;
             }
         }
 
-        document.getElementById('gran-total').innerText = "L. " + total.toLocaleString();
-        if(total==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
+        document.getElementById('gran-total').innerText = fmt(total);
+        if(total==0 && exc.length==0 && fal.length==0 && abo.length==0 && con.length==0 && dep.length==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
     }
 
     window.del = (id, ruta) => { if(confirm("Borrar?")) db.ref(`${ruta}/${id}`).remove(); };
