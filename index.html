@@ -99,7 +99,7 @@
         </div>
 
         <div id="block-depositos" class="form-grid">
-            <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option></select></div>
+            <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select></div>
             <div><label>Referencia:</label><input type="number" id="ref"></div>
             <div class="full"><label>Zona:</label><select id="zona" onchange="autoCobrador()"></select></div>
             <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#eee;"></div>
@@ -297,7 +297,12 @@
         const div = document.getElementById('reportes');
         div.innerHTML = "";
         let total = 0;
-        const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
+        
+        // FILTRO MAESTRO: Si es historial usa fecha documento, si es hoy usa fecha registro
+        const filtrar = (arr) => arr.filter(i => {
+            const fechaRef = ES_HISTORIAL ? (i.fecha_registro || i.fecha) : (i.fecha_registro || i.fecha);
+            return fechaRef === FILTRO;
+        });
 
         // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
@@ -343,7 +348,7 @@
         }
 
         document.getElementById('gran-total').innerText = "L. " + total.toLocaleString();
-        if(total==0) div.innerHTML = "<p>Nada ingresado hoy.</p>";
+        if(total==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
     }
 
     window.del = (id, ruta) => { if(confirm("Borrar?")) db.ref(`${ruta}/${id}`).remove(); };
