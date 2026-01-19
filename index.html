@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Final</title>
+    <title>Comercial GYG - Sistema Maestro</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,18 +11,24 @@
 
     <style>
         :root { 
-            --primary: #004d40; --field: #e65100; --contado: #4a148c;
-            --abonos: #1565c0; --faltante: #c62828; --excedente: #00838f; --historial: #455a64;
+            --primary: #004d40; /* Oficina Verde */
+            --field: #e65100;   /* Campo Naranja */
+            --contado: #4a148c; 
+            --abonos: #1565c0; 
+            --faltante: #c62828; 
+            --excedente: #00838f; 
+            --historial: #455a64;
         }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px; }
         
         /* HEADER */
-        header { background: var(--primary); color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
+        header { background: #263238; color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
         
         /* PESTAÑAS */
         .tabs { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.8rem; }
+        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
         
+        /* COLORES ACTIVOS */
         .active-oficina { background: white; color: var(--primary); border-bottom: 4px solid var(--primary); }
         .active-campo { background: white; color: var(--field); border-bottom: 4px solid var(--field); }
         .active-contado { background: white; color: var(--contado); border-bottom: 4px solid var(--contado); }
@@ -40,7 +46,7 @@
         input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         /* BOTONES */
-        button.main-btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
         .btn-oficina { background: var(--primary); }
         .btn-campo { background: var(--field); }
         .btn-contado { background: var(--contado); }
@@ -49,8 +55,8 @@
         .btn-excedente { background: var(--excedente); }
         .btn-historial { background: var(--historial); }
         
-        .btn-cancelar { background: #616161; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; display: none; }
-        .btn-pdf { background: #d32f2f; margin-top: 20px; width: 100%; padding: 15px; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        #btn-cancelar { background: #616161; display: none; margin-bottom: 10px; }
+        .btn-pdf { background: #d32f2f; margin-top: 20px; }
 
         /* REPORTES */
         #area-impresion { margin-top: 20px; }
@@ -74,6 +80,11 @@
         .btn-edit { background: #e3f2fd; color: #1565c0; }
         .btn-del { background: #ffebee; color: #c62828; }
 
+        /* BADGES PARA DIFERENCIAR OFICINA Y CAMPO */
+        .badge { padding: 3px 6px; border-radius: 4px; color: white; font-size: 0.7rem; font-weight: bold; margin-right: 5px; }
+        .bg-oficina { background: var(--primary); }
+        .bg-campo { background: var(--field); }
+
         .zone-summary { background: #f9f9f9; padding: 10px; margin-top: 10px; font-size: 0.85rem; border-radius: 4px; border: 1px dashed #ccc; }
         .zone-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ddd; }
         .zone-row:last-child { border-bottom: none; }
@@ -91,13 +102,13 @@
 <div class="container" style="max-width:900px; margin:0 auto;">
 
     <div class="tabs no-print">
-        <div id="tab-oficina" class="tab active-oficina" onclick="cambiar('OFICINA')">OFICINA</div>
-        <div id="tab-campo" class="tab" onclick="cambiar('CAMPO')">CAMPO</div>
-        <div id="tab-contado" class="tab" onclick="cambiar('CONTADO')">CONTADO</div>
-        <div id="tab-abonos" class="tab" onclick="cambiar('ABONOS')">ABONOS</div>
-        <div id="tab-faltantes" class="tab" onclick="cambiar('FALTANTES')">FALTANTES</div>
-        <div id="tab-excedente" class="tab" onclick="cambiar('EXCEDENTE')">EXCEDENTE</div>
-        <div id="tab-historial" class="tab" onclick="cambiar('HISTORIAL')">HISTORIAL</div>
+        <div id="tab-oficina" class="tab active-oficina" onclick="cambiarPestana('OFICINA')">OFICINA</div>
+        <div id="tab-campo" class="tab" onclick="cambiarPestana('CAMPO')">CAMPO</div>
+        <div id="tab-contado" class="tab" onclick="cambiarPestana('CONTADO')">CONTADO</div>
+        <div id="tab-abonos" class="tab" onclick="cambiarPestana('ABONOS')">ABONOS</div>
+        <div id="tab-faltantes" class="tab" onclick="cambiarPestana('FALTANTES')">FALTANTES</div>
+        <div id="tab-excedente" class="tab" onclick="cambiarPestana('EXCEDENTE')">EXCEDENTE</div>
+        <div id="tab-historial" class="tab" onclick="cambiarPestana('HISTORIAL')">HISTORIAL</div>
     </div>
 
     <div class="card no-print">
@@ -112,7 +123,13 @@
             <div><label>Referencia:</label><input type="number" id="ref"></div>
             <div class="full"><label>Zona:</label><select id="zona" onchange="autoCobrador()"></select></div>
             <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#eee;"></div>
-            <div class="full"><label>Cuenta:</label><select id="cuenta"></select></div>
+            <div class="full"><label>Cuenta Destino:</label>
+                <select id="cuenta">
+                    <option value="DAVID">CUENTA DAVID</option>
+                    <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                    <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                </select>
+            </div>
         </div>
 
         <div id="block-contado" class="form-grid hidden">
@@ -180,8 +197,8 @@
             <input type="number" id="monto" style="font-size:1.2rem; font-weight:bold;" step="0.01">
         </div>
 
-        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR EDICIÓN</button>
-        <button id="btn-guardar" class="main-btn btn-oficina" onclick="guardar()">GUARDAR</button>
+        <button id="btn-cancelar" onclick="cancelarEdicion()">CANCELAR EDICIÓN</button>
+        <button id="btn-guardar" class="btn-oficina" onclick="guardar()">GUARDAR</button>
     </div>
 
     <div id="area-impresion">
@@ -198,14 +215,17 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let MODO = 'CAMPO'; // INICIO EN CAMPO
+    // VARIABLES
+    let MODO = 'OFICINA'; 
     let ID_EDIT = null;
+    let RUTA_EDIT = null; 
     let HOY = new Date().toISOString().split('T')[0];
     let FILTRO = HOY;
     let ES_HISTORIAL = false;
 
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
     
+    // ZONAS ACTUALIZADAS (CON FAUST, JUTIAPA, HONDURAS AGUAN, ETC)
     const rutas = { 
         "MIGUEL": ["Elixir","Saba Olanchito", "Zona Saba"], 
         "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
@@ -213,13 +233,15 @@
         "AMALET": ["Balfate","Bonito Oriental"], 
         "JORGE": ["Planes","Jutiapa", "Sonaguera", "Faust"] 
     };
-    const cuentas = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
+    
+    const cuentas = { "DAVID":"border-david", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
         document.getElementById('fecha_historial').value = HOY;
         llenarZonas();
         
+        // CARGA DE DATOS
         db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
@@ -227,21 +249,29 @@
         db.ref('excedente_tarjetas').on('value', s => { datos.exc=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.exc.push({id:k,...s.val()[k]})); pintar(); });
     };
 
-    window.cambiar = function(m) {
-        MODO = m; cancelar();
+    function cambiarPestana(m) {
+        if(ID_EDIT) { if(!confirm("Estás editando. ¿Cancelar?")) return; cancelarEdicion(); }
+        MODO = m;
+        actualizarUI();
+    }
+
+    function actualizarUI() {
         document.querySelectorAll('.tab').forEach(t => t.className='tab');
-        document.getElementById('tab-'+m.toLowerCase()).className = `tab active-${m.toLowerCase()}`;
+        if(document.getElementById('tab-'+MODO.toLowerCase())) {
+            document.getElementById('tab-'+MODO.toLowerCase()).className = `tab active-${MODO.toLowerCase()}`;
+        }
         
         document.querySelectorAll('.form-grid').forEach(b => b.classList.add('hidden'));
         document.getElementById('block-historial').classList.add('hidden');
         document.getElementById('block-monto').classList.remove('hidden');
         document.getElementById('btn-guardar').style.display='block';
 
-        if(m=='OFICINA' || m=='CAMPO') document.getElementById('block-depositos').classList.remove('hidden');
-        else if(m=='CONTADO') document.getElementById('block-contado').classList.remove('hidden');
-        else if(m=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
-        else if(m=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
-        else if(m=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
+        // OFICINA Y CAMPO COMPARTEN EL MISMO BLOQUE VISUAL PERO LOGICA DISTINTA
+        if(MODO=='OFICINA' || MODO=='CAMPO') document.getElementById('block-depositos').classList.remove('hidden');
+        else if(MODO=='CONTADO') document.getElementById('block-contado').classList.remove('hidden');
+        else if(MODO=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
+        else if(MODO=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
+        else if(MODO=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
         else { 
             ES_HISTORIAL = true;
             document.getElementById('block-historial').classList.remove('hidden');
@@ -256,12 +286,9 @@
         pintar();
         
         const btn = document.getElementById('btn-guardar');
-        btn.className = `main-btn btn-${m.toLowerCase()}`;
-        btn.innerText = `GUARDAR ${m}`;
-        
-        if(m=='OFICINA') document.getElementById('cuenta').innerHTML="<option value='LESLY'>CUENTA LESLY</option>";
-        else document.getElementById('cuenta').innerHTML="<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
-    };
+        btn.className = `btn-${MODO.toLowerCase()}`;
+        btn.innerText = ID_EDIT ? "ACTUALIZAR" : `GUARDAR ${MODO}`;
+    }
 
     window.buscarHistorial = function() {
         FILTRO = document.getElementById('fecha_historial').value;
@@ -270,45 +297,77 @@
     };
 
     window.guardar = function() {
-        const fecha = document.getElementById('fecha').value;
-        const monto = parseFloat(document.getElementById('monto').value);
-        if(!monto || isNaN(monto)) return alert("Falta monto válido");
+        try {
+            const fecha = document.getElementById('fecha').value;
+            const monto = parseFloat(document.getElementById('monto').value);
+            if(!monto || isNaN(monto)) return alert("Falta monto válido");
 
-        let ruta='', obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
+            let obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
+            let ruta = '';
 
-        if(MODO=='CONTADO') {
-            obj.vendedor = document.getElementById('vendedor').value;
-            obj.cuenta = document.getElementById('contado_cuenta').value;
-            obj.articulo = document.getElementById('articulo_contado').value;
-            ruta='ventas_contado';
-        } else if(MODO=='ABONOS') {
-            obj.tarjeta = document.getElementById('abono_tarjeta').value;
-            obj.articulo = document.getElementById('abono_articulo').value;
-            obj.saldo_restante = document.getElementById('abono_saldo').value;
-            obj.cuenta = document.getElementById('abono_cuenta').value;
-            ruta='abonos_clientes';
-        } else if(MODO=='FALTANTES') {
-            obj.cobrador = document.getElementById('fal_cobrador').value;
-            obj.zona = document.getElementById('fal_zona').value;
-            ruta='faltantes_cobro';
-        } else if(MODO=='EXCEDENTE') {
-            obj.tarjeta = document.getElementById('exc_tarjeta').value;
-            obj.articulo = document.getElementById('exc_articulo').value;
-            obj.cuenta = document.getElementById('exc_cuenta').value; // AQUI SELECCIONA LA CUENTA
-            ruta='excedente_tarjetas';
-        } else { 
-            obj.origen = MODO;
-            obj.semana = document.getElementById('semana').value;
-            obj.ref = document.getElementById('ref').value;
-            obj.zona = document.getElementById('zona').value;
-            obj.cobrador = document.getElementById('cobrador').value;
-            obj.cuenta = document.getElementById('cuenta').value;
-            ruta='registros_milagro';
-        }
+            let modoGuardado = ID_EDIT ? obtenerModoDesdeRuta(RUTA_EDIT) : MODO;
+            
+            if(!ID_EDIT) {
+                if(MODO=='CONTADO') ruta='ventas_contado';
+                else if(MODO=='ABONOS') ruta='abonos_clientes';
+                else if(MODO=='FALTANTES') ruta='faltantes_cobro';
+                else if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
+                else ruta='registros_milagro'; // CAMPO Y OFICINA VAN AQUI
+            } else {
+                ruta = RUTA_EDIT;
+            }
 
-        if(ID_EDIT) db.ref(`${ruta}/${ID_EDIT}`).update(obj).then(()=>{ alert("Actualizado"); cancelar(); });
-        else db.ref(ruta).push(obj).then(()=>{ alert("Guardado"); cancelar(); });
+            if(ruta=='ventas_contado') {
+                obj.vendedor = document.getElementById('vendedor').value;
+                obj.cuenta = document.getElementById('contado_cuenta').value;
+                obj.articulo = document.getElementById('articulo_contado').value;
+            } else if(ruta=='abonos_clientes') {
+                obj.tarjeta = document.getElementById('abono_tarjeta').value;
+                obj.articulo = document.getElementById('abono_articulo').value;
+                obj.saldo_restante = document.getElementById('abono_saldo').value;
+                obj.cuenta = document.getElementById('abono_cuenta').value;
+            } else if(ruta=='faltantes_cobro') {
+                obj.cobrador = document.getElementById('fal_cobrador').value;
+                obj.zona = document.getElementById('fal_zona').value;
+            } else if(ruta=='excedente_tarjetas') {
+                obj.tarjeta = document.getElementById('exc_tarjeta').value;
+                obj.articulo = document.getElementById('exc_articulo').value;
+                obj.cuenta = document.getElementById('exc_cuenta').value;
+            } else { // DEPOSITOS (OFICINA O CAMPO)
+                // Si estoy editando, preservo el origen original, sino uso el modo actual
+                if(ID_EDIT) {
+                    let registroOriginal = datos.dep.find(r => r.id === ID_EDIT);
+                    obj.origen = registroOriginal ? registroOriginal.origen : MODO;
+                } else {
+                    obj.origen = MODO; // 'OFICINA' o 'CAMPO'
+                }
+                
+                obj.semana = document.getElementById('semana').value;
+                obj.ref = document.getElementById('ref').value;
+                obj.zona = document.getElementById('zona').value;
+                obj.cobrador = document.getElementById('cobrador').value;
+                obj.cuenta = document.getElementById('cuenta').value;
+            }
+
+            if(ID_EDIT) {
+                db.ref(`${ruta}/${ID_EDIT}`).update(obj)
+                .then(()=>{ alert("✅ Actualizado Correctamente"); cancelarEdicion(); })
+                .catch(e => alert("Error: " + e.message));
+            } else {
+                db.ref(ruta).push(obj)
+                .then(()=>{ alert("✅ Guardado Correctamente"); cancelarEdicion(); })
+                .catch(e => alert("Error: " + e.message));
+            }
+        } catch(e) { alert("Error critico: " + e); }
     };
+
+    function obtenerModoDesdeRuta(ruta) {
+        if(ruta=='ventas_contado') return 'CONTADO';
+        if(ruta=='abonos_clientes') return 'ABONOS';
+        if(ruta=='faltantes_cobro') return 'FALTANTES';
+        if(ruta=='excedente_tarjetas') return 'EXCEDENTE';
+        return 'CAMPO'; // Por defecto, se ajusta en iniciarEdicion
+    }
 
     const sumar = (a, b) => Math.round((a + b) * 100) / 100;
     const fmt = (num) => "L. " + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -320,13 +379,13 @@
         
         const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
 
-        // 1. EXCEDENTES (AHORA MUESTRA CUENTA)
+        // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
         if(exc.length){
             let sub = exc.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
-            let h = `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES <span>${fmt(sub)}</span></h3><table>`;
-            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','EXCEDENTE')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','excedente_tarjetas')">🗑️</button></td></tr>`; });
+            let h = `<div class="report-section border-david"><h3 class="account-title">EXCEDENTES <span>${fmt(sub)}</span></h3><table>`;
+            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','excedente_tarjetas')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','excedente_tarjetas')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -336,7 +395,7 @@
             let sub = fal.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>${fmt(sub)}</span></h3><table>`;
-            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','FALTANTES')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','faltantes_cobro')">🗑️</button></td></tr>`; });
+            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','faltantes_cobro')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','faltantes_cobro')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -346,7 +405,7 @@
             let sub = abo.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>${fmt(sub)}</span></h3><table>`;
-            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','ABONOS')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','abonos_clientes')">🗑️</button></td></tr>`; });
+            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','abonos_clientes')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','abonos_clientes')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -356,11 +415,11 @@
             let sub = con.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>${fmt(sub)}</span></h3><table>`;
-            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','CONTADO')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','ventas_contado')">🗑️</button></td></tr>`; });
+            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','ventas_contado')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','ventas_contado')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
-        // 5. DEPOSITOS
+        // 5. DEPOSITOS (OFICINA Y CAMPO JUNTOS PERO DIFERENCIADOS)
         let dep = filtrar(datos.dep);
         for(let c in cuentas) {
             let list = dep.filter(r => r.cuenta === c);
@@ -374,7 +433,11 @@
                     let m = parseFloat(r.monto) || 0;
                     if(!resumen[r.zona]) resumen[r.zona]=0; 
                     resumen[r.zona] = sumar(resumen[r.zona], m);
-                    h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','${r.origen}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`; 
+                    
+                    // BADGE PARA SABER SI ES OFICINA O CAMPO
+                    let badge = r.origen === 'OFICINA' ? '<span class="badge bg-oficina">OFI</span>' : '<span class="badge bg-campo">CAM</span>';
+                    
+                    h+=`<tr><td>${badge} ${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','registros_milagro')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`; 
                 });
                 
                 h += "</table><div class='zone-summary'><b>Resumen por Zona:</b>";
@@ -388,25 +451,41 @@
         if(total==0 && exc.length==0 && fal.length==0 && abo.length==0 && con.length==0 && dep.length==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
     }
 
+    // --- ACCIONES ---
     window.del = (id, ruta) => { if(confirm("¿Eliminar registro?")) db.ref(`${ruta}/${id}`).remove(); };
     
-    window.cancelar = () => { 
+    window.cancelarEdicion = () => { 
         ID_EDIT=null; 
+        RUTA_EDIT=null;
         document.querySelectorAll('input').forEach(i=>i.value=''); 
         document.getElementById('btn-cancelar').style.display='none';
         document.getElementById('fecha').value = HOY; 
-        let btn = document.getElementById('btn-guardar');
-        btn.innerText = btn.innerText.replace("ACTUALIZAR", "GUARDAR");
+        
+        actualizarUI();
     };
 
-    window.editar = (id, tipo) => {
+    window.iniciarEdicion = (id, ruta) => {
         ID_EDIT = id;
-        document.getElementById('btn-cancelar').style.display='block';
-        document.getElementById('btn-guardar').innerText = "ACTUALIZAR " + tipo;
-        window.scrollTo(0,0);
+        RUTA_EDIT = ruta;
         
-        cambiar(tipo);
+        let tipo = '';
+        
+        // Logica para saber si es Oficina o Campo al editar
+        if(ruta === 'registros_milagro') {
+            let reg = datos.dep.find(x => x.id === id);
+            tipo = reg ? reg.origen : 'CAMPO'; // Si es OFICINA, detecta OFICINA
+        } else {
+            tipo = obtenerModoDesdeRuta(ruta);
+        }
+        
+        MODO = tipo;
+        
+        // Cargar vista
+        actualizarUI();
+        document.getElementById('btn-cancelar').style.display='block';
+        window.scrollTo(0,0);
 
+        // Llenar datos
         let r;
         if(tipo === 'OFICINA' || tipo === 'CAMPO') {
             r = datos.dep.find(x => x.id === id);
