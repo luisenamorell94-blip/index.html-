@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Final Corregido</title>
+    <title>Comercial GYG - Sistema Final</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -40,7 +40,7 @@
         input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         /* BOTONES */
-        button { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
+        button.main-btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
         .btn-oficina { background: var(--primary); }
         .btn-campo { background: var(--field); }
         .btn-contado { background: var(--contado); }
@@ -48,12 +48,13 @@
         .btn-faltantes { background: var(--faltante); }
         .btn-excedente { background: var(--excedente); }
         .btn-historial { background: var(--historial); }
-        .btn-cancelar { background: #666; display: none; }
-        .btn-pdf { background: #d32f2f; margin-top: 20px; }
+        
+        .btn-cancelar { background: #616161; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; display: none; }
+        .btn-pdf { background: #d32f2f; margin-top: 20px; width: 100%; padding: 15px; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
         /* REPORTES */
         #area-impresion { margin-top: 20px; }
-        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; }
+        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         
         .border-david { border-top-color: #1565c0; }
         .border-lesly { border-top-color: #ad1457; }
@@ -62,23 +63,17 @@
         .border-abonos { border-top-color: #1565c0; }
         .border-faltantes { border-top-color: #c62828; }
         
-        .account-title { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            margin: 0 0 10px 0; 
-            padding-bottom: 5px; 
-            border-bottom: 1px solid #eee; 
-            font-size: 1rem; 
-            color: #333; 
-        }
+        .account-title { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #eee; font-size: 1rem; color: #333; }
         .account-title span { font-weight: bold; font-size: 1.1rem; }
         
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
         th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #f5f5f5; }
         
-        /* RESUMEN ZONA */
+        .btn-action { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; margin-left: 2px; font-size: 0.9rem; }
+        .btn-edit { background: #e3f2fd; color: #1565c0; }
+        .btn-del { background: #ffebee; color: #c62828; }
+
         .zone-summary { background: #f9f9f9; padding: 10px; margin-top: 10px; font-size: 0.85rem; border-radius: 4px; border: 1px dashed #ccc; }
         .zone-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ddd; }
         .zone-row:last-child { border-bottom: none; }
@@ -130,7 +125,6 @@
             <div><label>Cuenta Destino:</label>
                 <select id="contado_cuenta">
                     <option value="DAVID">CUENTA DAVID</option>
-                    <option value="LESLY">CUENTA LESLY</option>
                     <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
                     <option value="JOSE_RODINDER">JOSE RODINDER</option>
                 </select>
@@ -145,7 +139,6 @@
             <div><label>Cuenta Destino:</label>
                 <select id="abono_cuenta">
                     <option value="DAVID">CUENTA DAVID</option>
-                    <option value="LESLY">CUENTA LESLY</option>
                     <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
                     <option value="JOSE_RODINDER">JOSE RODINDER</option>
                 </select>
@@ -166,23 +159,29 @@
         <div id="block-excedente" class="form-grid hidden">
             <div><label>Tarjeta:</label><input type="text" id="exc_tarjeta"></div>
             <div><label>Artículo:</label><input type="text" id="exc_articulo"></div>
-            <div class="full"><label>Cuenta:</label><input value="LESLY" readonly></div>
+            <div class="full"><label>Cuenta Destino:</label>
+                <select id="exc_cuenta">
+                    <option value="DAVID">CUENTA DAVID</option>
+                    <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                    <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                </select>
+            </div>
         </div>
 
         <div id="block-historial" class="hidden" style="text-align:center;">
             <h3>BUSCAR REPORTE ANTIGUO</h3>
             <p>Selecciona el día que hiciste la carga:</p>
             <input type="date" id="fecha_historial" style="max-width:200px; margin:10px auto;">
-            <button class="btn-historial" onclick="buscarHistorial()">BUSCAR</button>
+            <button class="main-btn btn-historial" onclick="buscarHistorial()">BUSCAR</button>
         </div>
 
         <div id="block-monto" class="full">
             <label>Monto (L.):</label>
-            <input type="number" id="monto" style="font-size:1.2rem; font-weight:bold;">
+            <input type="number" id="monto" style="font-size:1.2rem; font-weight:bold;" step="0.01">
         </div>
 
-        <button id="btn-guardar" class="btn-oficina" onclick="guardar()">GUARDAR</button>
-        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR</button>
+        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR EDICIÓN</button>
+        <button id="btn-guardar" class="main-btn btn-oficina" onclick="guardar()">GUARDAR</button>
     </div>
 
     <div id="area-impresion">
@@ -199,7 +198,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let MODO = 'OFICINA';
+    let MODO = 'CAMPO'; // INICIO EN CAMPO
     let ID_EDIT = null;
     let HOY = new Date().toISOString().split('T')[0];
     let FILTRO = HOY;
@@ -207,7 +206,6 @@
 
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
     
-    // LISTAS FIJAS CON ZONAS FALTANTES AGREGADAS
     const rutas = { 
         "MIGUEL": ["Elixir","Saba Olanchito", "Zona Saba"], 
         "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
@@ -222,7 +220,6 @@
         document.getElementById('fecha_historial').value = HOY;
         llenarZonas();
         
-        // CARGA DE DATOS
         db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
@@ -245,7 +242,7 @@
         else if(m=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
         else if(m=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
         else if(m=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
-        else { // HISTORIAL
+        else { 
             ES_HISTORIAL = true;
             document.getElementById('block-historial').classList.remove('hidden');
             document.getElementById('block-monto').classList.add('hidden');
@@ -259,7 +256,7 @@
         pintar();
         
         const btn = document.getElementById('btn-guardar');
-        btn.className = `btn-${m.toLowerCase()}`;
+        btn.className = `main-btn btn-${m.toLowerCase()}`;
         btn.innerText = `GUARDAR ${m}`;
         
         if(m=='OFICINA') document.getElementById('cuenta').innerHTML="<option value='LESLY'>CUENTA LESLY</option>";
@@ -274,11 +271,8 @@
 
     window.guardar = function() {
         const fecha = document.getElementById('fecha').value;
-        // VALIDACIÓN MATEMATICA ESTRICTA AL GUARDAR
-        const montoStr = document.getElementById('monto').value;
-        const monto = parseFloat(montoStr);
-        
-        if(isNaN(monto) || monto === 0) return alert("Error: Ingrese un monto válido (número).");
+        const monto = parseFloat(document.getElementById('monto').value);
+        if(!monto || isNaN(monto)) return alert("Falta monto válido");
 
         let ruta='', obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
 
@@ -300,7 +294,7 @@
         } else if(MODO=='EXCEDENTE') {
             obj.tarjeta = document.getElementById('exc_tarjeta').value;
             obj.articulo = document.getElementById('exc_articulo').value;
-            obj.cuenta = 'LESLY';
+            obj.cuenta = document.getElementById('exc_cuenta').value; // AQUI SELECCIONA LA CUENTA
             ruta='excedente_tarjetas';
         } else { 
             obj.origen = MODO;
@@ -312,11 +306,11 @@
             ruta='registros_milagro';
         }
 
-        if(ID_EDIT) db.ref(`${ruta}/${ID_EDIT}`).update(obj).then(()=>{ alert("Editado"); cancelar(); });
+        if(ID_EDIT) db.ref(`${ruta}/${ID_EDIT}`).update(obj).then(()=>{ alert("Actualizado"); cancelar(); });
         else db.ref(ruta).push(obj).then(()=>{ alert("Guardado"); cancelar(); });
     };
 
-    // FUNCION DE FORMATO DE MONEDA
+    const sumar = (a, b) => Math.round((a + b) * 100) / 100;
     const fmt = (num) => "L. " + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
     function pintar() {
@@ -326,44 +320,43 @@
         
         const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
 
-        // 1. EXCEDENTES
+        // 1. EXCEDENTES (AHORA MUESTRA CUENTA)
         let exc = filtrar(datos.exc);
         if(exc.length){
-            // CALCULO MATEMATICO SEGURO
-            let sub = exc.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
-            total += sub;
+            let sub = exc.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
+            total = sumar(total, sub);
             let h = `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES <span>${fmt(sub)}</span></h3><table>`;
-            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
+            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','EXCEDENTE')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','excedente_tarjetas')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 2. FALTANTES
         let fal = filtrar(datos.fal);
         if(fal.length){
-            let sub = fal.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
-            total += sub;
+            let sub = fal.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
+            total = sumar(total, sub);
             let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>${fmt(sub)}</span></h3><table>`;
-            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
+            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','FALTANTES')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','faltantes_cobro')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 3. ABONOS
         let abo = filtrar(datos.abo);
         if(abo.length){
-            let sub = abo.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
-            total += sub;
+            let sub = abo.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
+            total = sumar(total, sub);
             let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>${fmt(sub)}</span></h3><table>`;
-            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
+            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','ABONOS')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','abonos_clientes')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 4. CONTADO
         let con = filtrar(datos.con);
         if(con.length){
-            let sub = con.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
-            total += sub;
+            let sub = con.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
+            total = sumar(total, sub);
             let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>${fmt(sub)}</span></h3><table>`;
-            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
+            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','CONTADO')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','ventas_contado')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -372,18 +365,16 @@
         for(let c in cuentas) {
             let list = dep.filter(r => r.cuenta === c);
             if(list.length) {
-                // CALCULO MATEMATICO SEGURO
-                let sub = list.reduce((a,b)=> a + (parseFloat(b.monto)||0), 0);
-                total += sub;
-                
+                let sub = list.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
+                total = sumar(total, sub);
                 let resumen = {};
                 let h = `<div class="report-section ${cuentas[c]}"><h3 class="account-title">${c} <span>${fmt(sub)}</span></h3><table>`;
                 
                 list.forEach(r => { 
                     let m = parseFloat(r.monto) || 0;
                     if(!resumen[r.zona]) resumen[r.zona]=0; 
-                    resumen[r.zona] += m;
-                    h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; 
+                    resumen[r.zona] = sumar(resumen[r.zona], m);
+                    h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}','${r.origen}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`; 
                 });
                 
                 h += "</table><div class='zone-summary'><b>Resumen por Zona:</b>";
@@ -397,11 +388,64 @@
         if(total==0 && exc.length==0 && fal.length==0 && abo.length==0 && con.length==0 && dep.length==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
     }
 
-    window.del = (id, ruta) => { if(confirm("Borrar?")) db.ref(`${ruta}/${id}`).remove(); };
+    window.del = (id, ruta) => { if(confirm("¿Eliminar registro?")) db.ref(`${ruta}/${id}`).remove(); };
+    
     window.cancelar = () => { 
         ID_EDIT=null; 
         document.querySelectorAll('input').forEach(i=>i.value=''); 
         document.getElementById('btn-cancelar').style.display='none';
+        document.getElementById('fecha').value = HOY; 
+        let btn = document.getElementById('btn-guardar');
+        btn.innerText = btn.innerText.replace("ACTUALIZAR", "GUARDAR");
+    };
+
+    window.editar = (id, tipo) => {
+        ID_EDIT = id;
+        document.getElementById('btn-cancelar').style.display='block';
+        document.getElementById('btn-guardar').innerText = "ACTUALIZAR " + tipo;
+        window.scrollTo(0,0);
+        
+        cambiar(tipo);
+
+        let r;
+        if(tipo === 'OFICINA' || tipo === 'CAMPO') {
+            r = datos.dep.find(x => x.id === id);
+            document.getElementById('semana').value = r.semana;
+            document.getElementById('ref').value = r.ref;
+            document.getElementById('zona').value = r.zona;
+            autoCobrador(); 
+            document.getElementById('cuenta').value = r.cuenta;
+        } 
+        else if(tipo === 'CONTADO') {
+            r = datos.con.find(x => x.id === id);
+            document.getElementById('vendedor').value = r.vendedor;
+            document.getElementById('contado_cuenta').value = r.cuenta;
+            document.getElementById('articulo_contado').value = r.articulo;
+        }
+        else if(tipo === 'ABONOS') {
+            r = datos.abo.find(x => x.id === id);
+            document.getElementById('abono_tarjeta').value = r.tarjeta;
+            document.getElementById('abono_articulo').value = r.articulo;
+            document.getElementById('abono_saldo').value = r.saldo_restante;
+            document.getElementById('abono_cuenta').value = r.cuenta;
+        }
+        else if(tipo === 'FALTANTES') {
+            r = datos.fal.find(x => x.id === id);
+            document.getElementById('fal_cobrador').value = r.cobrador;
+            zonaFaltante(); 
+            document.getElementById('fal_zona').value = r.zona;
+        }
+        else if(tipo === 'EXCEDENTE') {
+            r = datos.exc.find(x => x.id === id);
+            document.getElementById('exc_tarjeta').value = r.tarjeta;
+            document.getElementById('exc_articulo').value = r.articulo;
+            document.getElementById('exc_cuenta').value = r.cuenta;
+        }
+
+        if(r) {
+            document.getElementById('fecha').value = r.fecha;
+            document.getElementById('monto').value = r.monto;
+        }
     };
 
     function llenarZonas() {
