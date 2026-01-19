@@ -122,9 +122,9 @@
     <div class="card no-print">
         
         <div id="bloque-fecha-global" class="full-width">
-            <label>Fecha de Registro:</label>
+            <label>Fecha del Documento/Recibo:</label>
             <input type="date" id="fecha" style="font-weight:bold;">
-            <small style="color:#666; font-size:0.8rem;">* La tabla abajo SIEMPRE muestra hoy, aunque registres fechas pasadas.</small>
+            <small style="color:#004d40; display:block; margin-top:5px;">ℹ️ <b>IMPORTANTE:</b> El reporte de abajo mostrará lo que ingreses <b>HOY</b>, aunque le pongas una fecha antigua aquí.</small>
         </div>
 
         <div class="form-grid">
@@ -230,12 +230,12 @@
             </div>
 
             <div id="bloque-historial" class="full-width hidden" style="text-align:center; background:#eceff1; padding:20px; border-radius:8px;">
-                <h3 style="color:#455a64; margin-top:0;">📂 CONSULTAR ARCHIVO DE REPORTES</h3>
-                <p>Selecciona una fecha antigua para ver TODO el reporte de ese día.</p>
-                <label>Seleccionar Fecha:</label>
+                <h3 style="color:#455a64; margin-top:0;">📂 HISTORIAL POR DÍA DE TRABAJO</h3>
+                <p>Selecciona el día que TRABAJASTE (Ingresaste los datos) para ver todo lo que se hizo ese día.</p>
+                <label>Seleccionar Fecha de Carga:</label>
                 <input type="date" id="fecha_historial" style="max-width:300px; margin:0 auto; display:block;">
                 <br>
-                <button class="main-btn btn-historial" onclick="buscarHistorial()" style="max-width:300px;">🔍 BUSCAR REPORTE ANTIGUO</button>
+                <button class="main-btn btn-historial" onclick="buscarHistorial()" style="max-width:300px;">🔍 BUSCAR REPORTE</button>
             </div>
 
             <div id="bloque-monto" class="full-width">
@@ -249,7 +249,7 @@
     </div>
 
     <div id="area-impresion">
-        <h3 class="no-print" id="titulo-reporte" style="margin-top:0; border-bottom:1px solid #ccc; color:#004d40;">REPORTE DE HOY</h3>
+        <h3 class="no-print" id="titulo-reporte" style="margin-top:0; border-bottom:1px solid #ccc; color:#004d40;">REPORTE DEL DÍA (HOY)</h3>
         <div id="contenedor-reportes"></div>
         <div class="grand-total">TOTAL GLOBAL: <span id="total-global">L. 0.00</span></div>
     </div>
@@ -275,7 +275,7 @@
     // --- VARIABLES ---
     let MODO = 'OFICINA';
     let ID_EDITANDO = null;
-    let FECHA_FILTRO = new Date().toISOString().split('T')[0]; // INICIA SIEMPRE EN HOY
+    let FECHA_FILTRO = new Date().toISOString().split('T')[0]; // FECHA DE HOY (SISTEMA)
     let ES_HISTORIAL = false;
 
     let listaDep = [];
@@ -302,9 +302,9 @@
     // --- INICIO ---
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').value = hoy;
+        document.getElementById('fecha').value = hoy; // Fecha por defecto en input
         document.getElementById('fecha_historial').value = hoy;
-        FECHA_FILTRO = hoy; // ASEGURAR QUE FILTRE HOY
+        FECHA_FILTRO = hoy; // Filtramos por la fecha REAL de hoy
         
         llenarZonas();
         actualizarCuentas();
@@ -328,7 +328,7 @@
         });
     };
 
-    // --- PESTAÑAS (VISTA FIJA DE HOY) ---
+    // --- PESTAÑAS ---
     window.cambiarModo = function(modo) {
         MODO = modo;
         cancelar(); 
@@ -346,17 +346,17 @@
 
         document.getElementById('tab-' + modo.toLowerCase()).className = 'tab active-' + modo.toLowerCase();
         
-        // LOGICA DE FECHAS
+        // AUTO RETORNO A HOY
         if(modo !== 'HISTORIAL') {
             ES_HISTORIAL = false;
             bloqueMonto.classList.remove('hidden');
             bloqueFecha.classList.remove('hidden');
             btn.style.display = 'block';
 
-            // FUERZA A LA VISTA DE HOY (Aunque el input fecha tenga otra cosa)
+            // REINICIAR FILTRO A LA FECHA REAL DE HOY
             const hoy = new Date().toISOString().split('T')[0];
             FECHA_FILTRO = hoy; 
-            document.getElementById('titulo-reporte').innerText = "REPORTE DE HOY (" + hoy + ")";
+            document.getElementById('titulo-reporte').innerText = "REPORTE DE CARGA (HOY: " + hoy + ")";
             document.getElementById('titulo-reporte').style.color = "#004d40";
         } 
         else {
@@ -403,34 +403,39 @@
         const f = document.getElementById('fecha_historial').value;
         if(!f) return;
         FECHA_FILTRO = f;
-        document.getElementById('titulo-reporte').innerText = "REPORTE HISTÓRICO DEL: " + f;
+        document.getElementById('titulo-reporte').innerText = "REPORTE DE CARGA DEL DÍA: " + f;
         pintarReportes();
     }
 
-    // --- GUARDAR ---
+    // --- GUARDAR (CON FECHA REAL DE REGISTRO) ---
     window.guardar = function() {
         if(ES_HISTORIAL) return; 
 
-        const fecha = document.getElementById('fecha').value;
+        // FECHA MANUAL (DEL PAPEL)
+        const fechaManual = document.getElementById('fecha').value;
+        // FECHA REAL (HOY)
+        const fechaRegistro = new Date().toISOString().split('T')[0];
+
         const monto = parseFloat(document.getElementById('monto').value);
 
         if(isNaN(monto)) { alert("Falta el monto"); return; }
 
         let ruta = '', datos = {};
 
+        // INCLUIMOS fecha_registro EN TODOS LOS OBJETOS
         if(MODO === 'EXCEDENTE') {
             const tar = document.getElementById('exc_tarjeta').value;
             const art = document.getElementById('exc_articulo').value;
             if(!tar || !art) { alert("Faltan datos"); return; }
             ruta = 'excedente_tarjetas';
-            datos = { fecha, tarjeta: tar, articulo: art, cuenta: 'LESLY', monto };
+            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, tarjeta: tar, articulo: art, cuenta: 'LESLY', monto };
         }
         else if(MODO === 'FALTANTES') {
             const cob = document.getElementById('faltante_cobrador').value;
             const zon = document.getElementById('faltante_zona').value;
             if(!cob || !zon) { alert("Faltan datos"); return; }
             ruta = 'faltantes_cobro';
-            datos = { fecha, cobrador: cob, zona: zon, monto };
+            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, cobrador: cob, zona: zon, monto };
         }
         else if(MODO === 'ABONOS') {
             const tar = document.getElementById('abono_tarjeta').value;
@@ -439,7 +444,7 @@
             const cue = document.getElementById('abono_cuenta').value;
             if(!tar || !cue) { alert("Faltan datos"); return; }
             ruta = 'abonos_clientes';
-            datos = { fecha, tarjeta: tar, articulo: art, saldo_restante: sal, cuenta: cue, monto };
+            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, tarjeta: tar, articulo: art, saldo_restante: sal, cuenta: cue, monto };
         } 
         else if(MODO === 'CONTADO') {
             const vend = document.getElementById('vendedor').value;
@@ -447,7 +452,7 @@
             const cue = document.getElementById('contado_cuenta').value;
             if(!vend || !cue) { alert("Faltan datos"); return; }
             ruta = 'ventas_contado';
-            datos = { fecha, vendedor: vend, articulo: art, cuenta: cue, monto };
+            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, vendedor: vend, articulo: art, cuenta: cue, monto };
         } 
         else { // DEPOSITOS
             const sem = document.getElementById('semana').value;
@@ -457,7 +462,7 @@
             const cue = document.getElementById('cuenta').value;
             if(!zon || !ref) { alert("Faltan datos"); return; }
             ruta = 'registros_milagro';
-            datos = { origen: MODO, semana: sem, fecha, ref, zona: zon, cobrador: cob, cuenta: cue, monto };
+            datos = { origen: MODO, semana: sem, fecha: fechaManual, fecha_registro: fechaRegistro, ref, zona: zon, cobrador: cob, cuenta: cue, monto };
         }
 
         if(ID_EDITANDO) {
@@ -465,7 +470,7 @@
         } else {
             db.ref(ruta).push(datos).then(() => { 
                 limpiarCampos();
-                alert("Guardado. (Nota: Si la fecha no es hoy, verás el registro en Historial)");
+                alert("✅ Guardado Exitosamente");
             });
         }
     };
@@ -484,13 +489,17 @@
         document.getElementById('faltante_zona').innerHTML = '<option value="">-- Seleccione Cobrador --</option>';
     }
 
-    // --- REPORTE (SIEMPRE MUESTRA FECHA_FILTRO) ---
+    // --- REPORTE (FILTRA POR FECHA DE REGISTRO REAL) ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
-        const filterFn = (item) => item.fecha === FECHA_FILTRO;
+        // FILTRO MAESTRO: Si existe fecha_registro, usa esa. Si no (datos viejos), usa fecha normal.
+        const filterFn = (item) => {
+            const fechaComparar = item.fecha_registro || item.fecha;
+            return fechaComparar === FECHA_FILTRO;
+        };
 
         // 1. EXCEDENTES
         let misExc = listaExc.filter(filterFn);
@@ -498,10 +507,10 @@
              let sub = 0; let rows = "";
              misExc.forEach(r => {
                  sub += r.monto;
-                 rows += `<tr><td>#${r.tarjeta}</td><td>${r.articulo}</td><td style="color:var(--excedente); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'EXC')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'EXC')">🗑️</button></td></tr>`;
+                 rows += `<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td style="color:var(--excedente); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'EXC')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'EXC')">🗑️</button></td></tr>`;
              });
              granTotal += sub;
-             cont.innerHTML += `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES LESLY <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Tarjeta</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+             cont.innerHTML += `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES LESLY <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Tarjeta</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
         // 2. FALTANTES
@@ -513,10 +522,10 @@
                 let sub = 0; let rows = "";
                 agrupado[cob].forEach(r => {
                     sub += r.monto;
-                    rows += `<tr><td>${r.zona}</td><td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button></td></tr>`;
+                    rows += `<tr><td>${r.fecha}</td><td>${r.zona}</td><td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button></td></tr>`;
                 });
                 granTotal += sub;
-                cont.innerHTML += `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+                cont.innerHTML += `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
             }
         }
 
@@ -529,10 +538,10 @@
                     let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
-                        rows += `<tr><td><b>#${r.tarjeta}</b></td><td>${r.articulo}</td><td>Rest: ${r.saldo_restante}</td><td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button></td></tr>`;
+                        rows += `<tr><td>${r.fecha}</td><td><b>#${r.tarjeta}</b></td><td>${r.articulo}</td><td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Tarjeta</th><th>Art.</th><th>Saldo</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Tarjeta</th><th>Art.</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
@@ -546,10 +555,10 @@
                     let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
-                        rows += `<tr><td><b>${r.vendedor}</b></td><td>${r.articulo}</td><td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button></td></tr>`;
+                        rows += `<tr><td>${r.fecha}</td><td><b>${r.vendedor}</b></td><td>${r.articulo}</td><td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Vend.</th><th>Art.</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Vend.</th><th>Art.</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
@@ -565,20 +574,20 @@
                         sub += r.monto;
                         if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0; zonaTotal[r.zona] += r.monto;
                         let badgeClass = r.origen === 'OFICINA' ? 'bg-oficina' : 'bg-campo';
-                        rows += `<tr><td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.zona}</td><td>${r.ref}</td><td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button></td></tr>`;
+                        rows += `<tr><td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td><td>${r.zona}<br><small style="color:#666;">${r.cobrador}</small></td><td>${r.ref}</td><td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
                     let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
                     for(const z in zonaTotal) resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
                     resumenHtml += `</div>`;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>${resumenHtml}</div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>${resumenHtml}</div>`;
                 }
             }
         }
         
         document.getElementById('total-global').innerText = "L. " + granTotal.toLocaleString();
         
-        if(granTotal === 0) cont.innerHTML = "<p style='text-align:center; color:#999; padding:20px;'>No hay movimientos para la fecha: " + FECHA_FILTRO + "</p>";
+        if(granTotal === 0) cont.innerHTML = "<p style='text-align:center; color:#999; padding:20px;'>No hay ingresos cargados en el sistema el día: " + FECHA_FILTRO + "</p>";
     }
 
     // --- UTILS ---
