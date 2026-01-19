@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Original</title>
+    <title>Comercial GYG - Sistema Integrado</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,8 +11,10 @@
 
     <style>
         :root { 
-            --primary: #004d40; --secondary: #00796b; --field-color: #e65100;
-            --edit: #1565c0; --error: #c62828; --contado: #4a148c;
+            --primary: #004d40;    /* Verde Oficina */
+            --field-color: #e65100; /* Naranja Campo */
+            --contado: #4a148c;     /* Morado Contado */
+            --abonos: #1565c0;      /* AZUL ABONOS */
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
         
@@ -22,12 +24,13 @@
         .container { max-width: 950px; margin: 0 auto; }
         
         /* PESTAÑAS (ESTILO ORIGINAL) */
-        .tabs { display: flex; cursor: pointer; gap: 5px; }
-        .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.9rem; }
+        .tabs { display: flex; cursor: pointer; gap: 5px; overflow-x: auto; }
+        .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.85rem; white-space: nowrap; }
         
         .tab.active-oficina { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
         .tab.active-campo { background: white; color: var(--field-color); border-bottom: 3px solid var(--field-color); }
         .tab.active-contado { background: white; color: var(--contado); border-bottom: 3px solid var(--contado); }
+        .tab.active-abonos { background: white; color: var(--abonos); border-bottom: 3px solid var(--abonos); }
 
         /* CARD FORMULARIO */
         .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -45,6 +48,7 @@
         .btn-oficina { background-color: var(--primary); }
         .btn-campo { background-color: var(--field-color); }
         .btn-contado { background-color: var(--contado); }
+        .btn-abonos { background-color: var(--abonos); }
         
         .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
@@ -78,8 +82,8 @@
         
         .grand-total { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; border-radius: 5px; margin-top: 15px; }
 
-        /* UTILIDADES */
         .hidden { display: none; }
+        /* BOTON PDF ROJO */
         .btn-pdf { width: 100%; background: #d32f2f; color: white; padding: 15px; border: none; font-weight: bold; margin-top: 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
 
         @media print {
@@ -101,6 +105,7 @@
         <div class="tab active-oficina" id="tab-oficina" onclick="cambiarModo('OFICINA')">🏢 OFICINA</div>
         <div class="tab" id="tab-campo" onclick="cambiarModo('CAMPO')">🏍️ CAMPO</div>
         <div class="tab" id="tab-contado" onclick="cambiarModo('CONTADO')">📦 CONTADO</div>
+        <div class="tab" id="tab-abonos" onclick="cambiarModo('ABONOS')">💰 ABONOS</div>
     </div>
 
     <div class="card no-print">
@@ -152,6 +157,26 @@
                 </div>
             </div>
 
+            <div id="bloque-abonos" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
+                <div>
+                    <label>N° Tarjeta:</label>
+                    <input type="text" id="abono_tarjeta" placeholder="Manual">
+                </div>
+                <div>
+                    <label>Artículo:</label>
+                    <input type="text" id="abono_articulo" placeholder="Manual">
+                </div>
+                <div>
+                    <label>Saldo Restante:</label>
+                    <input type="number" id="abono_saldo" placeholder="L. 0.00">
+                </div>
+                <div>
+                    <label>Cuenta Destino:</label>
+                    <select id="abono_cuenta">
+                        </select>
+                </div>
+            </div>
+
             <div class="full-width">
                 <label id="lbl-monto">Monto (L.):</label>
                 <input type="number" id="monto" placeholder="0.00" style="font-size:1.1rem; font-weight:bold;">
@@ -191,6 +216,7 @@
     let ID_EDITANDO = null;
     let listaDep = [];
     let listaCon = [];
+    let listaAbo = [];
 
     const rutas = {
         "MIGUEL": ["Elixir", "Saba Olanchito", "Zona Saba"],
@@ -212,16 +238,26 @@
         document.getElementById('fecha').valueAsDate = new Date();
         llenarZonas();
         actualizarCuentas();
+        llenarCuentasAbono();
 
+        // Cargar Depositos
         db.ref('registros_milagro').on('value', snap => {
             listaDep = [];
             if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]}));
             pintarReportes();
         });
 
+        // Cargar Contado
         db.ref('ventas_contado').on('value', snap => {
             listaCon = [];
             if(snap.val()) Object.keys(snap.val()).forEach(k => listaCon.push({id:k, ...snap.val()[k]}));
+            pintarReportes();
+        });
+
+        // Cargar Abonos
+        db.ref('abonos_clientes').on('value', snap => {
+            listaAbo = [];
+            if(snap.val()) Object.keys(snap.val()).forEach(k => listaAbo.push({id:k, ...snap.val()[k]}));
             pintarReportes();
         });
     };
@@ -234,27 +270,38 @@
         document.getElementById('tab-oficina').className = 'tab';
         document.getElementById('tab-campo').className = 'tab';
         document.getElementById('tab-contado').className = 'tab';
+        document.getElementById('tab-abonos').className = 'tab';
 
         const btn = document.getElementById('btn-guardar');
         const blqDep = document.getElementById('bloque-depositos');
         const blqCon = document.getElementById('bloque-contado');
+        const blqAbo = document.getElementById('bloque-abonos');
         const lblMonto = document.getElementById('lbl-monto');
+
+        blqDep.classList.add('hidden');
+        blqCon.classList.add('hidden');
+        blqAbo.classList.add('hidden');
 
         if(modo === 'OFICINA') {
             document.getElementById('tab-oficina').className = 'tab active-oficina';
-            blqDep.classList.remove('hidden'); blqCon.classList.add('hidden');
+            blqDep.classList.remove('hidden');
             btn.className = 'main-btn btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
             lblMonto.innerText = "Monto Depósito (L.):";
         } else if(modo === 'CAMPO') {
             document.getElementById('tab-campo').className = 'tab active-campo';
-            blqDep.classList.remove('hidden'); blqCon.classList.add('hidden');
+            blqDep.classList.remove('hidden');
             btn.className = 'main-btn btn-campo'; btn.innerText = "GUARDAR (CAMPO)";
             lblMonto.innerText = "Monto Depósito (L.):";
-        } else {
+        } else if(modo === 'CONTADO') {
             document.getElementById('tab-contado').className = 'tab active-contado';
-            blqDep.classList.add('hidden'); blqCon.classList.remove('hidden');
+            blqCon.classList.remove('hidden');
             btn.className = 'main-btn btn-contado'; btn.innerText = "GUARDAR VENTA CONTADO";
             lblMonto.innerText = "Saldo Contado (L.):";
+        } else {
+            document.getElementById('tab-abonos').className = 'tab active-abonos';
+            blqAbo.classList.remove('hidden');
+            btn.className = 'main-btn btn-abonos'; btn.innerText = "GUARDAR ABONO";
+            lblMonto.innerText = "Monto Abonado (L.):";
         }
         
         actualizarCuentas();
@@ -270,19 +317,29 @@
 
         let ruta = '', datos = {};
 
-        if(MODO === 'CONTADO') {
+        if(MODO === 'ABONOS') {
+            const tar = document.getElementById('abono_tarjeta').value;
+            const art = document.getElementById('abono_articulo').value;
+            const sal = document.getElementById('abono_saldo').value;
+            const cue = document.getElementById('abono_cuenta').value;
+            if(!tar || !cue) { alert("Falta tarjeta o cuenta"); return; }
+            ruta = 'abonos_clientes';
+            datos = { fecha, tarjeta: tar, articulo: art, saldo_restante: sal, cuenta: cue, monto };
+        } 
+        else if(MODO === 'CONTADO') {
             const vend = document.getElementById('vendedor').value;
             const art = document.getElementById('articulo').value;
-            if(!vend || !art) { alert("Faltan datos"); return; }
+            if(!vend) { alert("Falta vendedor"); return; }
             ruta = 'ventas_contado';
             datos = { fecha, vendedor: vend, articulo: art, monto };
-        } else {
+        } 
+        else { // DEPOSITOS
             const sem = document.getElementById('semana').value;
             const ref = document.getElementById('referencia').value;
             const zon = document.getElementById('zona').value;
             const cob = document.getElementById('cobrador').value;
             const cue = document.getElementById('cuenta').value;
-            if(!zon || !ref) { alert("Faltan datos"); return; }
+            if(!zon || !ref) { alert("Falta zona o referencia"); return; }
             ruta = 'registros_milagro';
             datos = { origen: MODO, semana: sem, fecha, ref, zona: zon, cobrador: cob, cuenta: cue, monto };
         }
@@ -291,27 +348,69 @@
             db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("Actualizado"); cancelar(); });
         } else {
             db.ref(ruta).push(datos).then(() => { 
-                document.getElementById('monto').value = "";
-                document.getElementById('referencia').value = "";
-                if(document.getElementById('articulo')) document.getElementById('articulo').value = "";
+                limpiarCampos();
                 alert("Guardado");
             });
         }
     };
 
-    // --- REPORTES (ESTILO CLASICO RESTAURADO) ---
+    function limpiarCampos() {
+        document.getElementById('monto').value = "";
+        document.getElementById('referencia').value = "";
+        document.getElementById('articulo').value = "";
+        document.getElementById('abono_tarjeta').value = "";
+        document.getElementById('abono_articulo').value = "";
+        document.getElementById('abono_saldo').value = "";
+    }
+
+    // --- REPORTES ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
-        if (MODO === 'CONTADO') {
+        // VISTA ABONOS (OPCION B: SEPARADO POR CUENTAS)
+        if (MODO === 'ABONOS') {
+             for (const [key, conf] of Object.entries(configCuentas)) {
+                // Filtrar abonos para esta cuenta
+                const regs = listaAbo.filter(r => r.cuenta === key);
+                
+                if (regs.length > 0) {
+                    regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                    let sub = 0;
+                    let rows = "";
+
+                    regs.forEach(r => {
+                        sub += r.monto;
+                        rows += `<tr>
+                            <td>${r.fecha}</td>
+                            <td><b>#${r.tarjeta}</b></td>
+                            <td>${r.articulo}</td>
+                            <td>Rest: L. ${r.saldo_restante}</td>
+                            <td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
+                            <td class="no-print">
+                                <button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button>
+                                <button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button>
+                            </td>
+                        </tr>`;
+                    });
+                    granTotal += sub;
+
+                    cont.innerHTML += `
+                        <div class="report-section ${conf.c}">
+                            <h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
+                            <table><thead><tr><th>Fecha</th><th>Tarjeta</th><th>Artículo</th><th>Saldo</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
+                        </div>`;
+                }
+            }
+        }
+        // VISTA CONTADO
+        else if (MODO === 'CONTADO') {
             let html = `<div class="report-section border-mix">
                 <h3 class="account-title">VENTAS DE CONTADO <span>📦</span></h3>
                 <table>
                     <thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead>
                     <tbody>`;
-            
             listaCon.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
             listaCon.forEach(r => {
                 granTotal += r.monto;
@@ -328,9 +427,9 @@
             });
             html += `</tbody></table></div>`;
             cont.innerHTML = html;
-
-        } else {
-            // LOGICA DE LIQUIDACION
+        }
+        // VISTA LIQUIDACION (OFICINA/CAMPO)
+        else {
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaDep.filter(r => r.cuenta === key);
                 
@@ -381,7 +480,11 @@
     // --- FUNCIONES EXTRA ---
     window.borrar = function(id, tipo) {
         if(confirm("¿Eliminar registro?")) {
-            let ruta = tipo === 'CON' ? 'ventas_contado' : 'registros_milagro';
+            let ruta = '';
+            if(tipo === 'ABO') ruta = 'abonos_clientes';
+            else if(tipo === 'CON') ruta = 'ventas_contado';
+            else ruta = 'registros_milagro';
+            
             db.ref(ruta + '/' + id).remove();
         }
     }
@@ -392,14 +495,25 @@
         document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
         window.scrollTo(0,0);
 
-        if(tipo === 'CON') {
+        if(tipo === 'ABO') {
+            const r = listaAbo.find(x => x.id === id);
+            cambiarModo('ABONOS');
+            document.getElementById('fecha').value = r.fecha;
+            document.getElementById('abono_tarjeta').value = r.tarjeta;
+            document.getElementById('abono_articulo').value = r.articulo;
+            document.getElementById('abono_saldo').value = r.saldo_restante;
+            document.getElementById('abono_cuenta').value = r.cuenta;
+            document.getElementById('monto').value = r.monto;
+        } 
+        else if(tipo === 'CON') {
             const r = listaCon.find(x => x.id === id);
             cambiarModo('CONTADO');
             document.getElementById('fecha').value = r.fecha;
             document.getElementById('vendedor').value = r.vendedor;
             document.getElementById('articulo').value = r.articulo;
             document.getElementById('monto').value = r.monto;
-        } else {
+        } 
+        else {
             const r = listaDep.find(x => x.id === id);
             cambiarModo(r.origen);
             document.getElementById('fecha').value = r.fecha;
@@ -415,14 +529,13 @@
     window.cancelar = function() {
         ID_EDITANDO = null;
         document.getElementById('btn-cancelar').style.display = 'none';
-        document.getElementById('monto').value = "";
-        if(document.getElementById('articulo')) document.getElementById('articulo').value = "";
-        document.getElementById('referencia').value = "";
+        limpiarCampos();
         
         let txt = "";
         if(MODO === 'OFICINA') txt = "(OFICINA)";
         else if(MODO === 'CAMPO') txt = "(CAMPO)";
-        else txt = "VENTA CONTADO";
+        else if(MODO === 'CONTADO') txt = "VENTA CONTADO";
+        else txt = "ABONO";
         document.getElementById('btn-guardar').innerText = "GUARDAR " + txt;
     }
 
@@ -448,6 +561,16 @@
         c.innerHTML = MODO === 'OFICINA' 
             ? "<option value='LESLY'>CUENTA LESLY</option>" 
             : "<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
+    }
+
+    function llenarCuentasAbono() {
+        const c = document.getElementById('abono_cuenta');
+        c.innerHTML = `
+            <option value="DAVID">CUENTA DAVID</option>
+            <option value="LESLY">CUENTA LESLY</option>
+            <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+            <option value="JOSE_RODINDER">JOSE RODINDER</option>
+        `;
     }
 </script>
 
