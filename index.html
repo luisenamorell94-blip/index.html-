@@ -15,7 +15,8 @@
             --field-color: #e65100; /* Naranja Campo */
             --contado: #4a148c;     /* Morado Contado */
             --abonos: #1565c0;      /* Azul Abonos */
-            --faltante: #c62828;    /* ROJO FALTANTES (NUEVO) */
+            --faltante: #c62828;    /* Rojo Faltantes */
+            --excedente: #00838f;   /* TURQUESA EXCEDENTE (NUEVO) */
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
         
@@ -24,7 +25,7 @@
         
         .container { max-width: 950px; margin: 0 auto; }
         
-        /* PESTAÑAS (SCROLL HORIZONTAL PARA QUE QUEPAN TODAS) */
+        /* PESTAÑAS (SCROLL HORIZONTAL) */
         .tabs { display: flex; cursor: pointer; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
         .tab { flex: 1; min-width: 100px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.85rem; }
         
@@ -33,6 +34,7 @@
         .tab.active-contado { background: white; color: var(--contado); border-bottom: 3px solid var(--contado); }
         .tab.active-abonos { background: white; color: var(--abonos); border-bottom: 3px solid var(--abonos); }
         .tab.active-faltantes { background: white; color: var(--faltante); border-bottom: 3px solid var(--faltante); }
+        .tab.active-excedente { background: white; color: var(--excedente); border-bottom: 3px solid var(--excedente); }
 
         /* CARD FORMULARIO */
         .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -52,6 +54,7 @@
         .btn-contado { background-color: var(--contado); }
         .btn-abonos { background-color: var(--abonos); }
         .btn-faltantes { background-color: var(--faltante); }
+        .btn-excedente { background-color: var(--excedente); }
         
         .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
@@ -108,6 +111,7 @@
         <div class="tab" id="tab-contado" onclick="cambiarModo('CONTADO')">📦 CONTADO</div>
         <div class="tab" id="tab-abonos" onclick="cambiarModo('ABONOS')">💰 ABONOS</div>
         <div class="tab" id="tab-faltantes" onclick="cambiarModo('FALTANTES')">⚠️ FALTANTES</div>
+        <div class="tab" id="tab-excedente" onclick="cambiarModo('EXCEDENTE')">💳 EXCEDENTE</div>
     </div>
 
     <div class="card no-print">
@@ -202,6 +206,21 @@
                 </div>
             </div>
 
+            <div id="bloque-excedente" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
+                <div>
+                    <label>N° Tarjeta:</label>
+                    <input type="text" id="exc_tarjeta" placeholder="Manual">
+                </div>
+                <div>
+                    <label>Artículo:</label>
+                    <input type="text" id="exc_articulo" placeholder="Manual">
+                </div>
+                <div class="full-width">
+                    <label style="color:var(--excedente);">Cuenta Destino:</label>
+                    <input type="text" value="CUENTA LESLY" readonly style="background:#e0f7fa; color:var(--excedente); font-weight:bold; border:1px solid var(--excedente);">
+                </div>
+            </div>
+
             <div class="full-width">
                 <label id="lbl-monto">Monto (L.):</label>
                 <input type="number" id="monto" placeholder="0.00" style="font-size:1.1rem; font-weight:bold;">
@@ -242,7 +261,8 @@
     let listaDep = [];
     let listaCon = [];
     let listaAbo = [];
-    let listaFal = []; // Faltantes
+    let listaFal = [];
+    let listaExc = []; // Excedentes
 
     const rutas = {
         "MIGUEL": ["Elixir", "Saba Olanchito", "Zona Saba"],
@@ -266,7 +286,7 @@
         actualizarCuentas();
         llenarCuentasExtra();
 
-        // Cargas de Firebase
+        // Listeners
         db.ref('registros_milagro').on('value', snap => {
             listaDep = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
@@ -279,24 +299,26 @@
         db.ref('faltantes_cobro').on('value', snap => {
             listaFal = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaFal.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
+        db.ref('excedente_tarjetas').on('value', snap => {
+            listaExc = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaExc.push({id:k, ...snap.val()[k]})); pintarReportes();
+        });
     };
 
     // --- PESTAÑAS ---
     window.cambiarModo = function(modo) {
         MODO = modo;
-        cancelar(); // Esto limpia todo
+        cancelar(); 
 
         // Reset Styles
-        ['oficina','campo','contado','abonos','faltantes'].forEach(m => {
+        ['oficina','campo','contado','abonos','faltantes','excedente'].forEach(m => {
             document.getElementById('tab-'+m).className = 'tab';
-            document.getElementById('bloque-'+ (m === 'oficina' || m === 'campo' ? 'depositos' : m)).classList.add('hidden');
+            let bloqueId = (m === 'oficina' || m === 'campo') ? 'depositos' : m;
+            document.getElementById('bloque-'+bloqueId).classList.add('hidden');
         });
 
-        // UI Elements
         const btn = document.getElementById('btn-guardar');
         const lblMonto = document.getElementById('lbl-monto');
 
-        // Configurar Activo
         document.getElementById('tab-' + modo.toLowerCase()).className = 'tab active-' + modo.toLowerCase();
         
         if(modo === 'OFICINA') {
@@ -315,10 +337,14 @@
             document.getElementById('bloque-abonos').classList.remove('hidden');
             btn.className = 'main-btn btn-abonos'; btn.innerText = "GUARDAR ABONO";
             lblMonto.innerText = "Monto Abonado (L.):";
-        } else { // FALTANTES
+        } else if(modo === 'FALTANTES') {
             document.getElementById('bloque-faltantes').classList.remove('hidden');
             btn.className = 'main-btn btn-faltantes'; btn.innerText = "GUARDAR FALTANTE";
             lblMonto.innerText = "Monto Faltante (L.):";
+        } else { // EXCEDENTE
+            document.getElementById('bloque-excedente').classList.remove('hidden');
+            btn.className = 'main-btn btn-excedente'; btn.innerText = "GUARDAR EXCEDENTE";
+            lblMonto.innerText = "Monto Excedente (L.):";
         }
         
         actualizarCuentas();
@@ -334,7 +360,14 @@
 
         let ruta = '', datos = {};
 
-        if(MODO === 'FALTANTES') {
+        if(MODO === 'EXCEDENTE') {
+            const tar = document.getElementById('exc_tarjeta').value;
+            const art = document.getElementById('exc_articulo').value;
+            if(!tar || !art) { alert("Falta tarjeta o articulo"); return; }
+            ruta = 'excedente_tarjetas';
+            datos = { fecha, tarjeta: tar, articulo: art, cuenta: 'LESLY', monto };
+        }
+        else if(MODO === 'FALTANTES') {
             const cob = document.getElementById('faltante_cobrador').value;
             const zon = document.getElementById('faltante_zona').value;
             if(!cob || !zon) { alert("Falta cobrador o zona"); return; }
@@ -373,7 +406,7 @@
             db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("Actualizado"); cancelar(); });
         } else {
             db.ref(ruta).push(datos).then(() => { 
-                limpiarCampos(); // AUTO LIMPIEZA
+                limpiarCampos();
                 alert("Guardado");
             });
         }
@@ -386,7 +419,9 @@
         document.getElementById('abono_tarjeta').value = "";
         document.getElementById('abono_articulo').value = "";
         document.getElementById('abono_saldo').value = "";
-        // Reset Faltantes
+        document.getElementById('exc_tarjeta').value = "";
+        document.getElementById('exc_articulo').value = "";
+        
         document.getElementById('faltante_cobrador').value = "";
         document.getElementById('faltante_zona').innerHTML = '<option value="">-- Seleccione Cobrador Primero --</option>';
     }
@@ -397,40 +432,43 @@
         cont.innerHTML = "";
         let granTotal = 0;
 
-        // FALTANTES
-        if (MODO === 'FALTANTES') {
-            // Agrupar por cobrador
+        // 1. EXCEDENTES (SOLO LESLY)
+        if (MODO === 'EXCEDENTE') {
+             if (listaExc.length > 0) {
+                 listaExc.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                 let sub = 0; let rows = "";
+                 listaExc.forEach(r => {
+                     sub += r.monto;
+                     rows += `<tr>
+                         <td>${r.fecha}</td>
+                         <td>#${r.tarjeta}</td>
+                         <td>${r.articulo}</td>
+                         <td style="color:var(--excedente); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
+                         <td class="no-print">
+                            <button class="btn-action btn-edit" onclick="editar('${r.id}', 'EXC')">✏️</button>
+                            <button class="btn-action btn-del" onclick="borrar('${r.id}', 'EXC')">🗑️</button>
+                         </td>
+                     </tr>`;
+                 });
+                 granTotal += sub;
+                 cont.innerHTML += `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES (CUENTA LESLY) <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Tarjeta</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+             }
+        }
+        // 2. FALTANTES
+        else if (MODO === 'FALTANTES') {
             const agrupado = {};
-            listaFal.forEach(r => {
-                if(!agrupado[r.cobrador]) agrupado[r.cobrador] = [];
-                agrupado[r.cobrador].push(r);
-            });
-
+            listaFal.forEach(r => { if(!agrupado[r.cobrador]) agrupado[r.cobrador] = []; agrupado[r.cobrador].push(r); });
             for(const cob in agrupado) {
-                let sub = 0;
-                let rows = "";
+                let sub = 0; let rows = "";
                 agrupado[cob].forEach(r => {
                     sub += r.monto;
-                    rows += `<tr>
-                        <td>${r.fecha}</td>
-                        <td>${r.zona}</td>
-                        <td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
-                        <td class="no-print">
-                            <button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button>
-                            <button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button>
-                        </td>
-                    </tr>`;
+                    rows += `<tr><td>${r.fecha}</td><td>${r.zona}</td><td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button></td></tr>`;
                 });
                 granTotal += sub;
-                
-                cont.innerHTML += `
-                <div class="report-section border-faltantes">
-                    <h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3>
-                    <table><thead><tr><th>Fecha</th><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
-                </div>`;
+                cont.innerHTML += `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
             }
         }
-        // ABONOS
+        // 3. ABONOS
         else if (MODO === 'ABONOS') {
              for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaAbo.filter(r => r.cuenta === key);
@@ -439,24 +477,14 @@
                     let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
-                        rows += `<tr>
-                            <td>${r.fecha}</td>
-                            <td><b>#${r.tarjeta}</b></td>
-                            <td>${r.articulo}</td>
-                            <td>Rest: L. ${r.saldo_restante}</td>
-                            <td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
-                            <td class="no-print">
-                                <button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button>
-                                <button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button>
-                            </td>
-                        </tr>`;
+                        rows += `<tr><td>${r.fecha}</td><td><b>#${r.tarjeta}</b></td><td>${r.articulo}</td><td>Rest: L. ${r.saldo_restante}</td><td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
                     cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Tarjeta</th><th>Artículo</th><th>Saldo</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
-        // CONTADO
+        // 4. CONTADO
         else if (MODO === 'CONTADO') {
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaCon.filter(r => r.cuenta === key);
@@ -465,23 +493,14 @@
                     let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
-                        rows += `<tr>
-                            <td>${r.fecha}</td>
-                            <td><b>${r.vendedor}</b></td>
-                            <td>${r.articulo}</td>
-                            <td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
-                            <td class="no-print">
-                                <button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button>
-                                <button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button>
-                            </td>
-                        </tr>`;
+                        rows += `<tr><td>${r.fecha}</td><td><b>${r.vendedor}</b></td><td>${r.articulo}</td><td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
                     cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
-        // LIQUIDACION
+        // 5. DEPOSITOS
         else {
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaDep.filter(r => r.cuenta === key);
@@ -492,16 +511,7 @@
                         sub += r.monto;
                         if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0; zonaTotal[r.zona] += r.monto;
                         let badgeClass = r.origen === 'OFICINA' ? 'bg-oficina' : 'bg-campo';
-                        rows += `<tr>
-                            <td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td>
-                            <td>${r.zona}<br><small style="color:#666;">${r.cobrador}</small></td>
-                            <td>${r.ref}</td>
-                            <td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
-                            <td class="no-print">
-                                <button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button>
-                                <button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button>
-                            </td>
-                        </tr>`;
+                        rows += `<tr><td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td><td>${r.zona}<br><small style="color:#666;">${r.cobrador}</small></td><td>${r.ref}</td><td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button></td></tr>`;
                     });
                     granTotal += sub;
                     let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
@@ -514,11 +524,12 @@
         document.getElementById('total-global').innerText = "L. " + granTotal.toLocaleString();
     }
 
-    // --- FUNCIONES EXTRA ---
+    // --- UTILS ---
     window.borrar = function(id, tipo) {
         if(confirm("¿Eliminar registro?")) {
             let ruta = '';
-            if(tipo === 'FAL') ruta = 'faltantes_cobro';
+            if(tipo === 'EXC') ruta = 'excedente_tarjetas';
+            else if(tipo === 'FAL') ruta = 'faltantes_cobro';
             else if(tipo === 'ABO') ruta = 'abonos_clientes';
             else if(tipo === 'CON') ruta = 'ventas_contado';
             else ruta = 'registros_milagro';
@@ -532,12 +543,20 @@
         document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
         window.scrollTo(0,0);
 
-        if(tipo === 'FAL') {
+        if(tipo === 'EXC') {
+            const r = listaExc.find(x => x.id === id);
+            cambiarModo('EXCEDENTE');
+            document.getElementById('fecha').value = r.fecha;
+            document.getElementById('exc_tarjeta').value = r.tarjeta;
+            document.getElementById('exc_articulo').value = r.articulo;
+            document.getElementById('monto').value = r.monto;
+        }
+        else if(tipo === 'FAL') {
             const r = listaFal.find(x => x.id === id);
             cambiarModo('FALTANTES');
             document.getElementById('fecha').value = r.fecha;
             document.getElementById('faltante_cobrador').value = r.cobrador;
-            actualizarZonasFaltante(); // Cargar zonas
+            actualizarZonasFaltante();
             document.getElementById('faltante_zona').value = r.zona;
             document.getElementById('monto').value = r.monto;
         }
@@ -578,7 +597,7 @@
         document.getElementById('btn-cancelar').style.display = 'none';
         limpiarCampos();
         let txt = "";
-        if(MODO === 'OFICINA') txt = "(OFICINA)"; else if(MODO === 'CAMPO') txt = "(CAMPO)"; else if(MODO === 'FALTANTES') txt = "FALTANTE"; else if(MODO === 'CONTADO') txt = "VENTA CONTADO"; else txt = "ABONO";
+        if(MODO === 'OFICINA') txt = "(OFICINA)"; else if(MODO === 'CAMPO') txt = "(CAMPO)"; else if(MODO === 'FALTANTES') txt = "FALTANTE"; else if(MODO === 'EXCEDENTE') txt = "EXCEDENTE"; else if(MODO === 'CONTADO') txt = "VENTA CONTADO"; else txt = "ABONO";
         document.getElementById('btn-guardar').innerText = "GUARDAR " + txt;
     }
 
@@ -599,7 +618,6 @@
         document.getElementById('cobrador').value = sel.options[sel.selectedIndex].getAttribute('data-c') || "";
     }
 
-    // NUEVA FUNCION PARA FALTANTES
     window.actualizarZonasFaltante = function() {
         const cob = document.getElementById('faltante_cobrador').value;
         const sel = document.getElementById('faltante_zona');
