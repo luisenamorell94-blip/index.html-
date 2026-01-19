@@ -17,7 +17,7 @@
             --abonos: #1565c0;      /* Azul Abonos */
             --faltante: #c62828;    /* Rojo Faltantes */
             --excedente: #00838f;   /* Turquesa Excedente */
-            --historial: #455a64;   /* GRIS HISTORIAL (NUEVO) */
+            --historial: #455a64;   /* Gris Historial */
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
         
@@ -36,7 +36,7 @@
         .tab.active-abonos { background: white; color: var(--abonos); border-bottom: 3px solid var(--abonos); }
         .tab.active-faltantes { background: white; color: var(--faltante); border-bottom: 3px solid var(--faltante); }
         .tab.active-excedente { background: white; color: var(--excedente); border-bottom: 3px solid var(--excedente); }
-        .tab.active-historial { background: white; color: var(--historial); border-bottom: 3px solid var(--historial); } /* NUEVO */
+        .tab.active-historial { background: white; color: var(--historial); border-bottom: 3px solid var(--historial); }
 
         /* CARD FORMULARIO */
         .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -230,7 +230,7 @@
 
             <div id="bloque-historial" class="full-width hidden" style="text-align:center; background:#eceff1; padding:20px; border-radius:8px;">
                 <h3 style="color:#455a64; margin-top:0;">📂 CONSULTAR ARCHIVO DE REPORTES</h3>
-                <p>Selecciona una fecha antigua para ver y generar el reporte de ese día.</p>
+                <p>Selecciona una fecha antigua para ver el reporte.</p>
                 <label>Seleccionar Fecha:</label>
                 <input type="date" id="fecha_historial" style="max-width:300px; margin:0 auto; display:block;">
                 <br>
@@ -258,7 +258,7 @@
 </div>
 
 <script>
-    // --- CONFIG ---
+    // --- CONFIGURACIÓN ---
     const firebaseConfig = {
       apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g",
       authDomain: "ingreso-depositos.firebaseapp.com",
@@ -274,7 +274,7 @@
     // --- VARIABLES ---
     let MODO = 'OFICINA';
     let ID_EDITANDO = null;
-    let FECHA_FILTRO = new Date().toISOString().split('T')[0]; // Fecha actual por defecto
+    let FECHA_FILTRO = new Date().toISOString().split('T')[0]; // Fecha hoy
     let ES_HISTORIAL = false;
 
     let listaDep = [];
@@ -307,7 +307,7 @@
         actualizarCuentas();
         llenarCuentasExtra();
 
-        // Listeners (CARGA TODO Y LUEGO FILTRA EN PANTALLA)
+        // Cargar todo
         db.ref('registros_milagro').on('value', snap => {
             listaDep = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
@@ -324,16 +324,17 @@
             listaExc = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaExc.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
 
-        // Listener cambio fecha principal
+        // Al cambiar fecha manual en oficina
         document.getElementById('fecha').addEventListener('change', (e) => {
             if(!ES_HISTORIAL) {
                 FECHA_FILTRO = e.target.value;
+                document.getElementById('titulo-reporte').innerText = "Reporte Actual (" + FECHA_FILTRO + ")";
                 pintarReportes();
             }
         });
     };
 
-    // --- PESTAÑAS ---
+    // --- PESTAÑAS (CON AUTO-RETORNO A HOY) ---
     window.cambiarModo = function(modo) {
         MODO = modo;
         cancelar(); 
@@ -352,12 +353,31 @@
 
         document.getElementById('tab-' + modo.toLowerCase()).className = 'tab active-' + modo.toLowerCase();
         
-        // Logica visual normal
-        bloqueMonto.classList.remove('hidden');
-        bloqueFecha.classList.remove('hidden');
-        ES_HISTORIAL = false;
-        btn.style.display = 'block';
+        // --- LOGICA DE RETORNO A HOY ---
+        // Si salimos del historial a cualquier otra pestaña, volvemos a HOY
+        if(modo !== 'HISTORIAL') {
+            ES_HISTORIAL = false;
+            bloqueMonto.classList.remove('hidden');
+            bloqueFecha.classList.remove('hidden');
+            btn.style.display = 'block';
 
+            // REINICIAR FECHA A HOY (PARA NO PERDER DE VISTA EL REPORTE ACTUAL)
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = hoy;
+            FECHA_FILTRO = hoy;
+            document.getElementById('titulo-reporte').innerText = "Reporte Actual (" + hoy + ")";
+        } 
+        else {
+            // Entrando a Historial
+            ES_HISTORIAL = true;
+            document.getElementById('bloque-historial').classList.remove('hidden');
+            bloqueMonto.classList.add('hidden');
+            bloqueFecha.classList.add('hidden');
+            btn.style.display = 'none'; 
+            document.getElementById('titulo-reporte').innerText = "Modo Historial - Seleccione Fecha";
+        }
+
+        // Configurar Botones y Textos
         if(modo === 'OFICINA') {
             document.getElementById('bloque-depositos').classList.remove('hidden');
             btn.className = 'main-btn btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
@@ -382,23 +402,10 @@
             document.getElementById('bloque-excedente').classList.remove('hidden');
             btn.className = 'main-btn btn-excedente'; btn.innerText = "GUARDAR EXCEDENTE";
             lblMonto.innerText = "Monto Excedente (L.):";
-        } else {
-            // MODO HISTORIAL
-            ES_HISTORIAL = true;
-            document.getElementById('bloque-historial').classList.remove('hidden');
-            bloqueMonto.classList.add('hidden');
-            bloqueFecha.classList.add('hidden');
-            btn.style.display = 'none'; // Ocultar boton guardar
-            document.getElementById('titulo-reporte').innerText = "Vista de Historial";
         }
         
-        if(!ES_HISTORIAL) {
-            // Regresar a la fecha de hoy si salimos del historial
-            document.getElementById('titulo-reporte').innerText = "Reporte Actual";
-            FECHA_FILTRO = document.getElementById('fecha').value;
-            actualizarCuentas();
-            pintarReportes();
-        }
+        // Repintar siempre al cambiar pestaña
+        if(!ES_HISTORIAL) pintarReportes();
     };
 
     // --- FUNCION HISTORIAL ---
@@ -408,12 +415,11 @@
         FECHA_FILTRO = f;
         document.getElementById('titulo-reporte').innerText = "REPORTE HISTÓRICO DEL: " + f;
         pintarReportes();
-        alert("Mostrando datos del: " + f);
     }
 
     // --- GUARDAR ---
     window.guardar = function() {
-        if(ES_HISTORIAL) return; // Seguridad
+        if(ES_HISTORIAL) return; 
 
         const fecha = document.getElementById('fecha').value;
         const monto = parseFloat(document.getElementById('monto').value);
@@ -488,13 +494,12 @@
         document.getElementById('faltante_zona').innerHTML = '<option value="">-- Seleccione Cobrador --</option>';
     }
 
-    // --- REPORTES (FILTRADO POR FECHA) ---
+    // --- REPORTES ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
-        // FILTRO DE FECHA MAESTRO
         const filterFn = (item) => item.fecha === FECHA_FILTRO;
 
         // 1. EXCEDENTES
