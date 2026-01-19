@@ -3,101 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Completo</title>
+    <title>Comercial GYG - Sistema Original</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root { 
             --primary: #004d40; --secondary: #00796b; --field-color: #e65100;
-            --light: #e0f2f1; --accent: #ffd600; --error: #d32f2f; --edit: #1976d2;
-            --contado: #4a148c; /* Color Morado para Contado */
+            --edit: #1565c0; --error: #c62828; --contado: #4a148c;
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
         
-        /* ENCABEZADO */
-        header { background-color: var(--primary); color: white; padding: 15px; text-align: center; border-radius: 0 0 10px 10px; margin-bottom: 20px; }
-        h1 { margin: 0; font-size: 1.5rem; }
+        /* HEADER */
+        header { background-color: var(--primary); color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
         
-        .container { max-width: 950px; margin: 0 auto; padding: 10px; }
+        .container { max-width: 950px; margin: 0 auto; }
         
-        /* PESTAÑAS (DISEÑO ORIGINAL) */
+        /* PESTAÑAS (ESTILO ORIGINAL) */
         .tabs { display: flex; cursor: pointer; gap: 5px; }
-        .tab { flex: 1; padding: 15px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 10px 10px 0 0; transition: 0.3s; }
+        .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.9rem; }
         
-        .tab.active-oficina { background: white; color: var(--primary); border-bottom: 4px solid var(--primary); }
-        .tab.active-campo { background: white; color: var(--field-color); border-bottom: 4px solid var(--field-color); }
-        .tab.active-contado { background: white; color: var(--contado); border-bottom: 4px solid var(--contado); }
+        .tab.active-oficina { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .tab.active-campo { background: white; color: var(--field-color); border-bottom: 3px solid var(--field-color); }
+        .tab.active-contado { background: white; color: var(--contado); border-bottom: 3px solid var(--contado); }
 
-        /* TARJETA DE FORMULARIO */
-        .card { background: white; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 0 0 10px 10px; margin-bottom: 20px; }
+        /* CARD FORMULARIO */
+        .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .full-width { grid-column: span 2; }
         
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #555; margin-bottom: 5px; margin-top: 10px; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: #555; margin-bottom: 4px; margin-top: 8px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
-        /* BOTONES */
-        .btn-group { margin-top: 20px; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 1rem; transition: 0.3s; }
+        /* BOTONES PRINCIPALES */
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
+        button.main-btn { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; font-size: 1rem; }
         
         .btn-oficina { background-color: var(--primary); }
         .btn-campo { background-color: var(--field-color); }
         .btn-contado { background-color: var(--contado); }
         
-        .btn-cancelar { background-color: #757575; margin-bottom: 10px; display: none; }
-        .btn-pdf { background-color: var(--error); margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* ESTILOS DE REPORTES (LIQUIDACIÓN) */
-        .report-section { background: white; border-radius: 8px; padding: 15px; margin-bottom: 20px; border-top: 5px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.05); page-break-inside: avoid; }
+        /* === ESTILOS DE LA TABLA (DISEÑO ANTERIOR) === */
+        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: avoid; }
         
-        .border-david { border-top-color: #0d47a1; }
-        .border-lesly { border-top-color: #880e4f; }
-        .border-jose { border-top-color: #1b5e20; }
-        .border-mix { border-top-color: #4a148c; }
+        /* BORDES DE COLORES PARA LAS CUENTAS */
+        .border-david { border-top-color: #1565c0; } /* Azul */
+        .border-lesly { border-top-color: #ad1457; } /* Rosa */
+        .border-mix { border-top-color: #6a1b9a; }   /* Morado */
+        .border-jose { border-top-color: #2e7d32; }  /* Verde */
         
-        .account-title { margin: 0 0 10px 0; font-size: 1.1rem; color: #333; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .account-title { margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 1rem; color: #333; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background-color: #fafafa; color: #666; font-weight: bold; }
+        
+        /* BOTONES DE ACCIÓN (ESTILO SUAVE ANTERIOR) */
+        .btn-action { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-left: 2px; }
+        .btn-edit { background: #e3f2fd; color: #1565c0; } /* Azul suave */
+        .btn-del { background: #ffebee; color: #c62828; }  /* Rojo suave */
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f0f0f0; }
-        
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; }
-        .badge-oficina { background: var(--primary); }
-        .badge-campo { background: var(--field-color); }
-
-        /* ACCIONES TABLA */
-        .btn-action { width: auto; padding: 5px 10px; margin-left: 5px; font-size: 0.8rem; }
-        .btn-edit { background: #1976d2; }
-        .btn-del { background: #d32f2f; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; font-weight: bold; }
+        .bg-oficina { background: var(--primary); }
+        .bg-campo { background: var(--field-color); }
 
         /* RESUMEN ZONA */
-        .zone-summary-box { background: #fafafa; border: 1px solid #ddd; padding: 10px; margin-top: 10px; font-size: 0.9rem; }
-        .zone-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dotted #ccc; }
-
-        .grand-total-box { background: #222; color: white; padding: 15px; text-align: right; font-size: 1.3rem; margin-top: 20px; font-weight: bold; border-radius: 5px; }
+        .zone-summary { background: #f9f9f9; padding: 8px; margin-top: 8px; font-size: 0.8rem; border-radius: 4px; }
+        .zone-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ddd; padding: 2px 0; }
+        
+        .grand-total { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; border-radius: 5px; margin-top: 15px; }
 
         /* UTILIDADES */
         .hidden { display: none; }
-        
-        /* IMPRESIÓN */
+        .btn-pdf { width: 100%; background: #d32f2f; color: white; padding: 15px; border: none; font-weight: bold; margin-top: 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+
         @media print {
-            .no-print, .tabs, .card, .btn-group, header { display: none !important; }
-            body { background: white; -webkit-print-color-adjust: exact; }
-            .grand-total-box { background: #222 !important; color: white !important; }
+            .no-print, .tabs, .card, header { display: none !important; }
+            body { background: white; }
+            .grand-total { background: #333 !important; -webkit-print-color-adjust: exact; }
         }
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
     </style>
 </head>
 <body>
 
 <header class="no-print">
-    <h1>COMERCIAL GYG</h1>
-    <small>Sistema de Control de Depósitos y Ventas</small>
+    <h2 style="margin:0;">SISTEMA GYG</h2>
 </header>
 
 <div class="container">
@@ -115,14 +110,14 @@
                 <input type="date" id="fecha">
             </div>
 
-            <div id="bloque-depositos" class="full-width form-grid" style="margin:0; padding:0;">
+            <div id="bloque-depositos" class="full-width form-grid" style="margin:0; padding:0; gap:10px;">
                 <div>
                     <label>Semana:</label>
                     <select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select>
                 </div>
                 <div>
                     <label>Referencia:</label>
-                    <input type="number" id="referencia" placeholder="Ej. 12345">
+                    <input type="number" id="referencia" placeholder="Ref.">
                 </div>
                 <div class="full-width">
                     <label>Zona:</label>
@@ -138,11 +133,11 @@
                 </div>
             </div>
 
-            <div id="bloque-contado" class="full-width form-grid hidden" style="margin:0; padding:0;">
+            <div id="bloque-contado" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
                 <div class="full-width">
-                    <label>Vendedor (Tarjeta):</label>
+                    <label>Vendedor:</label>
                     <select id="vendedor">
-                        <option value="">-- Seleccione Vendedor --</option>
+                        <option value="">-- Seleccione --</option>
                         <option value="SANTOS">Santos</option>
                         <option value="NOE">Noé</option>
                         <option value="CARLOS">Carlos</option>
@@ -152,35 +147,33 @@
                     </select>
                 </div>
                 <div class="full-width">
-                    <label>Artículo / Descripción:</label>
-                    <input type="text" id="articulo" placeholder="Ej: Cama Matrimonial, Estufa...">
+                    <label>Artículo:</label>
+                    <input type="text" id="articulo" placeholder="Descripción del artículo">
                 </div>
             </div>
 
             <div class="full-width">
                 <label id="lbl-monto">Monto (L.):</label>
-                <input type="number" id="monto" placeholder="0.00" style="font-size:1.2rem; font-weight:bold; color:var(--primary);">
+                <input type="number" id="monto" placeholder="0.00" style="font-size:1.1rem; font-weight:bold;">
             </div>
         </div>
 
-        <div class="btn-group">
-            <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR EDICIÓN</button>
-            <button id="btn-guardar" class="btn-oficina" onclick="guardar()">GUARDAR REGISTRO</button>
-        </div>
+        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR EDICIÓN</button>
+        <button id="btn-guardar" class="main-btn btn-oficina" onclick="guardar()">GUARDAR REGISTRO</button>
     </div>
 
-    <div id="area-reporte">
-        <h3 class="no-print" style="border-bottom: 2px solid #ccc; padding-bottom:5px;">📋 Reporte Actual</h3>
+    <div id="area-impresion">
+        <h3 class="no-print" style="margin-top:0; border-bottom:1px solid #ccc;">Reporte Actual</h3>
         <div id="contenedor-reportes"></div>
-        <div class="grand-total-box">TOTAL GLOBAL: <span id="total-global">L. 0.00</span></div>
+        <div class="grand-total">TOTAL GLOBAL: <span id="total-global">L. 0.00</span></div>
     </div>
 
-    <button onclick="window.print()" class="btn-pdf no-print">📄 DESCARGAR REPORTE PDF</button>
+    <button onclick="window.print()" class="btn-pdf no-print">📄 GENERAR PDF / IMPRIMIR</button>
 
 </div>
 
 <script>
-    // --- 1. CONFIGURACIÓN FIREBASE ---
+    // --- CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g",
       authDomain: "ingreso-depositos.firebaseapp.com",
@@ -193,7 +186,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. VARIABLES Y DATOS ---
+    // --- VARIABLES ---
     let MODO = 'OFICINA';
     let ID_EDITANDO = null;
     let listaDep = [];
@@ -214,13 +207,12 @@
         "JOSE_RODINDER": { t: "JOSE RODINDER", c: "border-jose" }
     };
 
-    // --- 3. INICIO ---
+    // --- INICIO ---
     window.onload = function() {
         document.getElementById('fecha').valueAsDate = new Date();
         llenarZonas();
         actualizarCuentas();
 
-        // Escuchar cambios en DB
         db.ref('registros_milagro').on('value', snap => {
             listaDep = [];
             if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]}));
@@ -234,12 +226,11 @@
         });
     };
 
-    // --- 4. LÓGICA DE PESTAÑAS (DISEÑO) ---
+    // --- PESTAÑAS ---
     window.cambiarModo = function(modo) {
         MODO = modo;
         cancelar();
 
-        // Reset pestañas
         document.getElementById('tab-oficina').className = 'tab';
         document.getElementById('tab-campo').className = 'tab';
         document.getElementById('tab-contado').className = 'tab';
@@ -252,17 +243,17 @@
         if(modo === 'OFICINA') {
             document.getElementById('tab-oficina').className = 'tab active-oficina';
             blqDep.classList.remove('hidden'); blqCon.classList.add('hidden');
-            btn.className = 'btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
+            btn.className = 'main-btn btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
             lblMonto.innerText = "Monto Depósito (L.):";
         } else if(modo === 'CAMPO') {
             document.getElementById('tab-campo').className = 'tab active-campo';
             blqDep.classList.remove('hidden'); blqCon.classList.add('hidden');
-            btn.className = 'btn-campo'; btn.innerText = "GUARDAR (CAMPO)";
+            btn.className = 'main-btn btn-campo'; btn.innerText = "GUARDAR (CAMPO)";
             lblMonto.innerText = "Monto Depósito (L.):";
         } else {
             document.getElementById('tab-contado').className = 'tab active-contado';
             blqDep.classList.add('hidden'); blqCon.classList.remove('hidden');
-            btn.className = 'btn-contado'; btn.innerText = "GUARDAR VENTA CONTADO";
+            btn.className = 'main-btn btn-contado'; btn.innerText = "GUARDAR VENTA CONTADO";
             lblMonto.innerText = "Saldo Contado (L.):";
         }
         
@@ -270,19 +261,19 @@
         pintarReportes();
     };
 
-    // --- 5. GUARDAR ---
+    // --- GUARDAR ---
     window.guardar = function() {
         const fecha = document.getElementById('fecha').value;
         const monto = parseFloat(document.getElementById('monto').value);
 
-        if(isNaN(monto)) { alert("⚠️ Falta el monto"); return; }
+        if(isNaN(monto)) { alert("Falta el monto"); return; }
 
         let ruta = '', datos = {};
 
         if(MODO === 'CONTADO') {
             const vend = document.getElementById('vendedor').value;
             const art = document.getElementById('articulo').value;
-            if(!vend || !art) { alert("⚠️ Faltan datos de vendedor o artículo"); return; }
+            if(!vend || !art) { alert("Faltan datos"); return; }
             ruta = 'ventas_contado';
             datos = { fecha, vendedor: vend, articulo: art, monto };
         } else {
@@ -291,35 +282,34 @@
             const zon = document.getElementById('zona').value;
             const cob = document.getElementById('cobrador').value;
             const cue = document.getElementById('cuenta').value;
-            if(!zon || !ref) { alert("⚠️ Falta zona o referencia"); return; }
+            if(!zon || !ref) { alert("Faltan datos"); return; }
             ruta = 'registros_milagro';
             datos = { origen: MODO, semana: sem, fecha, ref, zona: zon, cobrador: cob, cuenta: cue, monto };
         }
 
         if(ID_EDITANDO) {
-            db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("✅ Actualizado"); cancelar(); });
+            db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("Actualizado"); cancelar(); });
         } else {
             db.ref(ruta).push(datos).then(() => { 
                 document.getElementById('monto').value = "";
                 document.getElementById('referencia').value = "";
                 if(document.getElementById('articulo')) document.getElementById('articulo').value = "";
-                alert("✅ Guardado");
+                alert("Guardado");
             });
         }
     };
 
-    // --- 6. PINTAR REPORTES (ESTILO LIQUIDACIÓN) ---
+    // --- REPORTES (ESTILO CLASICO RESTAURADO) ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
         if (MODO === 'CONTADO') {
-            // REPORTE CONTADO
             let html = `<div class="report-section border-mix">
                 <h3 class="account-title">VENTAS DE CONTADO <span>📦</span></h3>
                 <table>
-                    <thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print">Acción</th></tr></thead>
+                    <thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead>
                     <tbody>`;
             
             listaCon.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
@@ -329,7 +319,7 @@
                     <td>${r.fecha}</td>
                     <td><b>${r.vendedor}</b></td>
                     <td>${r.articulo}</td>
-                    <td style="color:#4a148c; font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
+                    <td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
                     <td class="no-print">
                         <button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button>
                         <button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button>
@@ -340,7 +330,7 @@
             cont.innerHTML = html;
 
         } else {
-            // REPORTE LIQUIDACIÓN
+            // LOGICA DE LIQUIDACION
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaDep.filter(r => r.cuenta === key);
                 
@@ -355,12 +345,12 @@
                         if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0;
                         zonaTotal[r.zona] += r.monto;
 
-                        let badgeClass = r.origen === 'OFICINA' ? 'badge-oficina' : 'badge-campo';
+                        let badgeClass = r.origen === 'OFICINA' ? 'bg-oficina' : 'bg-campo';
                         rows += `<tr>
                             <td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td>
-                            <td>${r.zona}<br><small>${r.cobrador}</small></td>
+                            <td>${r.zona}<br><small style="color:#666;">${r.cobrador}</small></td>
                             <td>${r.ref}</td>
-                            <td>L. ${r.monto.toLocaleString()}</td>
+                            <td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
                             <td class="no-print">
                                 <button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button>
                                 <button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button>
@@ -370,7 +360,7 @@
                     granTotal += sub;
 
                     // Resumen zonas
-                    let resumenHtml = `<div class="zone-summary-box"><b>Resumen por Zona:</b>`;
+                    let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
                     for(const z in zonaTotal) {
                         resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
                     }
@@ -379,7 +369,7 @@
                     cont.innerHTML += `
                         <div class="report-section ${conf.c}">
                             <h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
-                            <table><thead><tr><th>Fecha</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print">Acción</th></tr></thead><tbody>${rows}</tbody></table>
+                            <table><thead><tr><th>Fecha</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
                             ${resumenHtml}
                         </div>`;
                 }
@@ -388,7 +378,7 @@
         document.getElementById('total-global').innerText = "L. " + granTotal.toLocaleString();
     }
 
-    // --- 7. EDICIÓN ---
+    // --- FUNCIONES EXTRA ---
     window.borrar = function(id, tipo) {
         if(confirm("¿Eliminar registro?")) {
             let ruta = tipo === 'CON' ? 'ventas_contado' : 'registros_milagro';
@@ -399,7 +389,7 @@
     window.editar = function(id, tipo) {
         ID_EDITANDO = id;
         document.getElementById('btn-cancelar').style.display = 'block';
-        document.getElementById('btn-guardar').innerText = "ACTUALIZAR DATOS";
+        document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
         window.scrollTo(0,0);
 
         if(tipo === 'CON') {
