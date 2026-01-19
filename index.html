@@ -124,7 +124,7 @@
         <div id="bloque-fecha-global" class="full-width">
             <label>Fecha del Documento/Recibo:</label>
             <input type="date" id="fecha" style="font-weight:bold;">
-            <small style="color:#004d40; display:block; margin-top:5px;">ℹ️ <b>IMPORTANTE:</b> El reporte de abajo mostrará lo que ingreses <b>HOY</b>, aunque le pongas una fecha antigua aquí.</small>
+            <small style="color:#004d40; display:block; margin-top:5px;">ℹ️ El reporte mostrará lo que ingreses <b>HOY</b> (Carga del Día), aunque pongas fecha antigua.</small>
         </div>
 
         <div class="form-grid">
@@ -166,8 +166,13 @@
                     </select>
                 </div>
                 <div>
-                    <label>Cuenta Destino:</label>
-                    <select id="contado_cuenta"></select>
+                    <label>Cuenta Destino (A dónde entró el dinero):</label>
+                    <select id="contado_cuenta">
+                        <option value="DAVID">CUENTA DAVID</option>
+                        <option value="LESLY">CUENTA LESLY</option>
+                        <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                        <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                    </select>
                 </div>
                 <div class="full-width">
                     <label>Artículo:</label>
@@ -189,8 +194,13 @@
                     <input type="number" id="abono_saldo" placeholder="L. 0.00">
                 </div>
                 <div>
-                    <label>Cuenta Destino:</label>
-                    <select id="abono_cuenta"></select>
+                    <label>Cuenta Destino (A dónde entró el dinero):</label>
+                    <select id="abono_cuenta">
+                        <option value="DAVID">CUENTA DAVID</option>
+                        <option value="LESLY">CUENTA LESLY</option>
+                        <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                        <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                    </select>
                 </div>
             </div>
 
@@ -230,9 +240,9 @@
             </div>
 
             <div id="bloque-historial" class="full-width hidden" style="text-align:center; background:#eceff1; padding:20px; border-radius:8px;">
-                <h3 style="color:#455a64; margin-top:0;">📂 HISTORIAL POR DÍA DE TRABAJO</h3>
-                <p>Selecciona el día que TRABAJASTE (Ingresaste los datos) para ver todo lo que se hizo ese día.</p>
-                <label>Seleccionar Fecha de Carga:</label>
+                <h3 style="color:#455a64; margin-top:0;">📂 CONSULTAR ARCHIVO DE REPORTES</h3>
+                <p>Selecciona una fecha antigua para ver TODO el reporte de ese día.</p>
+                <label>Seleccionar Fecha:</label>
                 <input type="date" id="fecha_historial" style="max-width:300px; margin:0 auto; display:block;">
                 <br>
                 <button class="main-btn btn-historial" onclick="buscarHistorial()" style="max-width:300px;">🔍 BUSCAR REPORTE</button>
@@ -308,7 +318,6 @@
         
         llenarZonas();
         actualizarCuentas();
-        llenarCuentasExtra();
 
         // Cargar todo
         db.ref('registros_milagro').on('value', snap => {
@@ -328,7 +337,7 @@
         });
     };
 
-    // --- PESTAÑAS ---
+    // --- PESTAÑAS (VISTA FIJA DE HOY) ---
     window.cambiarModo = function(modo) {
         MODO = modo;
         cancelar(); 
@@ -403,7 +412,7 @@
         const f = document.getElementById('fecha_historial').value;
         if(!f) return;
         FECHA_FILTRO = f;
-        document.getElementById('titulo-reporte').innerText = "REPORTE DE CARGA DEL DÍA: " + f;
+        document.getElementById('titulo-reporte').innerText = "REPORTE HISTÓRICO DEL: " + f;
         pintarReportes();
     }
 
@@ -703,17 +712,6 @@
         c.innerHTML = MODO === 'OFICINA' 
             ? "<option value='LESLY'>CUENTA LESLY</option>" 
             : "<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
-    }
-
-    function llenarCuentasExtra() {
-        const opciones = `
-            <option value="DAVID">CUENTA DAVID</option>
-            <option value="LESLY">CUENTA LESLY</option>
-            <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
-            <option value="JOSE_RODINDER">JOSE RODINDER</option>
-        `;
-        document.getElementById('abono_cuenta').innerHTML = opciones;
-        document.getElementById('contado_cuenta').innerHTML = opciones;
     }
 </script>
 
