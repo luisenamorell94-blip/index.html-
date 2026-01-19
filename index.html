@@ -14,7 +14,8 @@
             --primary: #004d40;    /* Verde Oficina */
             --field-color: #e65100; /* Naranja Campo */
             --contado: #4a148c;     /* Morado Contado */
-            --abonos: #1565c0;      /* AZUL ABONOS */
+            --abonos: #1565c0;      /* Azul Abonos */
+            --faltante: #c62828;    /* ROJO FALTANTES (NUEVO) */
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
         
@@ -23,14 +24,15 @@
         
         .container { max-width: 950px; margin: 0 auto; }
         
-        /* PESTAÑAS (ESTILO ORIGINAL) */
-        .tabs { display: flex; cursor: pointer; gap: 5px; overflow-x: auto; }
-        .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.85rem; white-space: nowrap; }
+        /* PESTAÑAS (SCROLL HORIZONTAL PARA QUE QUEPAN TODAS) */
+        .tabs { display: flex; cursor: pointer; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+        .tab { flex: 1; min-width: 100px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.85rem; }
         
         .tab.active-oficina { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
         .tab.active-campo { background: white; color: var(--field-color); border-bottom: 3px solid var(--field-color); }
         .tab.active-contado { background: white; color: var(--contado); border-bottom: 3px solid var(--contado); }
         .tab.active-abonos { background: white; color: var(--abonos); border-bottom: 3px solid var(--abonos); }
+        .tab.active-faltantes { background: white; color: var(--faltante); border-bottom: 3px solid var(--faltante); }
 
         /* CARD FORMULARIO */
         .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -49,17 +51,19 @@
         .btn-campo { background-color: var(--field-color); }
         .btn-contado { background-color: var(--contado); }
         .btn-abonos { background-color: var(--abonos); }
+        .btn-faltantes { background-color: var(--faltante); }
         
         .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
         /* ESTILOS DE TABLA */
         .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: avoid; }
         
-        /* BORDES DE COLORES PARA LAS CUENTAS */
-        .border-david { border-top-color: #1565c0; } /* Azul */
-        .border-lesly { border-top-color: #ad1457; } /* Rosa */
-        .border-mix { border-top-color: #6a1b9a; }   /* Morado */
-        .border-jose { border-top-color: #2e7d32; }  /* Verde */
+        .border-david { border-top-color: #1565c0; }
+        .border-lesly { border-top-color: #ad1457; }
+        .border-mix { border-top-color: #6a1b9a; }
+        .border-jose { border-top-color: #2e7d32; }
+        .border-abonos { border-top-color: #1565c0; }
+        .border-faltantes { border-top-color: #c62828; }
         
         .account-title { margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 1rem; color: #333; }
         
@@ -67,7 +71,6 @@
         th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #f0f0f0; }
         th { background-color: #fafafa; color: #666; font-weight: bold; }
         
-        /* BOTONES DE ACCIÓN */
         .btn-action { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-left: 2px; }
         .btn-edit { background: #e3f2fd; color: #1565c0; }
         .btn-del { background: #ffebee; color: #c62828; }
@@ -104,6 +107,7 @@
         <div class="tab" id="tab-campo" onclick="cambiarModo('CAMPO')">🏍️ CAMPO</div>
         <div class="tab" id="tab-contado" onclick="cambiarModo('CONTADO')">📦 CONTADO</div>
         <div class="tab" id="tab-abonos" onclick="cambiarModo('ABONOS')">💰 ABONOS</div>
+        <div class="tab" id="tab-faltantes" onclick="cambiarModo('FALTANTES')">⚠️ FALTANTES</div>
     </div>
 
     <div class="card no-print">
@@ -151,8 +155,7 @@
                 </div>
                 <div>
                     <label>Cuenta Destino:</label>
-                    <select id="contado_cuenta">
-                        </select>
+                    <select id="contado_cuenta"></select>
                 </div>
                 <div class="full-width">
                     <label>Artículo:</label>
@@ -175,8 +178,27 @@
                 </div>
                 <div>
                     <label>Cuenta Destino:</label>
-                    <select id="abono_cuenta">
-                        </select>
+                    <select id="abono_cuenta"></select>
+                </div>
+            </div>
+
+            <div id="bloque-faltantes" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
+                <div class="full-width">
+                    <label>Cobrador (Seleccione primero):</label>
+                    <select id="faltante_cobrador" onchange="actualizarZonasFaltante()">
+                        <option value="">-- Seleccione --</option>
+                        <option value="MIGUEL">MIGUEL</option>
+                        <option value="ANGEL">ANGEL</option>
+                        <option value="FERNANDO">FERNANDO</option>
+                        <option value="AMALET">AMALET</option>
+                        <option value="JORGE">JORGE</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label>Zona del Faltante:</label>
+                    <select id="faltante_zona">
+                        <option value="">-- Seleccione Cobrador Primero --</option>
+                    </select>
                 </div>
             </div>
 
@@ -220,6 +242,7 @@
     let listaDep = [];
     let listaCon = [];
     let listaAbo = [];
+    let listaFal = []; // Faltantes
 
     const rutas = {
         "MIGUEL": ["Elixir", "Saba Olanchito", "Zona Saba"],
@@ -241,70 +264,61 @@
         document.getElementById('fecha').valueAsDate = new Date();
         llenarZonas();
         actualizarCuentas();
-        llenarCuentasExtra(); // Llena select de Abonos y Contado
+        llenarCuentasExtra();
 
-        // Cargar Depositos
+        // Cargas de Firebase
         db.ref('registros_milagro').on('value', snap => {
-            listaDep = [];
-            if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]}));
-            pintarReportes();
+            listaDep = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
-
-        // Cargar Contado
         db.ref('ventas_contado').on('value', snap => {
-            listaCon = [];
-            if(snap.val()) Object.keys(snap.val()).forEach(k => listaCon.push({id:k, ...snap.val()[k]}));
-            pintarReportes();
+            listaCon = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaCon.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
-
-        // Cargar Abonos
         db.ref('abonos_clientes').on('value', snap => {
-            listaAbo = [];
-            if(snap.val()) Object.keys(snap.val()).forEach(k => listaAbo.push({id:k, ...snap.val()[k]}));
-            pintarReportes();
+            listaAbo = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaAbo.push({id:k, ...snap.val()[k]})); pintarReportes();
+        });
+        db.ref('faltantes_cobro').on('value', snap => {
+            listaFal = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaFal.push({id:k, ...snap.val()[k]})); pintarReportes();
         });
     };
 
     // --- PESTAÑAS ---
     window.cambiarModo = function(modo) {
         MODO = modo;
-        cancelar();
+        cancelar(); // Esto limpia todo
 
-        document.getElementById('tab-oficina').className = 'tab';
-        document.getElementById('tab-campo').className = 'tab';
-        document.getElementById('tab-contado').className = 'tab';
-        document.getElementById('tab-abonos').className = 'tab';
+        // Reset Styles
+        ['oficina','campo','contado','abonos','faltantes'].forEach(m => {
+            document.getElementById('tab-'+m).className = 'tab';
+            document.getElementById('bloque-'+ (m === 'oficina' || m === 'campo' ? 'depositos' : m)).classList.add('hidden');
+        });
 
+        // UI Elements
         const btn = document.getElementById('btn-guardar');
-        const blqDep = document.getElementById('bloque-depositos');
-        const blqCon = document.getElementById('bloque-contado');
-        const blqAbo = document.getElementById('bloque-abonos');
         const lblMonto = document.getElementById('lbl-monto');
 
-        blqDep.classList.add('hidden');
-        blqCon.classList.add('hidden');
-        blqAbo.classList.add('hidden');
-
+        // Configurar Activo
+        document.getElementById('tab-' + modo.toLowerCase()).className = 'tab active-' + modo.toLowerCase();
+        
         if(modo === 'OFICINA') {
-            document.getElementById('tab-oficina').className = 'tab active-oficina';
-            blqDep.classList.remove('hidden');
+            document.getElementById('bloque-depositos').classList.remove('hidden');
             btn.className = 'main-btn btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
             lblMonto.innerText = "Monto Depósito (L.):";
         } else if(modo === 'CAMPO') {
-            document.getElementById('tab-campo').className = 'tab active-campo';
-            blqDep.classList.remove('hidden');
+            document.getElementById('bloque-depositos').classList.remove('hidden');
             btn.className = 'main-btn btn-campo'; btn.innerText = "GUARDAR (CAMPO)";
             lblMonto.innerText = "Monto Depósito (L.):";
         } else if(modo === 'CONTADO') {
-            document.getElementById('tab-contado').className = 'tab active-contado';
-            blqCon.classList.remove('hidden');
+            document.getElementById('bloque-contado').classList.remove('hidden');
             btn.className = 'main-btn btn-contado'; btn.innerText = "GUARDAR VENTA CONTADO";
             lblMonto.innerText = "Saldo Contado (L.):";
-        } else {
-            document.getElementById('tab-abonos').className = 'tab active-abonos';
-            blqAbo.classList.remove('hidden');
+        } else if(modo === 'ABONOS') {
+            document.getElementById('bloque-abonos').classList.remove('hidden');
             btn.className = 'main-btn btn-abonos'; btn.innerText = "GUARDAR ABONO";
             lblMonto.innerText = "Monto Abonado (L.):";
+        } else { // FALTANTES
+            document.getElementById('bloque-faltantes').classList.remove('hidden');
+            btn.className = 'main-btn btn-faltantes'; btn.innerText = "GUARDAR FALTANTE";
+            lblMonto.innerText = "Monto Faltante (L.):";
         }
         
         actualizarCuentas();
@@ -320,7 +334,14 @@
 
         let ruta = '', datos = {};
 
-        if(MODO === 'ABONOS') {
+        if(MODO === 'FALTANTES') {
+            const cob = document.getElementById('faltante_cobrador').value;
+            const zon = document.getElementById('faltante_zona').value;
+            if(!cob || !zon) { alert("Falta cobrador o zona"); return; }
+            ruta = 'faltantes_cobro';
+            datos = { fecha, cobrador: cob, zona: zon, monto };
+        }
+        else if(MODO === 'ABONOS') {
             const tar = document.getElementById('abono_tarjeta').value;
             const art = document.getElementById('abono_articulo').value;
             const sal = document.getElementById('abono_saldo').value;
@@ -352,7 +373,7 @@
             db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("Actualizado"); cancelar(); });
         } else {
             db.ref(ruta).push(datos).then(() => { 
-                limpiarCampos();
+                limpiarCampos(); // AUTO LIMPIEZA
                 alert("Guardado");
             });
         }
@@ -365,23 +386,57 @@
         document.getElementById('abono_tarjeta').value = "";
         document.getElementById('abono_articulo').value = "";
         document.getElementById('abono_saldo').value = "";
+        // Reset Faltantes
+        document.getElementById('faltante_cobrador').value = "";
+        document.getElementById('faltante_zona').innerHTML = '<option value="">-- Seleccione Cobrador Primero --</option>';
     }
 
-    // --- REPORTES (ESTILO AGRUPADO POR CUENTAS) ---
+    // --- REPORTES ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
-        // VISTA ABONOS (SEPARADO POR CUENTAS)
-        if (MODO === 'ABONOS') {
+        // FALTANTES
+        if (MODO === 'FALTANTES') {
+            // Agrupar por cobrador
+            const agrupado = {};
+            listaFal.forEach(r => {
+                if(!agrupado[r.cobrador]) agrupado[r.cobrador] = [];
+                agrupado[r.cobrador].push(r);
+            });
+
+            for(const cob in agrupado) {
+                let sub = 0;
+                let rows = "";
+                agrupado[cob].forEach(r => {
+                    sub += r.monto;
+                    rows += `<tr>
+                        <td>${r.fecha}</td>
+                        <td>${r.zona}</td>
+                        <td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
+                        <td class="no-print">
+                            <button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button>
+                            <button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button>
+                        </td>
+                    </tr>`;
+                });
+                granTotal += sub;
+                
+                cont.innerHTML += `
+                <div class="report-section border-faltantes">
+                    <h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3>
+                    <table><thead><tr><th>Fecha</th><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
+                </div>`;
+            }
+        }
+        // ABONOS
+        else if (MODO === 'ABONOS') {
              for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaAbo.filter(r => r.cuenta === key);
                 if (regs.length > 0) {
                     regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-                    let sub = 0;
-                    let rows = "";
-
+                    let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
                         rows += `<tr>
@@ -397,24 +452,17 @@
                         </tr>`;
                     });
                     granTotal += sub;
-
-                    cont.innerHTML += `
-                        <div class="report-section ${conf.c}">
-                            <h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
-                            <table><thead><tr><th>Fecha</th><th>Tarjeta</th><th>Artículo</th><th>Saldo</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
-                        </div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Tarjeta</th><th>Artículo</th><th>Saldo</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
-        // VISTA CONTADO (SEPARADO POR CUENTAS)
+        // CONTADO
         else if (MODO === 'CONTADO') {
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaCon.filter(r => r.cuenta === key);
                 if (regs.length > 0) {
                     regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-                    let sub = 0;
-                    let rows = "";
-
+                    let sub = 0; let rows = "";
                     regs.forEach(r => {
                         sub += r.monto;
                         rows += `<tr>
@@ -429,31 +477,20 @@
                         </tr>`;
                     });
                     granTotal += sub;
-
-                    cont.innerHTML += `
-                        <div class="report-section ${conf.c}">
-                            <h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
-                            <table><thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
-                        </div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 }
             }
         }
-        // VISTA LIQUIDACION (OFICINA/CAMPO)
+        // LIQUIDACION
         else {
             for (const [key, conf] of Object.entries(configCuentas)) {
                 const regs = listaDep.filter(r => r.cuenta === key);
-                
                 if (regs.length > 0) {
                     regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-                    let sub = 0;
-                    let rows = "";
-                    let zonaTotal = {};
-
+                    let sub = 0; let rows = ""; let zonaTotal = {};
                     regs.forEach(r => {
                         sub += r.monto;
-                        if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0;
-                        zonaTotal[r.zona] += r.monto;
-
+                        if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0; zonaTotal[r.zona] += r.monto;
                         let badgeClass = r.origen === 'OFICINA' ? 'bg-oficina' : 'bg-campo';
                         rows += `<tr>
                             <td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td>
@@ -467,19 +504,10 @@
                         </tr>`;
                     });
                     granTotal += sub;
-
                     let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
-                    for(const z in zonaTotal) {
-                        resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
-                    }
+                    for(const z in zonaTotal) resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
                     resumenHtml += `</div>`;
-
-                    cont.innerHTML += `
-                        <div class="report-section ${conf.c}">
-                            <h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
-                            <table><thead><tr><th>Fecha</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
-                            ${resumenHtml}
-                        </div>`;
+                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>Fecha</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>${resumenHtml}</div>`;
                 }
             }
         }
@@ -490,10 +518,10 @@
     window.borrar = function(id, tipo) {
         if(confirm("¿Eliminar registro?")) {
             let ruta = '';
-            if(tipo === 'ABO') ruta = 'abonos_clientes';
+            if(tipo === 'FAL') ruta = 'faltantes_cobro';
+            else if(tipo === 'ABO') ruta = 'abonos_clientes';
             else if(tipo === 'CON') ruta = 'ventas_contado';
             else ruta = 'registros_milagro';
-            
             db.ref(ruta + '/' + id).remove();
         }
     }
@@ -504,7 +532,16 @@
         document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
         window.scrollTo(0,0);
 
-        if(tipo === 'ABO') {
+        if(tipo === 'FAL') {
+            const r = listaFal.find(x => x.id === id);
+            cambiarModo('FALTANTES');
+            document.getElementById('fecha').value = r.fecha;
+            document.getElementById('faltante_cobrador').value = r.cobrador;
+            actualizarZonasFaltante(); // Cargar zonas
+            document.getElementById('faltante_zona').value = r.zona;
+            document.getElementById('monto').value = r.monto;
+        }
+        else if(tipo === 'ABO') {
             const r = listaAbo.find(x => x.id === id);
             cambiarModo('ABONOS');
             document.getElementById('fecha').value = r.fecha;
@@ -540,12 +577,8 @@
         ID_EDITANDO = null;
         document.getElementById('btn-cancelar').style.display = 'none';
         limpiarCampos();
-        
         let txt = "";
-        if(MODO === 'OFICINA') txt = "(OFICINA)";
-        else if(MODO === 'CAMPO') txt = "(CAMPO)";
-        else if(MODO === 'CONTADO') txt = "VENTA CONTADO";
-        else txt = "ABONO";
+        if(MODO === 'OFICINA') txt = "(OFICINA)"; else if(MODO === 'CAMPO') txt = "(CAMPO)"; else if(MODO === 'FALTANTES') txt = "FALTANTE"; else if(MODO === 'CONTADO') txt = "VENTA CONTADO"; else txt = "ABONO";
         document.getElementById('btn-guardar').innerText = "GUARDAR " + txt;
     }
 
@@ -564,6 +597,19 @@
     window.autoCobrador = function() {
         const sel = document.getElementById('zona');
         document.getElementById('cobrador').value = sel.options[sel.selectedIndex].getAttribute('data-c') || "";
+    }
+
+    // NUEVA FUNCION PARA FALTANTES
+    window.actualizarZonasFaltante = function() {
+        const cob = document.getElementById('faltante_cobrador').value;
+        const sel = document.getElementById('faltante_zona');
+        sel.innerHTML = '<option value="">-- Seleccione Zona --</option>';
+        if(rutas[cob]) {
+            rutas[cob].forEach(z => {
+                const op = document.createElement('option'); op.value = z; op.innerText = z;
+                sel.appendChild(op);
+            });
+        }
     }
 
     function actualizarCuentas() {
