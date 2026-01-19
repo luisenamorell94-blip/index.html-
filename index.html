@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Completo</title>
+    <title>Comercial GYG - Sistema Final</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -62,11 +62,24 @@
         .border-abonos { border-top-color: #1565c0; }
         .border-faltantes { border-top-color: #c62828; }
         
+        /* ESTILO DEL TITULO CON TOTAL A LA DERECHA */
+        .account-title { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin: 0 0 10px 0; 
+            padding-bottom: 5px; 
+            border-bottom: 1px solid #eee; 
+            font-size: 1rem; 
+            color: #333; 
+        }
+        .account-title span { font-weight: bold; font-size: 1.1rem; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
         th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #f5f5f5; }
         
-        /* RESUMEN ZONA (EL QUE FALTABA) */
+        /* RESUMEN ZONA */
         .zone-summary { background: #f9f9f9; padding: 10px; margin-top: 10px; font-size: 0.85rem; border-radius: 4px; border: 1px dashed #ccc; }
         .zone-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ddd; }
         .zone-row:last-child { border-bottom: none; }
@@ -195,13 +208,13 @@
 
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
     
-    // LISTAS SOLDADAS EN CODIGO
+    // LISTAS COMPLETAS RESTAURADAS
     const rutas = { 
-        "MIGUEL": ["Elixir","Saba Olanchito"], 
+        "MIGUEL": ["Elixir","Saba Olanchito", "Zona Saba"], 
         "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
         "FERNANDO": ["Vicinia","Trujillo", "Honduras Aguan"], 
-        "AMALET": ["Balfate","Bonito"], 
-        "JORGE": ["Planes","Sonaguera"] 
+        "AMALET": ["Balfate","Bonito Oriental"], 
+        "JORGE": ["Planes","Jutiapa", "Sonaguera", "Faust"] 
     };
     const cuentas = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
@@ -312,62 +325,56 @@
         // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
         if(exc.length){
-            let h = `<div class="report-section border-lesly"><h3>EXCEDENTES</h3><table>`;
-            exc.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
+            let sub = exc.reduce((a,b)=>a+b.monto,0); total+=sub;
+            let h = `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES <span>L. ${sub.toLocaleString()}</span></h3><table>`;
+            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 2. FALTANTES
         let fal = filtrar(datos.fal);
         if(fal.length){
-            let h = `<div class="report-section border-faltantes"><h3>FALTANTES</h3><table>`;
-            fal.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
+            let sub = fal.reduce((a,b)=>a+b.monto,0); total+=sub;
+            let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>L. ${sub.toLocaleString()}</span></h3><table>`;
+            fal.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 3. ABONOS
         let abo = filtrar(datos.abo);
         if(abo.length){
-            let h = `<div class="report-section border-abonos"><h3>ABONOS</h3><table>`;
-            abo.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
+            let sub = abo.reduce((a,b)=>a+b.monto,0); total+=sub;
+            let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>L. ${sub.toLocaleString()}</span></h3><table>`;
+            abo.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 4. CONTADO
         let con = filtrar(datos.con);
         if(con.length){
-            let h = `<div class="report-section border-mix"><h3>CONTADO</h3><table>`;
-            con.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
+            let sub = con.reduce((a,b)=>a+b.monto,0); total+=sub;
+            let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>L. ${sub.toLocaleString()}</span></h3><table>`;
+            con.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
-        // 5. DEPOSITOS (CON RESUMEN DE ZONA)
+        // 5. DEPOSITOS (CON TOTAL ARRIBA Y RESUMEN ZONA ABAJO)
         let dep = filtrar(datos.dep);
         for(let c in cuentas) {
             let list = dep.filter(r => r.cuenta === c);
             if(list.length) {
-                // LOGICA DE RESUMEN
-                let resumenZona = {};
-                let h = `<div class="report-section ${cuentas[c]}"><h3>${c}</h3><table>`;
+                let sub = list.reduce((a,b)=>a+b.monto,0); total+=sub;
+                let resumen = {};
+                let h = `<div class="report-section ${cuentas[c]}"><h3 class="account-title">${c} <span>L. ${sub.toLocaleString()}</span></h3><table>`;
                 
                 list.forEach(r => { 
-                    total+=r.monto;
-                    // Sumar zonas
-                    if(!resumenZona[r.zona]) resumenZona[r.zona] = 0;
-                    resumenZona[r.zona] += r.monto;
-                    
+                    if(!resumen[r.zona]) resumen[r.zona]=0; resumen[r.zona]+=r.monto;
                     h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; 
                 });
                 
-                h += "</table>";
-                
-                // PINTAR EL CUADRO DE RESUMEN
-                h += `<div class="zone-summary"><b>Resumen por Zona:</b>`;
-                for(let z in resumenZona) {
-                    h += `<div class="zone-row"><span>${z}</span><span>L. ${resumenZona[z].toLocaleString()}</span></div>`;
-                }
-                h += `</div></div>`; // Cierre zone-summary y report-section
-                
+                h += "</table><div class='zone-summary'><b>Resumen por Zona:</b>";
+                for(let z in resumen) h+=`<div class='zone-row'><span>${z}</span><span>L. ${resumen[z].toLocaleString()}</span></div>`;
+                h += "</div></div>";
                 div.innerHTML += h;
             }
         }
