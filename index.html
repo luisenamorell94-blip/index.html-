@@ -52,7 +52,7 @@
         
         .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* === ESTILOS DE LA TABLA (DISEÑO ANTERIOR) === */
+        /* ESTILOS DE TABLA */
         .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: avoid; }
         
         /* BORDES DE COLORES PARA LAS CUENTAS */
@@ -67,23 +67,21 @@
         th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #f0f0f0; }
         th { background-color: #fafafa; color: #666; font-weight: bold; }
         
-        /* BOTONES DE ACCIÓN (ESTILO SUAVE ANTERIOR) */
+        /* BOTONES DE ACCIÓN */
         .btn-action { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-left: 2px; }
-        .btn-edit { background: #e3f2fd; color: #1565c0; } /* Azul suave */
-        .btn-del { background: #ffebee; color: #c62828; }  /* Rojo suave */
+        .btn-edit { background: #e3f2fd; color: #1565c0; }
+        .btn-del { background: #ffebee; color: #c62828; }
 
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; font-weight: bold; }
         .bg-oficina { background: var(--primary); }
         .bg-campo { background: var(--field-color); }
 
-        /* RESUMEN ZONA */
         .zone-summary { background: #f9f9f9; padding: 8px; margin-top: 8px; font-size: 0.8rem; border-radius: 4px; }
         .zone-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ddd; padding: 2px 0; }
         
         .grand-total { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; border-radius: 5px; margin-top: 15px; }
 
         .hidden { display: none; }
-        /* BOTON PDF ROJO */
         .btn-pdf { width: 100%; background: #d32f2f; color: white; padding: 15px; border: none; font-weight: bold; margin-top: 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
 
         @media print {
@@ -139,7 +137,7 @@
             </div>
 
             <div id="bloque-contado" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
-                <div class="full-width">
+                <div>
                     <label>Vendedor:</label>
                     <select id="vendedor">
                         <option value="">-- Seleccione --</option>
@@ -150,6 +148,11 @@
                         <option value="ORLANDO">Orlando</option>
                         <option value="DAVID">David</option>
                     </select>
+                </div>
+                <div>
+                    <label>Cuenta Destino:</label>
+                    <select id="contado_cuenta">
+                        </select>
                 </div>
                 <div class="full-width">
                     <label>Artículo:</label>
@@ -238,7 +241,7 @@
         document.getElementById('fecha').valueAsDate = new Date();
         llenarZonas();
         actualizarCuentas();
-        llenarCuentasAbono();
+        llenarCuentasExtra(); // Llena select de Abonos y Contado
 
         // Cargar Depositos
         db.ref('registros_milagro').on('value', snap => {
@@ -329,9 +332,10 @@
         else if(MODO === 'CONTADO') {
             const vend = document.getElementById('vendedor').value;
             const art = document.getElementById('articulo').value;
-            if(!vend) { alert("Falta vendedor"); return; }
+            const cue = document.getElementById('contado_cuenta').value;
+            if(!vend || !cue) { alert("Falta vendedor o cuenta"); return; }
             ruta = 'ventas_contado';
-            datos = { fecha, vendedor: vend, articulo: art, monto };
+            datos = { fecha, vendedor: vend, articulo: art, cuenta: cue, monto };
         } 
         else { // DEPOSITOS
             const sem = document.getElementById('semana').value;
@@ -363,18 +367,16 @@
         document.getElementById('abono_saldo').value = "";
     }
 
-    // --- REPORTES ---
+    // --- REPORTES (ESTILO AGRUPADO POR CUENTAS) ---
     function pintarReportes() {
         const cont = document.getElementById('contenedor-reportes');
         cont.innerHTML = "";
         let granTotal = 0;
 
-        // VISTA ABONOS (OPCION B: SEPARADO POR CUENTAS)
+        // VISTA ABONOS (SEPARADO POR CUENTAS)
         if (MODO === 'ABONOS') {
              for (const [key, conf] of Object.entries(configCuentas)) {
-                // Filtrar abonos para esta cuenta
                 const regs = listaAbo.filter(r => r.cuenta === key);
-                
                 if (regs.length > 0) {
                     regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
                     let sub = 0;
@@ -404,29 +406,37 @@
                 }
             }
         }
-        // VISTA CONTADO
+        // VISTA CONTADO (SEPARADO POR CUENTAS)
         else if (MODO === 'CONTADO') {
-            let html = `<div class="report-section border-mix">
-                <h3 class="account-title">VENTAS DE CONTADO <span>📦</span></h3>
-                <table>
-                    <thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead>
-                    <tbody>`;
-            listaCon.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            listaCon.forEach(r => {
-                granTotal += r.monto;
-                html += `<tr>
-                    <td>${r.fecha}</td>
-                    <td><b>${r.vendedor}</b></td>
-                    <td>${r.articulo}</td>
-                    <td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
-                    <td class="no-print">
-                        <button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button>
-                        <button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button>
-                    </td>
-                </tr>`;
-            });
-            html += `</tbody></table></div>`;
-            cont.innerHTML = html;
+            for (const [key, conf] of Object.entries(configCuentas)) {
+                const regs = listaCon.filter(r => r.cuenta === key);
+                if (regs.length > 0) {
+                    regs.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                    let sub = 0;
+                    let rows = "";
+
+                    regs.forEach(r => {
+                        sub += r.monto;
+                        rows += `<tr>
+                            <td>${r.fecha}</td>
+                            <td><b>${r.vendedor}</b></td>
+                            <td>${r.articulo}</td>
+                            <td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td>
+                            <td class="no-print">
+                                <button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button>
+                                <button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button>
+                            </td>
+                        </tr>`;
+                    });
+                    granTotal += sub;
+
+                    cont.innerHTML += `
+                        <div class="report-section ${conf.c}">
+                            <h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3>
+                            <table><thead><tr><th>Fecha</th><th>Vendedor</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>
+                        </div>`;
+                }
+            }
         }
         // VISTA LIQUIDACION (OFICINA/CAMPO)
         else {
@@ -458,7 +468,6 @@
                     });
                     granTotal += sub;
 
-                    // Resumen zonas
                     let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
                     for(const z in zonaTotal) {
                         resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
@@ -511,6 +520,7 @@
             document.getElementById('fecha').value = r.fecha;
             document.getElementById('vendedor').value = r.vendedor;
             document.getElementById('articulo').value = r.articulo;
+            document.getElementById('contado_cuenta').value = r.cuenta;
             document.getElementById('monto').value = r.monto;
         } 
         else {
@@ -563,14 +573,15 @@
             : "<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
     }
 
-    function llenarCuentasAbono() {
-        const c = document.getElementById('abono_cuenta');
-        c.innerHTML = `
+    function llenarCuentasExtra() {
+        const opciones = `
             <option value="DAVID">CUENTA DAVID</option>
             <option value="LESLY">CUENTA LESLY</option>
             <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
             <option value="JOSE_RODINDER">JOSE RODINDER</option>
         `;
+        document.getElementById('abono_cuenta').innerHTML = opciones;
+        document.getElementById('contado_cuenta').innerHTML = opciones;
     }
 </script>
 
