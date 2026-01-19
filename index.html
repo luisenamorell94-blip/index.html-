@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Integrado</title>
+    <title>Comercial GYG - Sistema Final</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,58 +11,49 @@
 
     <style>
         :root { 
-            --primary: #004d40;    /* Verde Oficina */
-            --field-color: #e65100; /* Naranja Campo */
-            --contado: #4a148c;     /* Morado Contado */
-            --abonos: #1565c0;      /* Azul Abonos */
-            --faltante: #c62828;    /* Rojo Faltantes */
-            --excedente: #00838f;   /* Turquesa Excedente */
-            --historial: #455a64;   /* Gris Historial */
+            --primary: #004d40; --field: #e65100; --contado: #4a148c;
+            --abonos: #1565c0; --faltante: #c62828; --excedente: #00838f; --historial: #455a64;
         }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px;}
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px; }
         
         /* HEADER */
-        header { background-color: var(--primary); color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
-        
-        .container { max-width: 950px; margin: 0 auto; }
+        header { background: var(--primary); color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
         
         /* PESTAÑAS */
-        .tabs { display: flex; cursor: pointer; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-        .tab { flex: 1; min-width: 100px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; transition: 0.2s; font-size: 0.85rem; }
+        .tabs { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.8rem; }
         
-        .tab.active-oficina { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
-        .tab.active-campo { background: white; color: var(--field-color); border-bottom: 3px solid var(--field-color); }
-        .tab.active-contado { background: white; color: var(--contado); border-bottom: 3px solid var(--contado); }
-        .tab.active-abonos { background: white; color: var(--abonos); border-bottom: 3px solid var(--abonos); }
-        .tab.active-faltantes { background: white; color: var(--faltante); border-bottom: 3px solid var(--faltante); }
-        .tab.active-excedente { background: white; color: var(--excedente); border-bottom: 3px solid var(--excedente); }
-        .tab.active-historial { background: white; color: var(--historial); border-bottom: 3px solid var(--historial); }
+        .active-oficina { background: white; color: var(--primary); border-bottom: 4px solid var(--primary); }
+        .active-campo { background: white; color: var(--field); border-bottom: 4px solid var(--field); }
+        .active-contado { background: white; color: var(--contado); border-bottom: 4px solid var(--contado); }
+        .active-abonos { background: white; color: var(--abonos); border-bottom: 4px solid var(--abonos); }
+        .active-faltantes { background: white; color: var(--faltante); border-bottom: 4px solid var(--faltante); }
+        .active-excedente { background: white; color: var(--excedente); border-bottom: 4px solid var(--excedente); }
+        .active-historial { background: white; color: var(--historial); border-bottom: 4px solid var(--historial); }
 
-        /* CARD FORMULARIO */
-        .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* FORMULARIO */
+        .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full { grid-column: span 2; }
         
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .full-width { grid-column: span 2; }
-        
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #555; margin-bottom: 4px; margin-top: 8px; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; margin-top: 8px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         /* BOTONES */
-        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
-        button.main-btn { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; font-size: 1rem; }
-        
-        .btn-oficina { background-color: var(--primary); }
-        .btn-campo { background-color: var(--field-color); }
-        .btn-contado { background-color: var(--contado); }
-        .btn-abonos { background-color: var(--abonos); }
-        .btn-faltantes { background-color: var(--faltante); }
-        .btn-excedente { background-color: var(--excedente); }
-        .btn-historial { background-color: var(--historial); }
-        
-        .btn-cancelar { background-color: #616161; display: none; margin-bottom: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
+        .btn-oficina { background: var(--primary); }
+        .btn-campo { background: var(--field); }
+        .btn-contado { background: var(--contado); }
+        .btn-abonos { background: var(--abonos); }
+        .btn-faltantes { background: var(--faltante); }
+        .btn-excedente { background: var(--excedente); }
+        .btn-historial { background: var(--historial); }
+        .btn-cancelar { background: #666; display: none; }
+        .btn-pdf { background: #d32f2f; margin-top: 20px; }
 
-        /* ESTILOS DE TABLA */
-        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: avoid; }
+        /* REPORTES */
+        #area-impresion { margin-top: 20px; }
+        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; }
         
         .border-david { border-top-color: #1565c0; }
         .border-lesly { border-top-color: #ad1457; }
@@ -70,650 +61,313 @@
         .border-jose { border-top-color: #2e7d32; }
         .border-abonos { border-top-color: #1565c0; }
         .border-faltantes { border-top-color: #c62828; }
-        .border-excedente { border-top-color: #00838f; }
         
-        .account-title { margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 1rem; color: #333; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
+        th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f5f5f5; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-        th { background-color: #fafafa; color: #666; font-weight: bold; }
-        
-        .btn-action { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-left: 2px; }
-        .btn-edit { background: #e3f2fd; color: #1565c0; }
-        .btn-del { background: #ffebee; color: #c62828; }
+        .badge { padding: 2px 6px; border-radius: 4px; color: white; font-size: 0.7rem; }
+        .bg-oficina { background: var(--primary); } .bg-campo { background: var(--field); }
 
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; font-weight: bold; }
-        .bg-oficina { background: var(--primary); }
-        .bg-campo { background: var(--field-color); }
-
-        .zone-summary { background: #f9f9f9; padding: 8px; margin-top: 8px; font-size: 0.8rem; border-radius: 4px; }
-        .zone-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ddd; padding: 2px 0; }
-        
-        .grand-total { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; border-radius: 5px; margin-top: 15px; }
-
+        .total-box { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; }
         .hidden { display: none; }
-        .btn-pdf { width: 100%; background: #d32f2f; color: white; padding: 15px; border: none; font-weight: bold; margin-top: 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
 
-        @media print {
-            .no-print, .tabs, .card, header { display: none !important; }
-            body { background: white; }
-            .grand-total { background: #333 !important; -webkit-print-color-adjust: exact; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 
-<header class="no-print">
-    <h2 style="margin:0;">SISTEMA GYG</h2>
-</header>
+<header class="no-print"><h2>SISTEMA GYG</h2></header>
 
-<div class="container">
+<div class="container" style="max-width:900px; margin:0 auto;">
 
     <div class="tabs no-print">
-        <div class="tab active-oficina" id="tab-oficina" onclick="cambiarModo('OFICINA')">🏢 OFICINA</div>
-        <div class="tab" id="tab-campo" onclick="cambiarModo('CAMPO')">🏍️ CAMPO</div>
-        <div class="tab" id="tab-contado" onclick="cambiarModo('CONTADO')">📦 CONTADO</div>
-        <div class="tab" id="tab-abonos" onclick="cambiarModo('ABONOS')">💰 ABONOS</div>
-        <div class="tab" id="tab-faltantes" onclick="cambiarModo('FALTANTES')">⚠️ FALTANTES</div>
-        <div class="tab" id="tab-excedente" onclick="cambiarModo('EXCEDENTE')">💳 EXCEDENTE</div>
-        <div class="tab" id="tab-historial" onclick="cambiarModo('HISTORIAL')">📂 HISTORIAL</div>
+        <div id="tab-oficina" class="tab active-oficina" onclick="cambiar('OFICINA')">OFICINA</div>
+        <div id="tab-campo" class="tab" onclick="cambiar('CAMPO')">CAMPO</div>
+        <div id="tab-contado" class="tab" onclick="cambiar('CONTADO')">CONTADO</div>
+        <div id="tab-abonos" class="tab" onclick="cambiar('ABONOS')">ABONOS</div>
+        <div id="tab-faltantes" class="tab" onclick="cambiar('FALTANTES')">FALTANTES</div>
+        <div id="tab-excedente" class="tab" onclick="cambiar('EXCEDENTE')">EXCEDENTE</div>
+        <div id="tab-historial" class="tab" onclick="cambiar('HISTORIAL')">HISTORIAL</div>
     </div>
 
     <div class="card no-print">
-        
-        <div id="bloque-fecha-global" class="full-width">
-            <label>Fecha del Documento/Recibo:</label>
-            <input type="date" id="fecha" style="font-weight:bold;">
-            <small style="color:#004d40; display:block; margin-top:5px;">ℹ️ El reporte mostrará lo que ingreses <b>HOY</b>, aunque la fecha del recibo sea antigua.</small>
+        <div class="full">
+            <label>Fecha del Recibo:</label>
+            <input type="date" id="fecha">
+            <small style="color:#004d40">ℹ️ Se guardará en el reporte de HOY.</small>
         </div>
 
-        <div class="form-grid">
+        <div id="block-depositos" class="form-grid">
+            <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option></select></div>
+            <div><label>Referencia:</label><input type="number" id="ref"></div>
+            <div class="full"><label>Zona:</label><select id="zona" onchange="autoCobrador()"></select></div>
+            <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#eee;"></div>
+            <div class="full"><label>Cuenta:</label><select id="cuenta"></select></div>
+        </div>
 
-            <div id="bloque-depositos" class="full-width form-grid" style="margin:0; padding:0; gap:10px;">
-                <div>
-                    <label>Semana:</label>
-                    <select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select>
-                </div>
-                <div>
-                    <label>Referencia:</label>
-                    <input type="number" id="referencia" placeholder="Ref.">
-                </div>
-                <div class="full-width">
-                    <label>Zona:</label>
-                    <select id="zona" onchange="autoCobrador()"></select>
-                </div>
-                <div class="full-width">
-                    <label>Cobrador:</label>
-                    <input type="text" id="cobrador" readonly style="background:#eee;">
-                </div>
-                <div class="full-width">
-                    <label>Cuenta Destino:</label>
-                    <select id="cuenta"></select>
-                </div>
+        <div id="block-contado" class="form-grid hidden">
+            <div><label>Vendedor:</label>
+                <select id="vendedor">
+                    <option>SANTOS</option><option>NOE</option><option>CARLOS</option>
+                    <option>RAMON</option><option>ORLANDO</option><option>DAVID</option>
+                </select>
             </div>
-
-            <div id="bloque-contado" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
-                <div>
-                    <label>Vendedor:</label>
-                    <select id="vendedor">
-                        <option value="">-- Seleccione --</option>
-                        <option value="SANTOS">Santos</option>
-                        <option value="NOE">Noé</option>
-                        <option value="CARLOS">Carlos</option>
-                        <option value="RAMON">Ramón</option>
-                        <option value="ORLANDO">Orlando</option>
-                        <option value="DAVID">David</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Cuenta Destino (A dónde entró el dinero):</label>
-                    <select id="contado_cuenta">
-                        <option value="DAVID">CUENTA DAVID</option>
-                        <option value="LESLY">CUENTA LESLY</option>
-                        <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
-                        <option value="JOSE_RODINDER">JOSE RODINDER</option>
-                    </select>
-                </div>
-                <div class="full-width">
-                    <label>Artículo:</label>
-                    <input type="text" id="articulo" placeholder="Descripción del artículo">
-                </div>
+            <div><label>Cuenta Destino:</label>
+                <select id="contado_cuenta">
+                    <option value="DAVID">CUENTA DAVID</option>
+                    <option value="LESLY">CUENTA LESLY</option>
+                    <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                    <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                </select>
             </div>
+            <div class="full"><label>Artículo:</label><input type="text" id="articulo_contado"></div>
+        </div>
 
-            <div id="bloque-abonos" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
-                <div>
-                    <label>N° Tarjeta:</label>
-                    <input type="text" id="abono_tarjeta" placeholder="Manual">
-                </div>
-                <div>
-                    <label>Artículo:</label>
-                    <input type="text" id="abono_articulo" placeholder="Manual">
-                </div>
-                <div>
-                    <label>Saldo Restante:</label>
-                    <input type="number" id="abono_saldo" placeholder="L. 0.00">
-                </div>
-                <div>
-                    <label>Cuenta Destino (A dónde entró el dinero):</label>
-                    <select id="abono_cuenta">
-                        <option value="DAVID">CUENTA DAVID</option>
-                        <option value="LESLY">CUENTA LESLY</option>
-                        <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
-                        <option value="JOSE_RODINDER">JOSE RODINDER</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="bloque-faltantes" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
-                <div class="full-width">
-                    <label>Cobrador:</label>
-                    <select id="faltante_cobrador" onchange="actualizarZonasFaltante()">
-                        <option value="">-- Seleccione --</option>
-                        <option value="MIGUEL">MIGUEL</option>
-                        <option value="ANGEL">ANGEL</option>
-                        <option value="FERNANDO">FERNANDO</option>
-                        <option value="AMALET">AMALET</option>
-                        <option value="JORGE">JORGE</option>
-                    </select>
-                </div>
-                <div class="full-width">
-                    <label>Zona del Faltante:</label>
-                    <select id="faltante_zona">
-                        <option value="">-- Seleccione Cobrador --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="bloque-excedente" class="full-width form-grid hidden" style="margin:0; padding:0; gap:10px;">
-                <div>
-                    <label>N° Tarjeta:</label>
-                    <input type="text" id="exc_tarjeta" placeholder="Manual">
-                </div>
-                <div>
-                    <label>Artículo:</label>
-                    <input type="text" id="exc_articulo" placeholder="Manual">
-                </div>
-                <div class="full-width">
-                    <label style="color:var(--excedente);">Cuenta Destino:</label>
-                    <input type="text" value="CUENTA LESLY" readonly style="background:#e0f7fa; color:var(--excedente); font-weight:bold; border:1px solid var(--excedente);">
-                </div>
-            </div>
-
-            <div id="bloque-historial" class="full-width hidden" style="text-align:center; background:#eceff1; padding:20px; border-radius:8px;">
-                <h3 style="color:#455a64; margin-top:0;">📂 CONSULTAR ARCHIVO DE REPORTES</h3>
-                <p>Selecciona una fecha antigua para ver TODO el reporte de ese día.</p>
-                <label>Seleccionar Fecha:</label>
-                <input type="date" id="fecha_historial" style="max-width:300px; margin:0 auto; display:block;">
-                <br>
-                <button class="main-btn btn-historial" onclick="buscarHistorial()" style="max-width:300px;">🔍 BUSCAR REPORTE</button>
-            </div>
-
-            <div id="bloque-monto" class="full-width">
-                <label id="lbl-monto">Monto (L.):</label>
-                <input type="number" id="monto" placeholder="0.00" style="font-size:1.1rem; font-weight:bold;">
+        <div id="block-abonos" class="form-grid hidden">
+            <div><label>Tarjeta:</label><input type="text" id="abono_tarjeta"></div>
+            <div><label>Artículo:</label><input type="text" id="abono_articulo"></div>
+            <div><label>Saldo:</label><input type="number" id="abono_saldo"></div>
+            <div><label>Cuenta Destino:</label>
+                <select id="abono_cuenta">
+                    <option value="DAVID">CUENTA DAVID</option>
+                    <option value="LESLY">CUENTA LESLY</option>
+                    <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
+                    <option value="JOSE_RODINDER">JOSE RODINDER</option>
+                </select>
             </div>
         </div>
 
-        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR EDICIÓN</button>
-        <button id="btn-guardar" class="main-btn btn-oficina" onclick="guardar()">GUARDAR REGISTRO</button>
+        <div id="block-faltantes" class="form-grid hidden">
+            <div class="full"><label>Cobrador:</label>
+                <select id="fal_cobrador" onchange="zonaFaltante()">
+                    <option value="">-- Seleccione --</option>
+                    <option value="MIGUEL">MIGUEL</option><option value="ANGEL">ANGEL</option>
+                    <option value="FERNANDO">FERNANDO</option><option value="AMALET">AMALET</option><option value="JORGE">JORGE</option>
+                </select>
+            </div>
+            <div class="full"><label>Zona:</label><select id="fal_zona"></select></div>
+        </div>
+
+        <div id="block-excedente" class="form-grid hidden">
+            <div><label>Tarjeta:</label><input type="text" id="exc_tarjeta"></div>
+            <div><label>Artículo:</label><input type="text" id="exc_articulo"></div>
+            <div class="full"><label>Cuenta:</label><input value="LESLY" readonly></div>
+        </div>
+
+        <div id="block-historial" class="hidden" style="text-align:center;">
+            <h3>BUSCAR REPORTE ANTIGUO</h3>
+            <input type="date" id="fecha_historial" style="max-width:200px; margin:10px auto;">
+            <button class="btn-historial" onclick="buscarHistorial()">BUSCAR</button>
+        </div>
+
+        <div id="block-monto" class="full">
+            <label>Monto (L.):</label>
+            <input type="number" id="monto" style="font-size:1.2rem; font-weight:bold;">
+        </div>
+
+        <button id="btn-guardar" class="btn-oficina" onclick="guardar()">GUARDAR</button>
+        <button id="btn-cancelar" class="btn-cancelar" onclick="cancelar()">CANCELAR</button>
     </div>
 
     <div id="area-impresion">
-        <h3 class="no-print" id="titulo-reporte" style="margin-top:0; border-bottom:1px solid #ccc; color:#004d40;">REPORTE DEL DÍA (HOY)</h3>
-        <div id="contenedor-reportes"></div>
-        <div class="grand-total">TOTAL GLOBAL: <span id="total-global">L. 0.00</span></div>
+        <h3 id="titulo-reporte" class="no-print">REPORTE DE HOY</h3>
+        <div id="reportes"></div>
+        <div class="total-box">TOTAL: <span id="gran-total">L. 0.00</span></div>
     </div>
 
-    <button onclick="window.print()" class="btn-pdf no-print">📄 GENERAR PDF / IMPRIMIR</button>
-
+    <button class="btn-pdf no-print" onclick="window.print()">IMPRIMIR PDF</button>
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g",
-      authDomain: "ingreso-depositos.firebaseapp.com",
-      databaseURL: "https://ingreso-depositos-default-rtdb.firebaseio.com",
-      projectId: "ingreso-depositos",
-      storageBucket: "ingreso-depositos.firebasestorage.app",
-      messagingSenderId: "788432921819",
-      appId: "1:788432921819:web:b5f792eecbe4b7b00498fe"
-    };
+    const firebaseConfig = { apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g", authDomain: "ingreso-depositos.firebaseapp.com", databaseURL: "https://ingreso-depositos-default-rtdb.firebaseio.com", projectId: "ingreso-depositos", storageBucket: "ingreso-depositos.firebasestorage.app", messagingSenderId: "788432921819", appId: "1:788432921819:web:b5f792eecbe4b7b00498fe" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- VARIABLES ---
     let MODO = 'OFICINA';
-    let ID_EDITANDO = null;
-    let FECHA_FILTRO = new Date().toISOString().split('T')[0]; // FECHA DE HOY (SISTEMA)
+    let ID_EDIT = null;
+    let HOY = new Date().toISOString().split('T')[0];
+    let FILTRO = HOY;
     let ES_HISTORIAL = false;
 
-    let listaDep = [];
-    let listaCon = [];
-    let listaAbo = [];
-    let listaFal = [];
-    let listaExc = [];
+    let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
+    const rutas = { "MIGUEL":["Elixir","Saba Olanchito"], "ANGEL":["Margen Izquierda","Saba Tocoa"], "FERNANDO":["Vicinia","Trujillo"], "AMALET":["Balfate","Bonito"], "JORGE":["Planes","Sonaguera"] };
+    const cuentas = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
-    const rutas = {
-        "MIGUEL": ["Elixir", "Saba Olanchito", "Zona Saba"],
-        "ANGEL": ["Margen Izquierda", "Saba Tocoa"],
-        "FERNANDO": ["Vicinia", "Trujillo", "Honduras Aguan"],
-        "AMALET": ["Balfate", "Bonito Oriental"],
-        "JORGE": ["Planes", "Jutiapa", "Sonaguera", "Faust"]
-    };
-
-    const configCuentas = {
-        "DAVID": { t: "CUENTA DAVID", c: "border-david" },
-        "LESLY": { t: "CUENTA LESLY", c: "border-lesly" },
-        "DAVID_LESLY": { t: "DAVID (VIA LESLY)", c: "border-mix" },
-        "JOSE_RODINDER": { t: "JOSE RODINDER", c: "border-jose" }
-    };
-
-    // --- INICIO ---
     window.onload = function() {
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').value = hoy; // Fecha por defecto en input
-        document.getElementById('fecha_historial').value = hoy;
-        FECHA_FILTRO = hoy; // Filtramos por la fecha REAL de hoy
-        
+        document.getElementById('fecha').value = HOY;
+        document.getElementById('fecha_historial').value = HOY;
         llenarZonas();
-        actualizarCuentas();
-
-        // Cargar todo
-        db.ref('registros_milagro').on('value', snap => {
-            listaDep = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaDep.push({id:k, ...snap.val()[k]})); pintarReportes();
-        });
-        db.ref('ventas_contado').on('value', snap => {
-            listaCon = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaCon.push({id:k, ...snap.val()[k]})); pintarReportes();
-        });
-        db.ref('abonos_clientes').on('value', snap => {
-            listaAbo = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaAbo.push({id:k, ...snap.val()[k]})); pintarReportes();
-        });
-        db.ref('faltantes_cobro').on('value', snap => {
-            listaFal = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaFal.push({id:k, ...snap.val()[k]})); pintarReportes();
-        });
-        db.ref('excedente_tarjetas').on('value', snap => {
-            listaExc = []; if(snap.val()) Object.keys(snap.val()).forEach(k => listaExc.push({id:k, ...snap.val()[k]})); pintarReportes();
-        });
+        
+        // Listeners
+        db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
+        db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
+        db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
+        db.ref('faltantes_cobro').on('value', s => { datos.fal=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.fal.push({id:k,...s.val()[k]})); pintar(); });
+        db.ref('excedente_tarjetas').on('value', s => { datos.exc=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.exc.push({id:k,...s.val()[k]})); pintar(); });
     };
 
-    // --- PESTAÑAS (VISTA FIJA DE HOY) ---
-    window.cambiarModo = function(modo) {
-        MODO = modo;
-        cancelar(); 
-
-        ['oficina','campo','contado','abonos','faltantes','excedente','historial'].forEach(m => {
-            document.getElementById('tab-'+m).className = 'tab';
-            let bloqueId = (m === 'oficina' || m === 'campo') ? 'depositos' : m;
-            if(document.getElementById('bloque-'+bloqueId)) document.getElementById('bloque-'+bloqueId).classList.add('hidden');
-        });
-
-        const btn = document.getElementById('btn-guardar');
-        const lblMonto = document.getElementById('lbl-monto');
-        const bloqueMonto = document.getElementById('bloque-monto');
-        const bloqueFecha = document.getElementById('bloque-fecha-global');
-
-        document.getElementById('tab-' + modo.toLowerCase()).className = 'tab active-' + modo.toLowerCase();
+    window.cambiar = function(m) {
+        MODO = m; cancelar();
+        // UI
+        document.querySelectorAll('.tab').forEach(t => t.className='tab');
+        document.getElementById('tab-'+m.toLowerCase()).className = `tab active-${m.toLowerCase()}`;
         
-        // AUTO RETORNO A HOY
-        if(modo !== 'HISTORIAL') {
-            ES_HISTORIAL = false;
-            bloqueMonto.classList.remove('hidden');
-            bloqueFecha.classList.remove('hidden');
-            btn.style.display = 'block';
+        document.querySelectorAll('.form-grid').forEach(b => b.classList.add('hidden'));
+        document.getElementById('block-historial').classList.add('hidden');
+        document.getElementById('block-monto').classList.remove('hidden');
+        document.getElementById('btn-guardar').style.display='block';
 
-            // REINICIAR FILTRO A LA FECHA REAL DE HOY
-            const hoy = new Date().toISOString().split('T')[0];
-            FECHA_FILTRO = hoy; 
-            document.getElementById('titulo-reporte').innerText = "REPORTE DE CARGA (HOY: " + hoy + ")";
-            document.getElementById('titulo-reporte').style.color = "#004d40";
-        } 
-        else {
+        if(m=='OFICINA' || m=='CAMPO') document.getElementById('block-depositos').classList.remove('hidden');
+        else if(m=='CONTADO') document.getElementById('block-contado').classList.remove('hidden');
+        else if(m=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
+        else if(m=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
+        else if(m=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
+        else { // HISTORIAL
             ES_HISTORIAL = true;
-            document.getElementById('bloque-historial').classList.remove('hidden');
-            bloqueMonto.classList.add('hidden');
-            bloqueFecha.classList.add('hidden');
-            btn.style.display = 'none'; 
-            document.getElementById('titulo-reporte').innerText = "VISTA HISTORIAL (Selecciona fecha)";
-            document.getElementById('titulo-reporte').style.color = "#455a64";
+            document.getElementById('block-historial').classList.remove('hidden');
+            document.getElementById('block-monto').classList.add('hidden');
+            document.getElementById('btn-guardar').style.display='none';
+            return;
         }
 
-        if(modo === 'OFICINA') {
-            document.getElementById('bloque-depositos').classList.remove('hidden');
-            btn.className = 'main-btn btn-oficina'; btn.innerText = "GUARDAR (OFICINA)";
-            lblMonto.innerText = "Monto Depósito (L.):";
-        } else if(modo === 'CAMPO') {
-            document.getElementById('bloque-depositos').classList.remove('hidden');
-            btn.className = 'main-btn btn-campo'; btn.innerText = "GUARDAR (CAMPO)";
-            lblMonto.innerText = "Monto Depósito (L.):";
-        } else if(modo === 'CONTADO') {
-            document.getElementById('bloque-contado').classList.remove('hidden');
-            btn.className = 'main-btn btn-contado'; btn.innerText = "GUARDAR VENTA CONTADO";
-            lblMonto.innerText = "Saldo Contado (L.):";
-        } else if(modo === 'ABONOS') {
-            document.getElementById('bloque-abonos').classList.remove('hidden');
-            btn.className = 'main-btn btn-abonos'; btn.innerText = "GUARDAR ABONO";
-            lblMonto.innerText = "Monto Abonado (L.):";
-        } else if(modo === 'FALTANTES') {
-            document.getElementById('bloque-faltantes').classList.remove('hidden');
-            btn.className = 'main-btn btn-faltantes'; btn.innerText = "GUARDAR FALTANTE";
-            lblMonto.innerText = "Monto Faltante (L.):";
-        } else if(modo === 'EXCEDENTE') {
-            document.getElementById('bloque-excedente').classList.remove('hidden');
-            btn.className = 'main-btn btn-excedente'; btn.innerText = "GUARDAR EXCEDENTE";
-            lblMonto.innerText = "Monto Excedente (L.):";
-        }
+        ES_HISTORIAL = false;
+        FILTRO = HOY;
+        document.getElementById('titulo-reporte').innerText = "REPORTE DE HOY ("+HOY+")";
+        pintar();
         
-        if(!ES_HISTORIAL) pintarReportes();
+        // Colores boton
+        const btn = document.getElementById('btn-guardar');
+        btn.className = `btn-${m.toLowerCase()}`;
+        btn.innerText = `GUARDAR ${m}`;
+        
+        // Actualizar cuenta deposito
+        if(m=='OFICINA') document.getElementById('cuenta').innerHTML="<option value='LESLY'>CUENTA LESLY</option>";
+        else document.getElementById('cuenta').innerHTML="<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
     };
 
-    // --- FUNCION HISTORIAL ---
     window.buscarHistorial = function() {
-        const f = document.getElementById('fecha_historial').value;
-        if(!f) return;
-        FECHA_FILTRO = f;
-        document.getElementById('titulo-reporte').innerText = "REPORTE HISTÓRICO DEL: " + f;
-        pintarReportes();
-    }
-
-    // --- GUARDAR (CON FECHA REAL DE REGISTRO) ---
-    window.guardar = function() {
-        if(ES_HISTORIAL) return; 
-
-        // FECHA MANUAL (DEL PAPEL)
-        const fechaManual = document.getElementById('fecha').value;
-        // FECHA REAL (HOY)
-        const fechaRegistro = new Date().toISOString().split('T')[0];
-
-        const monto = parseFloat(document.getElementById('monto').value);
-
-        if(isNaN(monto)) { alert("Falta el monto"); return; }
-
-        let ruta = '', datos = {};
-
-        // INCLUIMOS fecha_registro EN TODOS LOS OBJETOS
-        if(MODO === 'EXCEDENTE') {
-            const tar = document.getElementById('exc_tarjeta').value;
-            const art = document.getElementById('exc_articulo').value;
-            if(!tar || !art) { alert("Faltan datos"); return; }
-            ruta = 'excedente_tarjetas';
-            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, tarjeta: tar, articulo: art, cuenta: 'LESLY', monto };
-        }
-        else if(MODO === 'FALTANTES') {
-            const cob = document.getElementById('faltante_cobrador').value;
-            const zon = document.getElementById('faltante_zona').value;
-            if(!cob || !zon) { alert("Faltan datos"); return; }
-            ruta = 'faltantes_cobro';
-            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, cobrador: cob, zona: zon, monto };
-        }
-        else if(MODO === 'ABONOS') {
-            const tar = document.getElementById('abono_tarjeta').value;
-            const art = document.getElementById('abono_articulo').value;
-            const sal = document.getElementById('abono_saldo').value;
-            const cue = document.getElementById('abono_cuenta').value;
-            if(!tar || !cue) { alert("Faltan datos"); return; }
-            ruta = 'abonos_clientes';
-            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, tarjeta: tar, articulo: art, saldo_restante: sal, cuenta: cue, monto };
-        } 
-        else if(MODO === 'CONTADO') {
-            const vend = document.getElementById('vendedor').value;
-            const art = document.getElementById('articulo').value;
-            const cue = document.getElementById('contado_cuenta').value;
-            if(!vend || !cue) { alert("Faltan datos"); return; }
-            ruta = 'ventas_contado';
-            datos = { fecha: fechaManual, fecha_registro: fechaRegistro, vendedor: vend, articulo: art, cuenta: cue, monto };
-        } 
-        else { // DEPOSITOS
-            const sem = document.getElementById('semana').value;
-            const ref = document.getElementById('referencia').value;
-            const zon = document.getElementById('zona').value;
-            const cob = document.getElementById('cobrador').value;
-            const cue = document.getElementById('cuenta').value;
-            if(!zon || !ref) { alert("Faltan datos"); return; }
-            ruta = 'registros_milagro';
-            datos = { origen: MODO, semana: sem, fecha: fechaManual, fecha_registro: fechaRegistro, ref, zona: zon, cobrador: cob, cuenta: cue, monto };
-        }
-
-        if(ID_EDITANDO) {
-            db.ref(ruta + '/' + ID_EDITANDO).update(datos).then(() => { alert("Actualizado"); cancelar(); });
-        } else {
-            db.ref(ruta).push(datos).then(() => { 
-                limpiarCampos();
-                alert("✅ Guardado Exitosamente");
-            });
-        }
+        FILTRO = document.getElementById('fecha_historial').value;
+        document.getElementById('titulo-reporte').innerText = "REPORTE DEL: " + FILTRO;
+        pintar();
     };
 
-    function limpiarCampos() {
-        document.getElementById('monto').value = "";
-        document.getElementById('referencia').value = "";
-        document.getElementById('articulo').value = "";
-        document.getElementById('abono_tarjeta').value = "";
-        document.getElementById('abono_articulo').value = "";
-        document.getElementById('abono_saldo').value = "";
-        document.getElementById('exc_tarjeta').value = "";
-        document.getElementById('exc_articulo').value = "";
-        
-        document.getElementById('faltante_cobrador').value = "";
-        document.getElementById('faltante_zona').innerHTML = '<option value="">-- Seleccione Cobrador --</option>';
-    }
+    window.guardar = function() {
+        const fecha = document.getElementById('fecha').value;
+        const monto = parseFloat(document.getElementById('monto').value);
+        if(!monto) return alert("Falta monto");
 
-    // --- REPORTE (FILTRA POR FECHA DE REGISTRO REAL) ---
-    function pintarReportes() {
-        const cont = document.getElementById('contenedor-reportes');
-        cont.innerHTML = "";
-        let granTotal = 0;
+        let ruta='', obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
 
-        // FILTRO MAESTRO: Si existe fecha_registro, usa esa. Si no (datos viejos), usa fecha normal.
-        const filterFn = (item) => {
-            const fechaComparar = item.fecha_registro || item.fecha;
-            return fechaComparar === FECHA_FILTRO;
-        };
+        if(MODO=='CONTADO') {
+            obj.vendedor = document.getElementById('vendedor').value;
+            obj.cuenta = document.getElementById('contado_cuenta').value;
+            obj.articulo = document.getElementById('articulo_contado').value;
+            ruta='ventas_contado';
+        } else if(MODO=='ABONOS') {
+            obj.tarjeta = document.getElementById('abono_tarjeta').value;
+            obj.articulo = document.getElementById('abono_articulo').value;
+            obj.saldo_restante = document.getElementById('abono_saldo').value;
+            obj.cuenta = document.getElementById('abono_cuenta').value;
+            ruta='abonos_clientes';
+        } else if(MODO=='FALTANTES') {
+            obj.cobrador = document.getElementById('fal_cobrador').value;
+            obj.zona = document.getElementById('fal_zona').value;
+            ruta='faltantes_cobro';
+        } else if(MODO=='EXCEDENTE') {
+            obj.tarjeta = document.getElementById('exc_tarjeta').value;
+            obj.articulo = document.getElementById('exc_articulo').value;
+            obj.cuenta = 'LESLY';
+            ruta='excedente_tarjetas';
+        } else { // DEP
+            obj.origen = MODO;
+            obj.semana = document.getElementById('semana').value;
+            obj.ref = document.getElementById('ref').value;
+            obj.zona = document.getElementById('zona').value;
+            obj.cobrador = document.getElementById('cobrador').value;
+            obj.cuenta = document.getElementById('cuenta').value;
+            ruta='registros_milagro';
+        }
+
+        if(ID_EDIT) db.ref(`${ruta}/${ID_EDIT}`).update(obj).then(()=>{ alert("Editado"); cancelar(); });
+        else db.ref(ruta).push(obj).then(()=>{ alert("Guardado"); cancelar(); });
+    };
+
+    function pintar() {
+        const div = document.getElementById('reportes');
+        div.innerHTML = "";
+        let total = 0;
+        const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
 
         // 1. EXCEDENTES
-        let misExc = listaExc.filter(filterFn);
-        if (misExc.length > 0) {
-             let sub = 0; let rows = "";
-             misExc.forEach(r => {
-                 sub += r.monto;
-                 rows += `<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td style="color:var(--excedente); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'EXC')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'EXC')">🗑️</button></td></tr>`;
-             });
-             granTotal += sub;
-             cont.innerHTML += `<div class="report-section border-lesly"><h3 class="account-title">EXCEDENTES LESLY <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Tarjeta</th><th>Artículo</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        let exc = filtrar(datos.exc);
+        if(exc.length){
+            let h = `<div class="report-section border-lesly"><h3>EXCEDENTES</h3><table>`;
+            exc.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','excedente_tarjetas')">X</button></td></tr>`; });
+            div.innerHTML += h+"</table></div>";
         }
 
         // 2. FALTANTES
-        let misFal = listaFal.filter(filterFn);
-        if(misFal.length > 0) {
-            const agrupado = {};
-            misFal.forEach(r => { if(!agrupado[r.cobrador]) agrupado[r.cobrador] = []; agrupado[r.cobrador].push(r); });
-            for(const cob in agrupado) {
-                let sub = 0; let rows = "";
-                agrupado[cob].forEach(r => {
-                    sub += r.monto;
-                    rows += `<tr><td>${r.fecha}</td><td>${r.zona}</td><td style="color:var(--faltante); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'FAL')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'FAL')">🗑️</button></td></tr>`;
-                });
-                granTotal += sub;
-                cont.innerHTML += `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES ${cob} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Zona</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
-            }
+        let fal = filtrar(datos.fal);
+        if(fal.length){
+            let h = `<div class="report-section border-faltantes"><h3>FALTANTES</h3><table>`;
+            fal.forEach(r => { total+=r.monto; h+=`<tr><td>${r.cobrador}</td><td>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
+            div.innerHTML += h+"</table></div>";
         }
 
         // 3. ABONOS
-        let misAbo = listaAbo.filter(filterFn);
-        if(misAbo.length > 0) {
-             for (const [key, conf] of Object.entries(configCuentas)) {
-                const regs = misAbo.filter(r => r.cuenta === key);
-                if (regs.length > 0) {
-                    let sub = 0; let rows = "";
-                    regs.forEach(r => {
-                        sub += r.monto;
-                        rows += `<tr><td>${r.fecha}</td><td><b>#${r.tarjeta}</b></td><td>${r.articulo}</td><td style="color:var(--abonos); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'ABO')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'ABO')">🗑️</button></td></tr>`;
-                    });
-                    granTotal += sub;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">ABONOS ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Tarjeta</th><th>Art.</th><th>Abono</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                }
-            }
+        let abo = filtrar(datos.abo);
+        if(abo.length){
+            let h = `<div class="report-section border-abonos"><h3>ABONOS</h3><table>`;
+            abo.forEach(r => { total+=r.monto; h+=`<tr><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
+            div.innerHTML += h+"</table></div>";
         }
 
         // 4. CONTADO
-        let misCon = listaCon.filter(filterFn);
-        if(misCon.length > 0) {
-            for (const [key, conf] of Object.entries(configCuentas)) {
-                const regs = misCon.filter(r => r.cuenta === key);
-                if (regs.length > 0) {
-                    let sub = 0; let rows = "";
-                    regs.forEach(r => {
-                        sub += r.monto;
-                        rows += `<tr><td>${r.fecha}</td><td><b>${r.vendedor}</b></td><td>${r.articulo}</td><td style="color:var(--contado); font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'CON')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'CON')">🗑️</button></td></tr>`;
-                    });
-                    granTotal += sub;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">VENTAS CONTADO ${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Vend.</th><th>Art.</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                }
-            }
+        let con = filtrar(datos.con);
+        if(con.length){
+            let h = `<div class="report-section border-mix"><h3>CONTADO</h3><table>`;
+            con.forEach(r => { total+=r.monto; h+=`<tr><td>${r.vendedor}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
+            div.innerHTML += h+"</table></div>";
         }
 
         // 5. DEPOSITOS
-        let misDep = listaDep.filter(filterFn);
-        if(misDep.length > 0) {
-            for (const [key, conf] of Object.entries(configCuentas)) {
-                const regs = misDep.filter(r => r.cuenta === key);
-                if (regs.length > 0) {
-                    let sub = 0; let rows = ""; let zonaTotal = {};
-                    regs.forEach(r => {
-                        sub += r.monto;
-                        if(!zonaTotal[r.zona]) zonaTotal[r.zona] = 0; zonaTotal[r.zona] += r.monto;
-                        let badgeClass = r.origen === 'OFICINA' ? 'bg-oficina' : 'bg-campo';
-                        rows += `<tr><td><span class="badge ${badgeClass}">${r.origen.substring(0,3)}</span> ${r.fecha}</td><td>${r.zona}<br><small style="color:#666;">${r.cobrador}</small></td><td>${r.ref}</td><td style="font-weight:bold;">L. ${r.monto.toLocaleString()}</td><td class="no-print"><button class="btn-action btn-edit" onclick="editar('${r.id}', 'DEP')">✏️</button><button class="btn-action btn-del" onclick="borrar('${r.id}', 'DEP')">🗑️</button></td></tr>`;
-                    });
-                    granTotal += sub;
-                    let resumenHtml = `<div class="zone-summary"><b>Resumen por Zona:</b>`;
-                    for(const z in zonaTotal) resumenHtml += `<div class="zone-row"><span>${z}</span><span>L. ${zonaTotal[z].toLocaleString()}</span></div>`;
-                    resumenHtml += `</div>`;
-                    cont.innerHTML += `<div class="report-section ${conf.c}"><h3 class="account-title">${conf.t} <span>L. ${sub.toLocaleString()}</span></h3><table><thead><tr><th>F. Doc</th><th>Zona</th><th>Ref</th><th>Monto</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table>${resumenHtml}</div>`;
-                }
+        let dep = filtrar(datos.dep);
+        for(let c in cuentas) {
+            let list = dep.filter(r => r.cuenta === c);
+            if(list.length) {
+                let h = `<div class="report-section ${cuentas[c]}"><h3>${c}</h3><table>`;
+                list.forEach(r => { total+=r.monto; h+=`<tr><td>${r.zona}</td><td>Ref:${r.ref}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; });
+                div.innerHTML += h+"</table></div>";
             }
         }
-        
-        document.getElementById('total-global').innerText = "L. " + granTotal.toLocaleString();
-        
-        if(granTotal === 0) cont.innerHTML = "<p style='text-align:center; color:#999; padding:20px;'>No hay ingresos cargados en el sistema el día: " + FECHA_FILTRO + "</p>";
+
+        document.getElementById('gran-total').innerText = "L. " + total.toLocaleString();
+        if(total==0) div.innerHTML = "<p>Nada ingresado hoy.</p>";
     }
 
-    // --- UTILS ---
-    window.borrar = function(id, tipo) {
-        if(confirm("¿Eliminar registro?")) {
-            let ruta = '';
-            if(tipo === 'EXC') ruta = 'excedente_tarjetas';
-            else if(tipo === 'FAL') ruta = 'faltantes_cobro';
-            else if(tipo === 'ABO') ruta = 'abonos_clientes';
-            else if(tipo === 'CON') ruta = 'ventas_contado';
-            else ruta = 'registros_milagro';
-            db.ref(ruta + '/' + id).remove();
-        }
-    }
-
-    window.editar = function(id, tipo) {
-        if(ES_HISTORIAL) { alert("Para editar, cambia a una pestaña de ingreso y selecciona la fecha."); return; }
-        
-        ID_EDITANDO = id;
-        document.getElementById('btn-cancelar').style.display = 'block';
-        document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
-        window.scrollTo(0,0);
-
-        if(tipo === 'EXC') {
-            const r = listaExc.find(x => x.id === id);
-            cambiarModo('EXCEDENTE');
-            document.getElementById('fecha').value = r.fecha;
-            document.getElementById('exc_tarjeta').value = r.tarjeta;
-            document.getElementById('exc_articulo').value = r.articulo;
-            document.getElementById('monto').value = r.monto;
-        }
-        else if(tipo === 'FAL') {
-            const r = listaFal.find(x => x.id === id);
-            cambiarModo('FALTANTES');
-            document.getElementById('fecha').value = r.fecha;
-            document.getElementById('faltante_cobrador').value = r.cobrador;
-            actualizarZonasFaltante();
-            document.getElementById('faltante_zona').value = r.zona;
-            document.getElementById('monto').value = r.monto;
-        }
-        else if(tipo === 'ABO') {
-            const r = listaAbo.find(x => x.id === id);
-            cambiarModo('ABONOS');
-            document.getElementById('fecha').value = r.fecha;
-            document.getElementById('abono_tarjeta').value = r.tarjeta;
-            document.getElementById('abono_articulo').value = r.articulo;
-            document.getElementById('abono_saldo').value = r.saldo_restante;
-            document.getElementById('abono_cuenta').value = r.cuenta;
-            document.getElementById('monto').value = r.monto;
-        } 
-        else if(tipo === 'CON') {
-            const r = listaCon.find(x => x.id === id);
-            cambiarModo('CONTADO');
-            document.getElementById('fecha').value = r.fecha;
-            document.getElementById('vendedor').value = r.vendedor;
-            document.getElementById('articulo').value = r.articulo;
-            document.getElementById('contado_cuenta').value = r.cuenta;
-            document.getElementById('monto').value = r.monto;
-        } 
-        else {
-            const r = listaDep.find(x => x.id === id);
-            cambiarModo(r.origen);
-            document.getElementById('fecha').value = r.fecha;
-            document.getElementById('semana').value = r.semana;
-            document.getElementById('referencia').value = r.ref;
-            document.getElementById('zona').value = r.zona;
-            autoCobrador();
-            document.getElementById('cuenta').value = r.cuenta;
-            document.getElementById('monto').value = r.monto;
-        }
-    }
-
-    window.cancelar = function() {
-        ID_EDITANDO = null;
-        document.getElementById('btn-cancelar').style.display = 'none';
-        limpiarCampos();
-        let txt = "";
-        if(MODO === 'OFICINA') txt = "(OFICINA)"; else if(MODO === 'CAMPO') txt = "(CAMPO)"; else if(MODO === 'FALTANTES') txt = "FALTANTE"; else if(MODO === 'EXCEDENTE') txt = "EXCEDENTE"; else if(MODO === 'CONTADO') txt = "VENTA CONTADO"; else txt = "ABONO";
-        document.getElementById('btn-guardar').innerText = "GUARDAR " + txt;
-    }
+    window.del = (id, ruta) => { if(confirm("Borrar?")) db.ref(`${ruta}/${id}`).remove(); };
+    window.cancelar = () => { 
+        ID_EDIT=null; 
+        document.querySelectorAll('input').forEach(i=>i.value=''); 
+        document.getElementById('btn-cancelar').style.display='none';
+    };
 
     function llenarZonas() {
         const sel = document.getElementById('zona');
-        for (const [cob, list] of Object.entries(rutas)) {
-            const grp = document.createElement('optgroup'); grp.label = cob;
-            list.forEach(z => {
-                const op = document.createElement('option'); op.value = z; op.innerText = z; op.setAttribute('data-c', cob);
-                grp.appendChild(op);
-            });
-            sel.appendChild(grp);
+        for (const [k, v] of Object.entries(rutas)) {
+            let g = document.createElement('optgroup'); g.label=k;
+            v.forEach(z => { let o=document.createElement('option'); o.value=z; o.innerText=z; o.setAttribute('data-c',k); g.appendChild(o); });
+            sel.appendChild(g);
         }
     }
+    window.autoCobrador = () => document.getElementById('cobrador').value = document.getElementById('zona').options[document.getElementById('zona').selectedIndex].getAttribute('data-c');
     
-    window.autoCobrador = function() {
-        const sel = document.getElementById('zona');
-        document.getElementById('cobrador').value = sel.options[sel.selectedIndex].getAttribute('data-c') || "";
-    }
-
-    window.actualizarZonasFaltante = function() {
-        const cob = document.getElementById('faltante_cobrador').value;
-        const sel = document.getElementById('faltante_zona');
-        sel.innerHTML = '<option value="">-- Seleccione Zona --</option>';
-        if(rutas[cob]) {
-            rutas[cob].forEach(z => {
-                const op = document.createElement('option'); op.value = z; op.innerText = z;
-                sel.appendChild(op);
-            });
-        }
-    }
-
-    function actualizarCuentas() {
-        const c = document.getElementById('cuenta');
-        c.innerHTML = MODO === 'OFICINA' 
-            ? "<option value='LESLY'>CUENTA LESLY</option>" 
-            : "<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
-    }
+    window.zonaFaltante = () => {
+        let c = document.getElementById('fal_cobrador').value;
+        let s = document.getElementById('fal_zona'); s.innerHTML="";
+        if(rutas[c]) rutas[c].forEach(z => { let o=document.createElement('option'); o.value=z; o.innerText=z; s.appendChild(o); });
+    };
 </script>
-
 </body>
 </html>
