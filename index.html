@@ -95,11 +95,11 @@
         <div class="full">
             <label>Fecha del Recibo:</label>
             <input type="date" id="fecha">
-            <small style="color:#004d40">ℹ️ Se guardará en el reporte de HOY.</small>
+            <small style="color:#004d40">ℹ️ Se guardará en el reporte de HOY (Carga diaria).</small>
         </div>
 
         <div id="block-depositos" class="form-grid">
-            <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select></div>
+            <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option></select></div>
             <div><label>Referencia:</label><input type="number" id="ref"></div>
             <div class="full"><label>Zona:</label><select id="zona" onchange="autoCobrador()"></select></div>
             <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#eee;"></div>
@@ -157,6 +157,7 @@
 
         <div id="block-historial" class="hidden" style="text-align:center;">
             <h3>BUSCAR REPORTE ANTIGUO</h3>
+            <p>Selecciona el día que hiciste la carga:</p>
             <input type="date" id="fecha_historial" style="max-width:200px; margin:10px auto;">
             <button class="btn-historial" onclick="buscarHistorial()">BUSCAR</button>
         </div>
@@ -191,7 +192,16 @@
     let ES_HISTORIAL = false;
 
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
-    const rutas = { "MIGUEL":["Elixir","Saba Olanchito"], "ANGEL":["Margen Izquierda","Saba Tocoa"], "FERNANDO":["Vicinia","Trujillo"], "AMALET":["Balfate","Bonito"], "JORGE":["Planes","Sonaguera"] };
+    
+    // AQUÍ AGREGUÉ A FERNANDO CON HONDURAS AGUAN
+    const rutas = { 
+        "MIGUEL": ["Elixir","Saba Olanchito"], 
+        "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
+        "FERNANDO": ["Vicinia","Trujillo", "Honduras Aguan"], 
+        "AMALET": ["Balfate","Bonito"], 
+        "JORGE": ["Planes","Sonaguera"] 
+    };
+    
     const cuentas = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
     window.onload = function() {
@@ -257,6 +267,7 @@
         const monto = parseFloat(document.getElementById('monto').value);
         if(!monto) return alert("Falta monto");
 
+        // SIEMPRE SE GUARDA CON FECHA_REGISTRO = HOY PARA QUE SALGA EN EL CORTE DE CAJA
         let ruta='', obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
 
         if(MODO=='CONTADO') {
@@ -298,11 +309,8 @@
         div.innerHTML = "";
         let total = 0;
         
-        // FILTRO MAESTRO: Si es historial usa fecha documento, si es hoy usa fecha registro
-        const filtrar = (arr) => arr.filter(i => {
-            const fechaRef = ES_HISTORIAL ? (i.fecha_registro || i.fecha) : (i.fecha_registro || i.fecha);
-            return fechaRef === FILTRO;
-        });
+        // FILTRO: SI ES HISTORIAL USA FECHA_REGISTRO (Carga del dia), SINO USA HOY
+        const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
 
         // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
@@ -316,7 +324,7 @@
         let fal = filtrar(datos.fal);
         if(fal.length){
             let h = `<div class="report-section border-faltantes"><h3>FALTANTES</h3><table>`;
-            fal.forEach(r => { total+=r.monto; h+=`<tr><td>${r.cobrador}</td><td>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
+            fal.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>${r.cobrador}<br>${r.zona}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','faltantes_cobro')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -324,7 +332,7 @@
         let abo = filtrar(datos.abo);
         if(abo.length){
             let h = `<div class="report-section border-abonos"><h3>ABONOS</h3><table>`;
-            abo.forEach(r => { total+=r.monto; h+=`<tr><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
+            abo.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','abonos_clientes')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -332,7 +340,7 @@
         let con = filtrar(datos.con);
         if(con.length){
             let h = `<div class="report-section border-mix"><h3>CONTADO</h3><table>`;
-            con.forEach(r => { total+=r.monto; h+=`<tr><td>${r.vendedor}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
+            con.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','ventas_contado')">X</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
@@ -342,7 +350,7 @@
             let list = dep.filter(r => r.cuenta === c);
             if(list.length) {
                 let h = `<div class="report-section ${cuentas[c]}"><h3>${c}</h3><table>`;
-                list.forEach(r => { total+=r.monto; h+=`<tr><td>${r.zona}</td><td>Ref:${r.ref}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; });
+                list.forEach(r => { total+=r.monto; h+=`<tr><td>${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>L. ${r.monto}</td><td class="no-print"><button onclick="del('${r.id}','registros_milagro')">X</button></td></tr>`; });
                 div.innerHTML += h+"</table></div>";
             }
         }
