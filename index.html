@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercial GYG - Sistema Maestro</title>
+    <title>Comercial GYG - Sistema Maestro V32</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -19,34 +19,37 @@
             --excedente: #00838f; 
             --historial: #455a64;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #eaeff1; margin: 0; padding: 10px; padding-bottom: 80px; }
         
         /* HEADER */
-        header { background: #263238; color: white; padding: 10px; text-align: center; border-radius: 0 0 8px 8px; margin-bottom: 15px; }
+        header { background: #263238; color: white; padding: 15px; text-align: center; border-radius: 0 0 10px 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
         /* PESTAÑAS */
-        .tabs { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; font-weight: bold; background: #ccc; color: #555; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+        .tabs { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+        .tab { flex: 1; min-width: 100px; padding: 12px 5px; text-align: center; font-weight: bold; background: #cfd8dc; color: #546e7a; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; user-select: none; }
         
         /* COLORES ACTIVOS */
-        .active-oficina { background: white; color: var(--primary); border-bottom: 4px solid var(--primary); }
-        .active-campo { background: white; color: var(--field); border-bottom: 4px solid var(--field); }
-        .active-contado { background: white; color: var(--contado); border-bottom: 4px solid var(--contado); }
-        .active-abonos { background: white; color: var(--abonos); border-bottom: 4px solid var(--abonos); }
-        .active-faltantes { background: white; color: var(--faltante); border-bottom: 4px solid var(--faltante); }
-        .active-excedente { background: white; color: var(--excedente); border-bottom: 4px solid var(--excedente); }
-        .active-historial { background: white; color: var(--historial); border-bottom: 4px solid var(--historial); }
+        .active-oficina { background: white; color: var(--primary); border-top: 4px solid var(--primary); }
+        .active-campo { background: white; color: var(--field); border-top: 4px solid var(--field); }
+        .active-contado { background: white; color: var(--contado); border-top: 4px solid var(--contado); }
+        .active-abonos { background: white; color: var(--abonos); border-top: 4px solid var(--abonos); }
+        .active-faltantes { background: white; color: var(--faltante); border-top: 4px solid var(--faltante); }
+        .active-excedente { background: white; color: var(--excedente); border-top: 4px solid var(--excedente); }
+        .active-historial { background: white; color: var(--historial); border-top: 4px solid var(--historial); }
 
         /* FORMULARIO */
-        .card { background: white; padding: 15px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: white; padding: 20px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full { grid-column: span 2; }
         
-        label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; margin-top: 8px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; margin-top: 5px; color: #455a64; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cfd8dc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        input:focus, select:focus { border-color: #90a4ae; outline: none; }
         
         /* BOTONES */
-        button { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; font-size: 1rem; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; margin-top: 20px; font-size: 1rem; transition: filter 0.2s; }
+        button:hover { filter: brightness(1.1); }
+        
         .btn-oficina { background: var(--primary); }
         .btn-campo { background: var(--field); }
         .btn-contado { background: var(--contado); }
@@ -55,41 +58,39 @@
         .btn-excedente { background: var(--excedente); }
         .btn-historial { background: var(--historial); }
         
-        #btn-cancelar { background: #616161; display: none; margin-bottom: 10px; }
-        .btn-pdf { background: #d32f2f; margin-top: 20px; }
+        #btn-cancelar { background: #546e7a; margin-bottom: 10px; display: none; }
+        .btn-pdf { background: #d32f2f; margin-top: 30px; }
 
         /* REPORTES */
-        #area-impresion { margin-top: 20px; }
-        .report-section { background: white; border-radius: 8px; padding: 10px; margin-bottom: 15px; border-top: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        #area-impresion { margin-top: 25px; }
+        .report-section { background: white; border-radius: 8px; padding: 15px; margin-bottom: 20px; border-left: 5px solid #555; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         
-        .border-david { border-top-color: #1565c0; }
-        .border-lesly { border-top-color: #ad1457; }
-        .border-mix { border-top-color: #6a1b9a; }
-        .border-jose { border-top-color: #2e7d32; }
-        .border-abonos { border-top-color: #1565c0; }
-        .border-faltantes { border-top-color: #c62828; }
+        .border-david { border-left-color: #1565c0; }
+        .border-lesly { border-left-color: #ad1457; }
+        .border-mix { border-left-color: #6a1b9a; }
+        .border-jose { border-left-color: #2e7d32; }
+        .border-abonos { border-left-color: #1565c0; }
+        .border-faltantes { border-left-color: #c62828; }
         
-        .account-title { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #eee; font-size: 1rem; color: #333; }
-        .account-title span { font-weight: bold; font-size: 1.1rem; }
+        .account-title { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px 0; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; font-size: 1.1rem; color: #263238; font-weight: bold; }
+        .account-title span { background: #eceff1; padding: 2px 8px; border-radius: 4px; font-size: 1rem; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
-        th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f5f5f5; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 5px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f5f5f5; color: #78909c; font-size: 0.8rem; text-transform: uppercase; }
         
-        .btn-action { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; margin-left: 2px; font-size: 0.9rem; }
-        .btn-edit { background: #e3f2fd; color: #1565c0; }
-        .btn-del { background: #ffebee; color: #c62828; }
-
-        /* BADGES PARA DIFERENCIAR OFICINA Y CAMPO */
         .badge { padding: 3px 6px; border-radius: 4px; color: white; font-size: 0.7rem; font-weight: bold; margin-right: 5px; }
         .bg-oficina { background: var(--primary); }
         .bg-campo { background: var(--field); }
 
-        .zone-summary { background: #f9f9f9; padding: 10px; margin-top: 10px; font-size: 0.85rem; border-radius: 4px; border: 1px dashed #ccc; }
-        .zone-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ddd; }
-        .zone-row:last-child { border-bottom: none; }
+        .btn-action { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; font-size: 0.85rem; }
+        .btn-edit { background: #e3f2fd; color: #1565c0; }
+        .btn-del { background: #ffebee; color: #c62828; }
 
-        .total-box { background: #333; color: white; padding: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; }
+        .zone-summary { background: #fafafa; padding: 12px; margin-top: 12px; font-size: 0.9rem; border-radius: 6px; border: 1px dashed #cfd8dc; }
+        .zone-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dotted #eceff1; }
+        
+        .total-box { background: #263238; color: white; padding: 15px; text-align: right; font-weight: bold; font-size: 1.3rem; border-radius: 8px; margin-top: 20px; }
         .hidden { display: none; }
 
         @media print { .no-print { display: none; } }
@@ -97,7 +98,7 @@
 </head>
 <body>
 
-<header class="no-print"><h2>SISTEMA GYG</h2></header>
+<header class="no-print"><h2 style="margin:0">SISTEMA GYG (V32)</h2></header>
 
 <div class="container" style="max-width:900px; margin:0 auto;">
 
@@ -115,20 +116,17 @@
         <div class="full">
             <label>Fecha del Recibo:</label>
             <input type="date" id="fecha">
-            <small style="color:#004d40">ℹ️ Se guardará en el reporte de HOY (Carga diaria).</small>
+            <small style="color:#004d40; font-style:italic;">* Se guardará en el reporte de HOY.</small>
         </div>
 
         <div id="block-depositos" class="form-grid">
             <div><label>Semana:</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select></div>
-            <div><label>Referencia:</label><input type="number" id="ref"></div>
+            <div><label>Referencia:</label><input type="number" id="ref" placeholder="000"></div>
             <div class="full"><label>Zona:</label><select id="zona" onchange="autoCobrador()"></select></div>
-            <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#eee;"></div>
+            <div class="full"><label>Cobrador:</label><input type="text" id="cobrador" readonly style="background:#f5f5f5; color:#555;"></div>
             <div class="full"><label>Cuenta Destino:</label>
                 <select id="cuenta">
-                    <option value="DAVID">CUENTA DAVID</option>
-                    <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
-                    <option value="JOSE_RODINDER">JOSE RODINDER</option>
-                </select>
+                    </select>
             </div>
         </div>
 
@@ -142,20 +140,22 @@
             <div><label>Cuenta Destino:</label>
                 <select id="contado_cuenta">
                     <option value="DAVID">CUENTA DAVID</option>
+                    <option value="LESLY">CUENTA LESLY</option>
                     <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
                     <option value="JOSE_RODINDER">JOSE RODINDER</option>
                 </select>
             </div>
-            <div class="full"><label>Artículo:</label><input type="text" id="articulo_contado"></div>
+            <div class="full"><label>Artículo:</label><input type="text" id="articulo_contado" placeholder="Ej. Cama Matrimonial"></div>
         </div>
 
         <div id="block-abonos" class="form-grid hidden">
-            <div><label>Tarjeta:</label><input type="text" id="abono_tarjeta"></div>
+            <div><label>Tarjeta:</label><input type="text" id="abono_tarjeta" placeholder="# Tarjeta"></div>
             <div><label>Artículo:</label><input type="text" id="abono_articulo"></div>
-            <div><label>Saldo:</label><input type="number" id="abono_saldo"></div>
+            <div><label>Saldo Restante:</label><input type="number" id="abono_saldo" placeholder="0.00"></div>
             <div><label>Cuenta Destino:</label>
                 <select id="abono_cuenta">
                     <option value="DAVID">CUENTA DAVID</option>
+                    <option value="LESLY">CUENTA LESLY</option>
                     <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
                     <option value="JOSE_RODINDER">JOSE RODINDER</option>
                 </select>
@@ -170,7 +170,7 @@
                     <option value="FERNANDO">FERNANDO</option><option value="AMALET">AMALET</option><option value="JORGE">JORGE</option>
                 </select>
             </div>
-            <div class="full"><label>Zona:</label><select id="fal_zona"></select></div>
+            <div class="full"><label>Zona del Faltante:</label><select id="fal_zona"></select></div>
         </div>
 
         <div id="block-excedente" class="form-grid hidden">
@@ -179,22 +179,23 @@
             <div class="full"><label>Cuenta Destino:</label>
                 <select id="exc_cuenta">
                     <option value="DAVID">CUENTA DAVID</option>
+                    <option value="LESLY">CUENTA LESLY</option>
                     <option value="DAVID_LESLY">DAVID (VIA LESLY)</option>
                     <option value="JOSE_RODINDER">JOSE RODINDER</option>
                 </select>
             </div>
         </div>
 
-        <div id="block-historial" class="hidden" style="text-align:center;">
-            <h3>BUSCAR REPORTE ANTIGUO</h3>
-            <p>Selecciona el día que hiciste la carga:</p>
-            <input type="date" id="fecha_historial" style="max-width:200px; margin:10px auto;">
-            <button class="main-btn btn-historial" onclick="buscarHistorial()">BUSCAR</button>
+        <div id="block-historial" class="hidden" style="text-align:center; padding: 20px;">
+            <h3 style="color:#455a64;">BUSCAR REPORTE ANTIGUO</h3>
+            <p>Selecciona la fecha que quieres consultar:</p>
+            <input type="date" id="fecha_historial" style="max-width:250px; margin:10px auto;">
+            <button class="btn-historial" onclick="buscarHistorial()" style="max-width:250px;">🔍 BUSCAR</button>
         </div>
 
         <div id="block-monto" class="full">
-            <label>Monto (L.):</label>
-            <input type="number" id="monto" style="font-size:1.2rem; font-weight:bold;" step="0.01">
+            <label style="font-size:1rem; color:#333;">Monto a Ingresar (L.):</label>
+            <input type="number" id="monto" style="font-size:1.5rem; font-weight:bold; color:#2e7d32;" step="0.01" placeholder="0.00">
         </div>
 
         <button id="btn-cancelar" onclick="cancelarEdicion()">CANCELAR EDICIÓN</button>
@@ -202,27 +203,27 @@
     </div>
 
     <div id="area-impresion">
-        <h3 id="titulo-reporte" class="no-print">REPORTE DE HOY</h3>
+        <h3 id="titulo-reporte" class="no-print" style="border-bottom:2px solid #ccc; color:#455a64;">REPORTE DE HOY</h3>
         <div id="reportes"></div>
-        <div class="total-box">TOTAL: <span id="gran-total">L. 0.00</span></div>
+        <div class="total-box">TOTAL GLOBAL: <span id="gran-total">L. 0.00</span></div>
     </div>
 
     <button class="btn-pdf no-print" onclick="window.print()">IMPRIMIR PDF</button>
 </div>
 
 <script>
+    // --- CONEXION ---
     const firebaseConfig = { apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g", authDomain: "ingreso-depositos.firebaseapp.com", databaseURL: "https://ingreso-depositos-default-rtdb.firebaseio.com", projectId: "ingreso-depositos", storageBucket: "ingreso-depositos.firebasestorage.app", messagingSenderId: "788432921819", appId: "1:788432921819:web:b5f792eecbe4b7b00498fe" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // VARIABLES
+    // --- VARIABLES ---
     let MODO = 'OFICINA'; 
     let ID_EDIT = null;
     let RUTA_EDIT = null; 
     let HOY = new Date().toISOString().split('T')[0];
     let FILTRO = HOY;
-    let ES_HISTORIAL = false;
-
+    
     let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
     
     // ZONAS ACTUALIZADAS (CON FAUST, JUTIAPA, HONDURAS AGUAN, ETC)
@@ -234,19 +235,24 @@
         "JORGE": ["Planes","Jutiapa", "Sonaguera", "Faust"] 
     };
     
-    const cuentas = { "DAVID":"border-david", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
+    // NOMBRES DE CUENTAS FIJOS PARA REPORTES
+    const cuentasClase = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
+    // --- INICIO ---
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
         document.getElementById('fecha_historial').value = HOY;
         llenarZonas();
         
-        // CARGA DE DATOS
+        // CARGA DE DATOS EN TIEMPO REAL
         db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('faltantes_cobro').on('value', s => { datos.fal=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.fal.push({id:k,...s.val()[k]})); pintar(); });
         db.ref('excedente_tarjetas').on('value', s => { datos.exc=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.exc.push({id:k,...s.val()[k]})); pintar(); });
+        
+        // INICIAR EN OFICINA
+        cambiarPestana('OFICINA');
     };
 
     function cambiarPestana(m) {
@@ -256,35 +262,47 @@
     }
 
     function actualizarUI() {
+        // TABS
         document.querySelectorAll('.tab').forEach(t => t.className='tab');
         if(document.getElementById('tab-'+MODO.toLowerCase())) {
             document.getElementById('tab-'+MODO.toLowerCase()).className = `tab active-${MODO.toLowerCase()}`;
         }
         
+        // VISIBILIDAD BLOQUES
         document.querySelectorAll('.form-grid').forEach(b => b.classList.add('hidden'));
         document.getElementById('block-historial').classList.add('hidden');
         document.getElementById('block-monto').classList.remove('hidden');
         document.getElementById('btn-guardar').style.display='block';
 
-        // OFICINA Y CAMPO COMPARTEN EL MISMO BLOQUE VISUAL PERO LOGICA DISTINTA
-        if(MODO=='OFICINA' || MODO=='CAMPO') document.getElementById('block-depositos').classList.remove('hidden');
+        // LÓGICA DE BLOQUES
+        if(MODO=='OFICINA' || MODO=='CAMPO') {
+            document.getElementById('block-depositos').classList.remove('hidden');
+            // ACTUALIZAR DROPDOWN DE CUENTAS SEGUN MODO
+            let selectCuenta = document.getElementById('cuenta');
+            if(MODO === 'OFICINA') {
+                selectCuenta.innerHTML = "<option value='LESLY'>CUENTA LESLY</option>";
+            } else {
+                selectCuenta.innerHTML = "<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
+            }
+        }
         else if(MODO=='CONTADO') document.getElementById('block-contado').classList.remove('hidden');
         else if(MODO=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
         else if(MODO=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
         else if(MODO=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
         else { 
-            ES_HISTORIAL = true;
+            // HISTORIAL
             document.getElementById('block-historial').classList.remove('hidden');
             document.getElementById('block-monto').classList.add('hidden');
             document.getElementById('btn-guardar').style.display='none';
             return;
         }
 
-        ES_HISTORIAL = false;
+        // RESETEAR FILTRO A HOY AL SALIR DE HISTORIAL
         FILTRO = HOY;
         document.getElementById('titulo-reporte').innerText = "REPORTE DE HOY ("+HOY+")";
         pintar();
         
+        // ESTILO BOTON
         const btn = document.getElementById('btn-guardar');
         btn.className = `btn-${MODO.toLowerCase()}`;
         btn.innerText = ID_EDIT ? "ACTUALIZAR" : `GUARDAR ${MODO}`;
@@ -300,23 +318,24 @@
         try {
             const fecha = document.getElementById('fecha').value;
             const monto = parseFloat(document.getElementById('monto').value);
-            if(!monto || isNaN(monto)) return alert("Falta monto válido");
+            
+            if(!monto || isNaN(monto)) return alert("⚠️ Ingrese un monto válido");
 
             let obj={ fecha:fecha, fecha_registro:HOY, monto:monto };
             let ruta = '';
 
-            let modoGuardado = ID_EDIT ? obtenerModoDesdeRuta(RUTA_EDIT) : MODO;
-            
+            // DETERMINAR RUTA
             if(!ID_EDIT) {
                 if(MODO=='CONTADO') ruta='ventas_contado';
                 else if(MODO=='ABONOS') ruta='abonos_clientes';
                 else if(MODO=='FALTANTES') ruta='faltantes_cobro';
                 else if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
-                else ruta='registros_milagro'; // CAMPO Y OFICINA VAN AQUI
+                else ruta='registros_milagro'; // OFICINA Y CAMPO
             } else {
-                ruta = RUTA_EDIT;
+                ruta = RUTA_EDIT; // Si edito, uso la ruta original
             }
 
+            // LLENAR DATOS
             if(ruta=='ventas_contado') {
                 obj.vendedor = document.getElementById('vendedor').value;
                 obj.cuenta = document.getElementById('contado_cuenta').value;
@@ -333,15 +352,13 @@
                 obj.tarjeta = document.getElementById('exc_tarjeta').value;
                 obj.articulo = document.getElementById('exc_articulo').value;
                 obj.cuenta = document.getElementById('exc_cuenta').value;
-            } else { // DEPOSITOS (OFICINA O CAMPO)
-                // Si estoy editando, preservo el origen original, sino uso el modo actual
+            } else { // DEPOSITOS
                 if(ID_EDIT) {
                     let registroOriginal = datos.dep.find(r => r.id === ID_EDIT);
                     obj.origen = registroOriginal ? registroOriginal.origen : MODO;
                 } else {
-                    obj.origen = MODO; // 'OFICINA' o 'CAMPO'
+                    obj.origen = MODO; // GUARDA 'OFICINA' O 'CAMPO'
                 }
-                
                 obj.semana = document.getElementById('semana').value;
                 obj.ref = document.getElementById('ref').value;
                 obj.zona = document.getElementById('zona').value;
@@ -351,11 +368,11 @@
 
             if(ID_EDIT) {
                 db.ref(`${ruta}/${ID_EDIT}`).update(obj)
-                .then(()=>{ alert("✅ Actualizado Correctamente"); cancelarEdicion(); })
+                .then(()=>{ alert("✅ Actualizado"); cancelarEdicion(); })
                 .catch(e => alert("Error: " + e.message));
             } else {
                 db.ref(ruta).push(obj)
-                .then(()=>{ alert("✅ Guardado Correctamente"); cancelarEdicion(); })
+                .then(()=>{ alert("✅ Guardado"); cancelarEdicion(); })
                 .catch(e => alert("Error: " + e.message));
             }
         } catch(e) { alert("Error critico: " + e); }
@@ -366,9 +383,10 @@
         if(ruta=='abonos_clientes') return 'ABONOS';
         if(ruta=='faltantes_cobro') return 'FALTANTES';
         if(ruta=='excedente_tarjetas') return 'EXCEDENTE';
-        return 'CAMPO'; // Por defecto, se ajusta en iniciarEdicion
+        return 'CAMPO'; // Default provisional
     }
 
+    // --- MATEMATICA SEGURA ---
     const sumar = (a, b) => Math.round((a + b) * 100) / 100;
     const fmt = (num) => "L. " + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
@@ -379,19 +397,28 @@
         
         const filtrar = (arr) => arr.filter(i => (i.fecha_registro || i.fecha) === FILTRO);
 
+        // LOGICA DE FILTRADO VISUAL POR PESTAÑA
+        // Si no estamos en historial, solo mostramos lo de la pestaña actual
+        const mostrarOficina = (MODO === 'OFICINA' || MODO === 'HISTORIAL');
+        const mostrarCampo = (MODO === 'CAMPO' || MODO === 'HISTORIAL');
+        const mostrarContado = (MODO === 'CONTADO' || MODO === 'HISTORIAL');
+        const mostrarAbonos = (MODO === 'ABONOS' || MODO === 'HISTORIAL');
+        const mostrarFaltantes = (MODO === 'FALTANTES' || MODO === 'HISTORIAL');
+        const mostrarExcedente = (MODO === 'EXCEDENTE' || MODO === 'HISTORIAL');
+
         // 1. EXCEDENTES
         let exc = filtrar(datos.exc);
-        if(exc.length){
+        if(exc.length && mostrarExcedente){
             let sub = exc.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-david"><h3 class="account-title">EXCEDENTES <span>${fmt(sub)}</span></h3><table>`;
-            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}</td><td>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','excedente_tarjetas')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','excedente_tarjetas')">🗑️</button></td></tr>`; });
+            exc.forEach(r => { h+=`<tr><td>${r.fecha}</td><td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td><td>${fmt(r.monto)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','excedente_tarjetas')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','excedente_tarjetas')">🗑️</button></td></tr>`; });
             div.innerHTML += h+"</table></div>";
         }
 
         // 2. FALTANTES
         let fal = filtrar(datos.fal);
-        if(fal.length){
+        if(fal.length && mostrarFaltantes){
             let sub = fal.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-faltantes"><h3 class="account-title">FALTANTES <span>${fmt(sub)}</span></h3><table>`;
@@ -401,7 +428,7 @@
 
         // 3. ABONOS
         let abo = filtrar(datos.abo);
-        if(abo.length){
+        if(abo.length && mostrarAbonos){
             let sub = abo.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-abonos"><h3 class="account-title">ABONOS <span>${fmt(sub)}</span></h3><table>`;
@@ -411,7 +438,7 @@
 
         // 4. CONTADO
         let con = filtrar(datos.con);
-        if(con.length){
+        if(con.length && mostrarContado){
             let sub = con.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
             total = sumar(total, sub);
             let h = `<div class="report-section border-mix"><h3 class="account-title">CONTADO <span>${fmt(sub)}</span></h3><table>`;
@@ -419,22 +446,37 @@
             div.innerHTML += h+"</table></div>";
         }
 
-        // 5. DEPOSITOS (OFICINA Y CAMPO JUNTOS PERO DIFERENCIADOS)
+        // 5. DEPOSITOS (OFICINA Y CAMPO JUNTOS)
         let dep = filtrar(datos.dep);
-        for(let c in cuentas) {
+        
+        let cuentasPosibles = ["LESLY", "DAVID", "DAVID_LESLY", "JOSE_RODINDER"];
+        
+        cuentasPosibles.forEach(c => {
+            // FILTRAR POR CUENTA
             let list = dep.filter(r => r.cuenta === c);
+            
+            // APLICAR FILTRO VISUAL OFICINA vs CAMPO
+            if(MODO === 'OFICINA') {
+                list = list.filter(r => r.origen === 'OFICINA');
+            } else if (MODO === 'CAMPO') {
+                list = list.filter(r => r.origen === 'CAMPO');
+            }
+            // Si es Historial, NO filtramos por origen, mostramos todo.
+
             if(list.length) {
                 let sub = list.reduce((a,b)=> sumar(a, parseFloat(b.monto)||0), 0);
                 total = sumar(total, sub);
                 let resumen = {};
-                let h = `<div class="report-section ${cuentas[c]}"><h3 class="account-title">${c} <span>${fmt(sub)}</span></h3><table>`;
+                // Determinar clase de color
+                let claseColor = cuentasClase[c] || "border-david";
+                
+                let h = `<div class="report-section ${claseColor}"><h3 class="account-title">${c} <span>${fmt(sub)}</span></h3><table>`;
                 
                 list.forEach(r => { 
                     let m = parseFloat(r.monto) || 0;
                     if(!resumen[r.zona]) resumen[r.zona]=0; 
                     resumen[r.zona] = sumar(resumen[r.zona], m);
                     
-                    // BADGE PARA SABER SI ES OFICINA O CAMPO
                     let badge = r.origen === 'OFICINA' ? '<span class="badge bg-oficina">OFI</span>' : '<span class="badge bg-campo">CAM</span>';
                     
                     h+=`<tr><td>${badge} ${r.fecha}</td><td>${r.zona}<br>Ref:${r.ref}</td><td>${fmt(m)}</td><td class="no-print"><button class="btn-action btn-edit" onclick="iniciarEdicion('${r.id}','registros_milagro')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`; 
@@ -445,14 +487,18 @@
                 h += "</div></div>";
                 div.innerHTML += h;
             }
-        }
+        });
 
+        // ACTUALIZAR TOTAL GLOBAL VISUAL
+        // Si estoy en una pestaña especifica, solo muestro el total de lo que veo
+        // Si estoy en historial, muestro todo.
         document.getElementById('gran-total').innerText = fmt(total);
-        if(total==0 && exc.length==0 && fal.length==0 && abo.length==0 && con.length==0 && dep.length==0) div.innerHTML = "<p>Nada ingresado para esta fecha.</p>";
+        
+        if(div.innerHTML === "") div.innerHTML = "<p style='text-align:center; color:#999'>Nada ingresado en esta sección para la fecha.</p>";
     }
 
-    // --- ACCIONES ---
-    window.del = (id, ruta) => { if(confirm("¿Eliminar registro?")) db.ref(`${ruta}/${id}`).remove(); };
+    // --- FUNCIONES EDICION ---
+    window.del = (id, ruta) => { if(confirm("¿Eliminar registro permanentemente?")) db.ref(`${ruta}/${id}`).remove(); };
     
     window.cancelarEdicion = () => { 
         ID_EDIT=null; 
@@ -460,8 +506,7 @@
         document.querySelectorAll('input').forEach(i=>i.value=''); 
         document.getElementById('btn-cancelar').style.display='none';
         document.getElementById('fecha').value = HOY; 
-        
-        actualizarUI();
+        actualizarUI(); 
     };
 
     window.iniciarEdicion = (id, ruta) => {
@@ -470,22 +515,23 @@
         
         let tipo = '';
         
-        // Logica para saber si es Oficina o Campo al editar
+        // SI ES DEPOSITO, VERIFICAR SI ES OFICINA O CAMPO
         if(ruta === 'registros_milagro') {
             let reg = datos.dep.find(x => x.id === id);
-            tipo = reg ? reg.origen : 'CAMPO'; // Si es OFICINA, detecta OFICINA
+            tipo = reg ? reg.origen : 'CAMPO'; 
         } else {
             tipo = obtenerModoDesdeRuta(ruta);
         }
         
         MODO = tipo;
         
-        // Cargar vista
+        // RECARGAR UI PARA MOSTRAR EL FORMULARIO CORRECTO
         actualizarUI();
+        
         document.getElementById('btn-cancelar').style.display='block';
         window.scrollTo(0,0);
 
-        // Llenar datos
+        // LLENAR CAMPOS
         let r;
         if(tipo === 'OFICINA' || tipo === 'CAMPO') {
             r = datos.dep.find(x => x.id === id);
@@ -493,6 +539,10 @@
             document.getElementById('ref').value = r.ref;
             document.getElementById('zona').value = r.zona;
             autoCobrador(); 
+            // IMPORTANTE: Asegurar que el select tenga la opcion correcta antes de setear value
+            if(tipo === 'OFICINA') document.getElementById('cuenta').innerHTML="<option value='LESLY'>CUENTA LESLY</option>";
+            else document.getElementById('cuenta').innerHTML="<option value='DAVID'>CUENTA DAVID</option><option value='DAVID_LESLY'>DAVID (VIA LESLY)</option><option value='JOSE_RODINDER'>JOSE RODINDER</option>";
+            
             document.getElementById('cuenta').value = r.cuenta;
         } 
         else if(tipo === 'CONTADO') {
