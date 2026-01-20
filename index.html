@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA INTERNO V34 - ADMIN</title>
+    <title>SISTEMA INTERNO BY LUIS ENAMORADO</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,448 +11,565 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        :root { 
-            --lime: #B9FF66;       
-            --black: #191A23;      
-            --gray: #F3F3F3;       
-            --white: #FFFFFF;
-            --dark-gray: #292A32;
-            --danger: #FF6666;
-        }
-        
-        body { 
-            font-family: 'Space Grotesk', sans-serif; 
-            background: var(--white); 
-            color: var(--black);
-            margin: 0; 
-            padding: 20px; 
-            padding-bottom: 80px; 
-        }
-        
+        :root { --lime: #B9FF66; --black: #191A23; --gray: #F3F3F3; --white: #FFFFFF; --danger: #ff4d4d; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--black); margin: 0; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 1000px; margin: 0 auto; }
 
         /* HEADER */
-        header { display: flex; align-items: center; justify-content: center; margin-bottom: 30px; background: var(--black); padding: 20px; border-radius: 15px; }
-        h2.logo { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; color: var(--lime); text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* PESTAÑAS */
-        .tabs-container { overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
-        .tabs { display: flex; gap: 10px; min-width: max-content; }
-        .tab { 
-            padding: 10px 20px; 
-            border: 1px solid var(--black);
-            border-radius: 10px; 
-            font-weight: 500; 
-            cursor: pointer; 
-            font-size: 0.9rem; 
-            transition: 0.2s;
-            background: var(--white);
-            box-shadow: 0 3px 0 var(--black);
-            margin-bottom: 3px; 
-        }
-        .tab:active { box-shadow: 0 0 0 var(--black); transform: translateY(3px); }
-        
-        .active-tab { background: var(--lime) !important; font-weight: bold; }
-        .active-historial { background: var(--black) !important; color: var(--white) !important; }
-        .active-config { background: #e0e0e0 !important; border: 2px dashed var(--black) !important; }
+        header { display: flex; justify-content: center; margin-bottom: 20px; background: var(--black); padding: 15px; border-radius: 15px; }
+        h2.logo { color: var(--lime); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* FORMULARIO */
-        .card { 
-            background: var(--gray); 
-            padding: 30px; 
-            border-radius: 30px; 
-            border: 1px solid var(--black);
-            box-shadow: 0 5px 0 var(--black);
-            margin-bottom: 40px;
-        }
-        
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* TABS */
+        .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .tab { padding: 10px 20px; border: 1px solid var(--black); border-radius: 10px; cursor: pointer; background: var(--white); box-shadow: 0 3px 0 var(--black); transition: 0.1s; white-space: nowrap; font-weight: bold; }
+        .tab:active { transform: translateY(3px); box-shadow: none; }
+        .active-tab { background: var(--lime) !important; }
+        .active-config { background: #333 !important; color: var(--lime) !important; }
+
+        /* CARD */
+        .card { background: var(--gray); padding: 20px; border-radius: 20px; border: 1px solid var(--black); box-shadow: 0 5px 0 var(--black); margin-bottom: 30px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full { grid-column: span 2; }
         
-        label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; }
-        input, select { 
-            width: 100%; 
-            padding: 15px; 
-            border: 1px solid var(--black); 
-            border-radius: 10px; 
-            box-sizing: border-box; 
-            font-size: 1rem; 
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--white);
-        }
-        input:focus, select:focus { outline: none; background: #fff; box-shadow: 4px 4px 0 var(--lime); }
+        label { display: block; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--black); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 1rem; }
         
         /* BOTONES */
-        button { 
-            width: 100%; 
-            padding: 18px; 
-            border: 1px solid var(--black); 
-            border-radius: 12px; 
-            font-weight: 700; 
-            font-size: 1.1rem; 
-            cursor: pointer; 
-            margin-top: 25px; 
-            font-family: 'Space Grotesk', sans-serif;
-            transition: 0.2s;
-        }
-        
-        #btn-guardar { background: var(--black); color: var(--white); }
-        #btn-guardar:hover { background: var(--dark-gray); box-shadow: 0 4px 0 var(--lime); }
-        #btn-cancelar { background: var(--white); color: var(--black); margin-top: 10px; display: none; }
-        .btn-historial { background: var(--lime); color: var(--black); }
-        .btn-config { background: #e0e0e0; color: var(--black); border: 2px dashed var(--black); }
-        .btn-pdf { background: #ff4d4d; color: white; box-shadow: 0 4px 0 #990000; }
+        button { width: 100%; padding: 15px; border: 1px solid var(--black); border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; transition: 0.2s; }
+        .btn-green { background: var(--black); color: var(--white); }
+        .btn-green:hover { background: #333; color: var(--lime); }
+        .btn-cancel { background: var(--white); color: var(--black); display: none; }
+        .btn-danger { background: var(--danger); color: white; }
 
-        /* CONFIGURACION STYLES */
-        .config-section { margin-bottom: 30px; border-bottom: 2px dashed #ccc; padding-bottom: 20px; }
-        .config-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
-        .tag-item { background: var(--white); border: 1px solid var(--black); padding: 5px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
-        .tag-del { color: var(--danger); cursor: pointer; font-weight: bold; padding: 0 5px; }
-        .row-flex { display: flex; gap: 10px; align-items: flex-end; }
-        .row-flex button { margin-top: 0; width: auto; padding: 15px 25px; background: var(--lime); }
+        /* CONFIGURACION */
+        .config-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
+        .item-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .tag { background: #e0e0e0; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; border: 1px solid #000; }
+        .tag span { cursor: pointer; color: red; font-weight: bold; }
 
         /* REPORTES */
-        #area-impresion { margin-top: 40px; }
-        .report-title-main { background: var(--lime); display: inline-block; padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; }
-
-        .report-section { 
-            background: var(--white); 
-            border: 1px solid var(--black); 
-            border-radius: 20px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 0 var(--black);
-        }
+        .report-section { background: var(--white); border: 1px solid var(--black); border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 0 var(--black); }
+        .border-david { border-left: 8px solid #1565c0; }
+        .border-lesly { border-left: 8px solid #ad1457; }
+        .border-mix { border-left: 8px solid #6a1b9a; }
+        .border-jose { border-left: 8px solid #2e7d32; }
         
-        /* BORDES DINAMICOS */
-        .border-blue { border-left: 10px solid #1565c0; }
-        .border-pink { border-left: 10px solid #ad1457; }
-        .border-purple { border-left: 10px solid #6a1b9a; }
-        .border-green { border-left: 10px solid #2e7d32; }
-        .border-red { border-left: 10px solid #c62828; }
-        
-        .account-title { display: flex; justify-content: space-between; align-items: center; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 2px dashed #ccc; font-size: 1.2rem; font-weight: 700; }
-        .account-title span { background: var(--black); color: var(--white); padding: 5px 10px; border-radius: 8px; font-size: 1rem; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th { text-align: left; padding: 10px; color: #666; font-size: 0.8rem; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; font-weight: 500; }
-        
-        .btn-action { padding: 5px 10px; border: 1px solid var(--black); border-radius: 6px; cursor: pointer; margin-left: 5px; font-weight: bold; font-size: 0.8rem; }
-        .btn-edit { background: var(--lime); }
-        .btn-del { background: #ffcccc; }
-
-        .zone-summary { background: #191A23; color: white; padding: 15px; margin-top: 15px; border-radius: 10px; font-size: 0.9rem; }
-        .zone-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; }
+        .account-title { display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
         
         .total-box { background: var(--black); color: var(--lime); padding: 20px; text-align: right; font-weight: bold; font-size: 1.5rem; border-radius: 15px; margin-top: 30px; border: 2px solid var(--lime); }
         .hidden { display: none; }
-
         @media print { .no-print { display: none; } .card { border: none; shadow: none; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header class="no-print">
-        <h2 class="logo">SISTEMA INTERNO BY LUIS ENAMORADO</h2>
-    </header>
+    <header class="no-print"><h2 class="logo">SISTEMA INTERNO BY LUIS ENAMORADO</h2></header>
 
-    <div class="tabs-container no-print">
-        <div class="tabs">
-            <div id="tab-oficina" class="tab active-tab" onclick="cambiarPestana('OFICINA')">OFICINA</div>
-            <div id="tab-campo" class="tab" onclick="cambiarPestana('CAMPO')">CAMPO</div>
-            <div id="tab-contado" class="tab" onclick="cambiarPestana('CONTADO')">CONTADO</div>
-            <div id="tab-abonos" class="tab" onclick="cambiarPestana('ABONOS')">ABONOS</div>
-            <div id="tab-faltantes" class="tab" onclick="cambiarPestana('FALTANTES')">FALTANTES</div>
-            <div id="tab-excedente" class="tab" onclick="cambiarPestana('EXCEDENTE')">EXCEDENTE</div>
-            <div id="tab-historial" class="tab" onclick="cambiarPestana('HISTORIAL')">HISTORIAL</div>
-            <div id="tab-config" class="tab" onclick="cambiarPestana('CONFIG')">⚙️ CONFIG</div>
-        </div>
+    <div class="tabs no-print">
+        <div id="tab-oficina" class="tab active-tab" onclick="setModo('OFICINA')">OFICINA</div>
+        <div id="tab-campo" class="tab" onclick="setModo('CAMPO')">CAMPO</div>
+        <div id="tab-contado" class="tab" onclick="setModo('CONTADO')">CONTADO</div>
+        <div id="tab-abonos" class="tab" onclick="setModo('ABONOS')">ABONOS</div>
+        <div id="tab-faltantes" class="tab" onclick="setModo('FALTANTES')">FALTANTES</div>
+        <div id="tab-excedente" class="tab" onclick="setModo('EXCEDENTE')">EXCEDENTE</div>
+        <div id="tab-historial" class="tab" onclick="setModo('HISTORIAL')">HISTORIAL</div>
+        <div id="tab-config" class="tab" onclick="setModo('CONFIG')">⚙️ CONFIG</div>
     </div>
 
-    <div id="block-config" class="card hidden no-print">
-        <h2 style="margin-top:0;">⚙️ CONFIGURACIÓN DEL SISTEMA</h2>
-        <p>Aquí puedes agregar o quitar cobradores, zonas y cuentas.</p>
-
-        <div class="config-section">
-            <h3>🏍️ GESTIÓN DE RUTAS (Cobradores y Zonas)</h3>
-            <div class="row-flex">
-                <div style="flex:1;">
-                    <label>Nuevo Cobrador:</label>
-                    <input type="text" id="new_cobrador" placeholder="Nombre (Ej. CARLOS)">
-                </div>
-                <button onclick="addCobrador()">AGREGAR COBRADOR</button>
+    <div id="panel-config" class="card hidden no-print">
+        <h3>⚙️ GESTIÓN DE RUTAS Y CUENTAS</h3>
+        
+        <div class="config-box">
+            <label>1. Gestión de Cobradores</label>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="new_cobrador" placeholder="Nombre Cobrador">
+                <button onclick="crearCobrador()" style="width:auto; margin:0;">➕</button>
             </div>
-            
-            <div style="margin-top:20px;">
-                <label>Selecciona Cobrador para Editar sus Zonas:</label>
-                <select id="config_cobrador_sel" onchange="renderConfigZonas()"></select>
-            </div>
-
-            <div id="zona_manager_block" class="hidden" style="margin-top:15px; background:#fff; padding:15px; border-radius:15px; border:1px solid #ccc;">
-                <label>Zonas de <span id="lbl_cobrador_edit"></span>:</label>
-                <div id="list_zonas" class="config-list"></div>
-                <div class="row-flex" style="margin-top:10px;">
-                    <input type="text" id="new_zona" placeholder="Nueva Zona">
-                    <button onclick="addZona()">+ ZONA</button>
-                </div>
-                <button onclick="deleteCobrador()" style="background:var(--danger); color:white; margin-top:20px;">ELIMINAR ESTE COBRADOR</button>
-            </div>
+            <div id="lista-cobradores" class="item-list"></div>
         </div>
 
-        <div class="config-section">
-            <h3>💰 GESTIÓN DE CUENTAS</h3>
-            <div class="row-flex">
-                <div style="flex:2;">
-                    <label>Nombre Cuenta:</label>
-                    <input type="text" id="new_cuenta_name" placeholder="Ej. CUENTA NUEVA">
-                </div>
-                <div style="flex:1;">
-                    <label>Color:</label>
-                    <select id="new_cuenta_color">
-                        <option value="border-blue">Azul</option>
-                        <option value="border-pink">Rosa</option>
-                        <option value="border-purple">Morado</option>
-                        <option value="border-green">Verde</option>
-                        <option value="border-red">Rojo</option>
-                    </select>
-                </div>
-                <button onclick="addCuenta()">AGREGAR</button>
+        <div class="config-box">
+            <label>2. Gestión de Zonas (Selecciona un cobrador primero)</label>
+            <select id="sel_cobrador_config" onchange="verZonasDeCobrador()"></select>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <input type="text" id="new_zona" placeholder="Nombre Zona">
+                <button onclick="agregarZona()" style="width:auto; margin:0;">➕ Agregar Zona</button>
             </div>
-            <label style="margin-top:15px;">Cuentas Activas:</label>
-            <div id="list_cuentas" class="config-list"></div>
+            <div id="lista-zonas" class="item-list"></div>
         </div>
 
-        <button onclick="guardarConfiguracionEnNube()" id="btn-guardar-config" style="background:var(--black); color:var(--lime);">💾 GUARDAR TODOS LOS CAMBIOS</button>
+        <button class="btn-green" onclick="guardarConfigDB()">💾 GUARDAR CAMBIOS EN EL SISTEMA</button>
     </div>
 
-    <div id="operational-card" class="card no-print">
-        <div class="full" style="margin-bottom: 20px;">
-            <label>📅 Fecha del Recibo</label>
+    <div id="panel-form" class="card no-print">
+        <div class="full" style="margin-bottom:15px;">
+            <label>Fecha:</label>
             <input type="date" id="fecha">
-            <small style="color:#666; margin-top:5px; display:block;">* El registro se guardará en la carga de HOY.</small>
         </div>
 
-        <div id="block-depositos" class="form-grid">
+        <div id="form-dep" class="form-grid">
             <div><label>Semana</label><select id="semana"><option>Semana 1</option><option>Semana 2</option><option>Semana 3</option><option>Semana 4</option><option>Semana 5</option></select></div>
-            <div><label>Referencia</label><input type="number" id="ref" placeholder="Ej. 12345"></div>
-            
-            <div class="full"><label>Cobrador (Vendedor)</label>
-                <select id="cobrador_dep" onchange="cargarZonasDeposito()">
-                    <option value="">-- Seleccione Primero --</option>
-                </select>
-            </div>
-            <div class="full"><label>Zona</label><select id="zona_dep"></select></div>
-            
-            <div class="full"><label>Cuenta Destino</label>
-                <select id="cuenta"></select>
-            </div>
+            <div><label>Referencia</label><input type="number" id="ref" placeholder="000"></div>
+            <div class="full"><label>Cobrador</label><select id="cobrador_op" onchange="cargarZonasOperativo()"></select></div>
+            <div class="full"><label>Zona</label><select id="zona_op"></select></div>
+            <div class="full"><label>Cuenta Destino</label><select id="cuenta"></select></div>
         </div>
 
-        <div id="block-contado" class="form-grid hidden">
-            <div><label>Vendedor</label>
-                <select id="vendedor">
-                    <option>SANTOS</option><option>NOE</option><option>CARLOS</option>
-                    <option>RAMON</option><option>ORLANDO</option><option>DAVID</option>
-                </select>
-            </div>
-            <div><label>Cuenta Destino</label>
-                <select id="contado_cuenta"></select>
-            </div>
-            <div class="full"><label>Artículo</label><input type="text" id="articulo_contado" placeholder="Ej. Cama Matrimonial"></div>
+        <div id="form-contado" class="form-grid hidden">
+            <div><label>Vendedor</label><select id="vendedor"><option>SANTOS</option><option>NOE</option><option>CARLOS</option><option>RAMON</option><option>ORLANDO</option><option>DAVID</option></select></div>
+            <div><label>Cuenta</label><select id="cta_contado"></select></div>
+            <div class="full"><label>Artículo</label><input type="text" id="art_contado"></div>
         </div>
 
-        <div id="block-abonos" class="form-grid hidden">
-            <div><label># Tarjeta</label><input type="text" id="abono_tarjeta" placeholder="0000"></div>
-            <div><label>Artículo</label><input type="text" id="abono_articulo"></div>
-            <div><label>Saldo Restante</label><input type="number" id="abono_saldo" placeholder="0.00"></div>
-            <div><label>Cuenta Destino</label>
-                <select id="abono_cuenta"></select>
-            </div>
+        <div id="form-abono" class="form-grid hidden">
+            <div><label>Tarjeta</label><input type="text" id="abo_tar"></div>
+            <div><label>Artículo</label><input type="text" id="abo_art"></div>
+            <div><label>Saldo</label><input type="number" id="abo_sal"></div>
+            <div><label>Cuenta</label><select id="cta_abono"></select></div>
         </div>
 
-        <div id="block-faltantes" class="form-grid hidden">
-            <div class="full"><label>Cobrador</label>
-                <select id="fal_cobrador" onchange="zonaFaltante()"></select>
-            </div>
-            <div class="full"><label>Zona del Faltante</label><select id="fal_zona"></select></div>
+        <div id="form-fal" class="form-grid hidden">
+            <div class="full"><label>Cobrador</label><select id="fal_cob" onchange="cargarZonasFaltante()"></select></div>
+            <div class="full"><label>Zona</label><select id="fal_zona"></select></div>
         </div>
 
-        <div id="block-excedente" class="form-grid hidden">
-            <div><label># Tarjeta</label><input type="text" id="exc_tarjeta"></div>
-            <div><label>Artículo</label><input type="text" id="exc_articulo"></div>
-            <div class="full"><label>Cuenta Destino</label>
-                <select id="exc_cuenta"></select>
-            </div>
+        <div id="form-exc" class="form-grid hidden">
+            <div><label>Tarjeta</label><input type="text" id="exc_tar"></div>
+            <div><label>Artículo</label><input type="text" id="exc_art"></div>
+            <div class="full"><label>Cuenta</label><select id="cta_exc"></select></div>
         </div>
 
-        <div id="block-historial" class="hidden" style="text-align:center; padding: 20px;">
-            <h3 style="margin-bottom:10px;">CONSULTAR REGISTROS ANTIGUOS</h3>
-            <p style="margin-bottom:20px;">Selecciona la fecha de carga:</p>
-            <input type="date" id="fecha_historial" style="max-width:300px; margin:0 auto;">
-            <button class="btn-historial" onclick="buscarHistorial()" style="max-width:300px; margin-top:20px;">🔍 BUSCAR REPORTE</button>
+        <div id="input-monto" class="full" style="margin-top:20px;">
+            <label>Monto (L.)</label>
+            <input type="number" id="monto" style="font-size:1.5rem; font-weight:bold; border:2px solid var(--black);" step="0.01">
         </div>
 
-        <div id="block-monto" class="full" style="margin-top: 20px;">
-            <label style="font-size:1.1rem;">💵 Monto a Ingresar (L.)</label>
-            <input type="number" id="monto" style="font-size:1.5rem; font-weight:bold; border: 2px solid var(--black);" step="0.01" placeholder="0.00">
+        <div id="form-hist" class="hidden" style="text-align:center;">
+            <h3>BUSCAR POR FECHA</h3>
+            <input type="date" id="fecha_hist" style="max-width:200px; margin:0 auto;">
+            <button class="btn-green" onclick="verHistorial()" style="max-width:200px; margin-top:10px;">BUSCAR</button>
         </div>
 
-        <button id="btn-cancelar" onclick="cancelarEdicion()">CANCELAR EDICIÓN</button>
-        <button id="btn-guardar" onclick="guardar()">GUARDAR REGISTRO</button>
+        <button id="btn-cancel" class="btn-cancel" onclick="cancelar()">CANCELAR EDICIÓN</button>
+        <button id="btn-save" class="btn-green" onclick="guardar()">GUARDAR REGISTRO</button>
     </div>
 
-    <div id="area-impresion">
-        <div class="report-title-main no-print" id="titulo-reporte">REPORTE DE HOY</div>
-        <div id="reportes"></div>
-        <div class="total-box">TOTAL GLOBAL: <span id="gran-total">L. 0.00</span></div>
+    <div id="area-reportes">
+        <h3 class="no-print" id="titulo-rep">REPORTE DE HOY</h3>
+        <div id="lista-reportes"></div>
+        <div class="total-box">TOTAL: <span id="gran-total">L. 0.00</span></div>
     </div>
+    
+    <button class="no-print" onclick="window.print()" style="background:#ff4d4d; color:white; border:none; padding:15px; width:100%; border-radius:10px; margin-top:20px; font-weight:bold; font-size:1rem;">IMPRIMIR PDF</button>
 
-    <button class="btn-pdf no-print" onclick="window.print()">📄 GUARDAR PDF / IMPRIMIR</button>
 </div>
 
 <script>
-    // --- CONEXION ---
+    // --- CONFIGURACION FIREBASE ---
     const firebaseConfig = { apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g", authDomain: "ingreso-depositos.firebaseapp.com", databaseURL: "https://ingreso-depositos-default-rtdb.firebaseio.com", projectId: "ingreso-depositos", storageBucket: "ingreso-depositos.firebasestorage.app", messagingSenderId: "788432921819", appId: "1:788432921819:web:b5f792eecbe4b7b00498fe" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- VARIABLES ---
-    let MODO = 'OFICINA'; 
+    // --- DATOS GLOBALES ---
+    let MODO = 'OFICINA';
     let ID_EDIT = null;
-    let RUTA_EDIT = null; 
     let HOY = new Date().toISOString().split('T')[0];
     let FILTRO = HOY;
-    
-    let datos = { dep:[], con:[], abo:[], fal:[], exc:[] };
-    
-    // --- CONFIGURACION DINAMICA (Inicial por defecto si está vacía) ---
-    let RUTAS_DB = { 
-        "MIGUEL": ["Elixir","Saba Olanchito", "Zona Saba"], 
-        "ANGEL": ["Margen Izquierda","Saba Tocoa"], 
-        "FERNANDO": ["Vicinia","Trujillo", "Honduras Aguan"], 
-        "AMALET": ["Balfate","Bonito Oriental"], 
-        "JORGE": ["Planes Jutiapa", "Sonaguera", "Faust"] 
-    };
-    
-    let CUENTAS_DB = { 
-        "DAVID": { nombre: "CUENTA DAVID", color: "border-blue" },
-        "LESLY": { nombre: "CUENTA LESLY", color: "border-pink" },
-        "DAVID_LESLY": { nombre: "DAVID (VIA LESLY)", color: "border-purple" },
-        "JOSE_RODINDER": { nombre: "JOSE RODINDER", color: "border-green" }
-    };
+    let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
 
-    // --- INICIO ---
+    // --- DATOS MAESTROS (CONFIGURACION INICIAL) ---
+    // Si Firebase falla, usa esto por defecto.
+    let RUTAS = {
+        "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
+        "ANGEL": ["Margen Izquierda","Saba Tocoa"],
+        "FERNANDO": ["Vicinia","Trujillo","Honduras Aguan"],
+        "AMALET": ["Balfate","Bonito Oriental"],
+        "JORGE": ["Planes Jutiapa","Sonaguera","Faust"]
+    };
+    let CUENTAS = ["DAVID", "LESLY", "DAVID_LESLY", "JOSE_RODINDER"];
+    const COLORES = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
+
+    // --- INICIALIZACION ---
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
-        document.getElementById('fecha_historial').value = HOY;
-        
-        // 1. CARGAR CONFIGURACION
-        db.ref('configuracion_sistema').once('value', snapshot => {
-            if(snapshot.exists()) {
-                const config = snapshot.val();
-                if(config.rutas) RUTAS_DB = config.rutas;
-                if(config.cuentas) CUENTAS_DB = config.cuentas;
+        document.getElementById('fecha_hist').value = HOY;
+
+        // 1. CARGAR CONFIG DESDE NUBE O USAR LOCAL
+        db.ref('configuracion_v2').once('value', s => {
+            if(s.exists()){
+                let c = s.val();
+                if(c.rutas) RUTAS = c.rutas;
+                if(c.cuentas) CUENTAS = c.cuentas;
             } else {
-                // Si no existe, guardar la default
-                guardarConfiguracionEnNube(true);
+                guardarConfigDB(); // Crear inicial si no existe
             }
-            inicializarListas();
-            // 2. CARGAR DATOS OPERATIVOS
-            cargarDatosReales();
+            llenarListasDesplegables();
         });
-        
-        cambiarPestana('OFICINA');
+
+        // 2. CARGAR REGISTROS
+        db.ref('registros_milagro').on('value', s => { REGISTROS.dep = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+        db.ref('ventas_contado').on('value', s => { REGISTROS.con = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+        db.ref('abonos_clientes').on('value', s => { REGISTROS.abo = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+        db.ref('faltantes_cobro').on('value', s => { REGISTROS.fal = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+        db.ref('excedente_tarjetas').on('value', s => { REGISTROS.exc = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+
+        setModo('OFICINA');
     };
 
-    function cargarDatosReales() {
-        db.ref('registros_milagro').on('value', s => { datos.dep=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.dep.push({id:k,...s.val()[k]})); pintar(); });
-        db.ref('ventas_contado').on('value', s => { datos.con=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.con.push({id:k,...s.val()[k]})); pintar(); });
-        db.ref('abonos_clientes').on('value', s => { datos.abo=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.abo.push({id:k,...s.val()[k]})); pintar(); });
-        db.ref('faltantes_cobro').on('value', s => { datos.fal=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.fal.push({id:k,...s.val()[k]})); pintar(); });
-        db.ref('excedente_tarjetas').on('value', s => { datos.exc=[]; if(s.val()) Object.keys(s.val()).forEach(k=>datos.exc.push({id:k,...s.val()[k]})); pintar(); });
-    }
-
     // --- GESTION DE CONFIGURACION ---
-    function inicializarListas() {
-        // Llenar selects operativos
-        llenarSelectCobradores('cobrador_dep');
-        llenarSelectCobradores('fal_cobrador');
-        
-        // Cuentas (Todas)
-        actualizarSelectCuentas('contado_cuenta');
-        actualizarSelectCuentas('abono_cuenta');
-        actualizarSelectCuentas('exc_cuenta');
-        // El de deposito depende de la pestaña, se llena en cambiarPestana
-    }
+    function llenarListasDesplegables() {
+        const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config'];
+        const selectsCta = ['cta_contado', 'cta_abono', 'cta_exc']; // El de deposito es especial
 
-    function llenarSelectCobradores(idSelect) {
-        const sel = document.getElementById(idSelect);
-        sel.innerHTML = '<option value="">-- Seleccione --</option>';
-        Object.keys(RUTAS_DB).forEach(cob => {
-            let op = document.createElement('option');
-            op.value = cob; op.innerText = cob;
-            sel.appendChild(op);
+        // Llenar Cobradores
+        selectsCob.forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                let val = el.value;
+                el.innerHTML = '<option value="">-- Seleccionar --</option>';
+                Object.keys(RUTAS).forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+                el.value = val; // Tratar de mantener seleccion
+            }
         });
-    }
 
-    function actualizarSelectCuentas(idSelect) {
-        const sel = document.getElementById(idSelect);
-        sel.innerHTML = "";
-        Object.keys(CUENTAS_DB).forEach(key => {
-            let op = document.createElement('option');
-            op.value = key; op.innerText = CUENTAS_DB[key].nombre;
-            sel.appendChild(op);
-        });
-    }
-
-    // --- LOGICA DE PESTAÑAS ---
-    function cambiarPestana(m) {
-        if(ID_EDIT) { if(!confirm("Estás editando. ¿Cancelar?")) return; cancelarEdicion(); }
-        MODO = m;
-        actualizarUI();
-    }
-
-    function actualizarUI() {
-        document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
-        if(document.getElementById('tab-'+MODO.toLowerCase())) {
-            document.getElementById('tab-'+MODO.toLowerCase()).classList.add('active-tab');
-            if(MODO === 'HISTORIAL') document.getElementById('tab-historial').classList.add('active-historial');
-            if(MODO === 'CONFIG') document.getElementById('tab-config').classList.add('active-config');
-        }
-        
-        document.querySelectorAll('.form-grid').forEach(b => b.classList.add('hidden'));
-        document.getElementById('block-historial').classList.add('hidden');
-        document.getElementById('block-config').classList.add('hidden');
-        document.getElementById('operational-card').classList.remove('hidden');
-        document.getElementById('block-monto').classList.remove('hidden');
-        document.getElementById('btn-guardar').style.display='block';
-
-        if(MODO=='OFICINA' || MODO=='CAMPO') {
-            document.getElementById('block-depositos').classList.remove('hidden');
-            let selectCuenta = document.getElementById('cuenta');
-            selectCuenta.innerHTML = "";
-            
-            // FILTRO DE CUENTAS POR MODO
-            if(MODO === 'OFICINA') {
-                // Solo Lesly o cuentas de oficina si agregas mas
-                if(CUENTAS_DB['LESLY']) {
-                    selectCuenta.innerHTML = `<option value='LESLY'>${CUENTAS_DB['LESLY'].nombre}</option>`;
-                }
-            } else {
-                // Todas MENOS Lesly
-                Object.keys(CUENTAS_DB).forEach(key => {
-                    if(key !== 'LESLY') {
-                        let op = document.createElement('option');
-                        op.value = key; op.innerText = CUENTAS_DB[key].nombre;
-                        selectCuenta.appendChild(op);
-                    }
+        // Llenar Cuentas Generales
+        selectsCta.forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.innerHTML = "";
+                CUENTAS.forEach(c => {
+                    if(c !== 'LESLY') el.innerHTML += `<option value="${c}">${c}</option>`; // Lesly solo para Oficina y Excedente si se quiere
                 });
+                if(id === 'cta_exc') el.innerHTML += `<option value="LESLY">LESLY</option>`; // Excedente si puede ser Lesly
+            }
+        });
+        
+        // Renderizar lista visual en Config
+        let divCob = document.getElementById('lista-cobradores');
+        divCob.innerHTML = "";
+        Object.keys(RUTAS).forEach(c => {
+            divCob.innerHTML += `<div class="tag">${c} <span onclick="borrarCobrador('${c}')">x</span></div>`;
+        });
+    }
+
+    function crearCobrador() {
+        let nombre = document.getElementById('new_cobrador').value.toUpperCase();
+        if(nombre && !RUTAS[nombre]) {
+            RUTAS[nombre] = [];
+            guardarConfigDB();
+            document.getElementById('new_cobrador').value = "";
+        }
+    }
+
+    function borrarCobrador(nombre) {
+        if(confirm("Borrar cobrador " + nombre + "?")) {
+            delete RUTAS[nombre];
+            guardarConfigDB();
+        }
+    }
+
+    function verZonasDeCobrador() {
+        let cob = document.getElementById('sel_cobrador_config').value;
+        let div = document.getElementById('lista-zonas');
+        div.innerHTML = "";
+        if(cob && RUTAS[cob]) {
+            RUTAS[cob].forEach((z, index) => {
+                div.innerHTML += `<div class="tag">${z} <span onclick="borrarZona('${cob}', ${index})">x</span></div>`;
+            });
+        }
+    }
+
+    function agregarZona() {
+        let cob = document.getElementById('sel_cobrador_config').value;
+        let zona = document.getElementById('new_zona').value;
+        if(cob && zona) {
+            if(!RUTAS[cob]) RUTAS[cob] = [];
+            RUTAS[cob].push(zona);
+            guardarConfigDB();
+            document.getElementById('new_zona').value = "";
+            verZonasDeCobrador();
+        }
+    }
+
+    function borrarZona(cob, index) {
+        RUTAS[cob].splice(index, 1);
+        guardarConfigDB();
+        verZonasDeCobrador();
+    }
+
+    function guardarConfigDB() {
+        db.ref('configuracion_v2').set({ rutas: RUTAS, cuentas: CUENTAS });
+        llenarListasDesplegables();
+        // Si estoy en config panel, refrescar vista zonas
+        if(document.getElementById('panel-config').classList.contains('hidden') === false) {
+            verZonasDeCobrador();
+        }
+    }
+
+    // --- LOGICA DE FORMULARIOS ---
+    function cargarZonasOperativo() {
+        let cob = document.getElementById('cobrador_op').value;
+        let sel = document.getElementById('zona_op');
+        sel.innerHTML = "";
+        if(cob && RUTAS[cob]) RUTAS[cob].forEach(z => sel.innerHTML += `<option value="${z}">${z}</option>`);
+    }
+
+    function cargarZonasFaltante() {
+        let cob = document.getElementById('fal_cob').value;
+        let sel = document.getElementById('fal_zona');
+        sel.innerHTML = "";
+        if(cob && RUTAS[cob]) RUTAS[cob].forEach(z => sel.innerHTML += `<option value="${z}">${z}</option>`);
+    }
+
+    // --- NAVEGACION ---
+    window.setModo = function(m) {
+        if(ID_EDIT) { if(!confirm("Cancelar edición?")) return; cancel(); }
+        MODO = m;
+        
+        // UI Tabs
+        document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+        let tab = document.getElementById('tab-'+m.toLowerCase());
+        if(tab) tab.classList.add(m=='CONFIG'?'active-config':'active-tab');
+
+        // UI Panels
+        document.getElementById('panel-config').classList.add('hidden');
+        document.getElementById('panel-form').classList.add('hidden');
+        document.getElementById('area-reportes').classList.remove('hidden');
+        
+        // Ocultar todos los sub-forms
+        ['form-dep','form-contado','form-abono','form-fal','form-exc','form-hist','input-monto'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) el.classList.add('hidden');
+        });
+
+        if(m === 'CONFIG') {
+            document.getElementById('panel-config').classList.remove('hidden');
+            document.getElementById('area-reportes').classList.add('hidden');
+            return;
+        }
+
+        document.getElementById('panel-form').classList.remove('hidden');
+        document.getElementById('btn-save').style.display = 'block';
+
+        if(m == 'OFICINA' || m == 'CAMPO') {
+            document.getElementById('form-dep').classList.remove('hidden');
+            document.getElementById('input-monto').classList.remove('hidden');
+            // Cuentas especiales
+            let cta = document.getElementById('cuenta');
+            if(m=='OFICINA') cta.innerHTML = "<option value='LESLY'>LESLY</option>";
+            else {
+                cta.innerHTML = "";
+                CUENTAS.forEach(c => { if(c!=='LESLY') cta.innerHTML+=`<option value="${c}">${c}</option>` });
             }
         }
-        else if(MODO=='CONTADO') document.getElementById('block-contado').classList.remove('hidden');
-        else if(MODO=='ABONOS') document.getElementById('block-abonos').classList.remove('hidden');
-        else if(MODO=='FALTANTES') document.getElementById('block-faltantes').classList.remove('hidden');
-        else if(MODO=='EXCEDENTE') document.getElementById('block-excedente').classList.remove('hidden');
-        else if(
+        else if(m == 'CONTADO') { document.getElementById('form-contado').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
+        else if(m == 'ABONOS') { document.getElementById('form-abono').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
+        else if(m == 'FALTANTES') { document.getElementById('form-fal').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
+        else if(m == 'EXCEDENTE') { document.getElementById('form-exc').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
+        else if(m == 'HISTORIAL') { 
+            document.getElementById('form-hist').classList.remove('hidden'); 
+            document.getElementById('btn-save').style.display='none';
+        }
+
+        FILTRO = HOY;
+        document.getElementById('titulo-rep').innerText = "REPORTE DE HOY ("+HOY+")";
+        pintar();
+        document.getElementById('btn-save').innerText = `GUARDAR ${m}`;
+    };
+
+    window.verHistorial = function() {
+        FILTRO = document.getElementById('fecha_hist').value;
+        document.getElementById('titulo-rep').innerText = "HISTORIAL DEL: " + FILTRO;
+        pintar();
+    }
+
+    // --- GUARDAR Y EDITAR ---
+    window.guardar = function() {
+        let f = document.getElementById('fecha').value;
+        let m = parseFloat(document.getElementById('monto').value);
+        if(!m) return alert("Monto inválido");
+
+        let obj = { fecha: f, fecha_registro: HOY, monto: m };
+        let ruta = "";
+
+        if(!ID_EDIT) {
+            if(MODO=='OFICINA' || MODO=='CAMPO') ruta='registros_milagro';
+            else if(MODO=='CONTADO') ruta='ventas_contado';
+            else if(MODO=='ABONOS') ruta='abonos_clientes';
+            else if(MODO=='FALTANTES') ruta='faltantes_cobro';
+            else if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
+        } else {
+            // Si edito, la ruta ya viene en el ID o hay que inferirla (simplificado: usar MODO)
+            if(MODO=='OFICINA' || MODO=='CAMPO') ruta='registros_milagro'; 
+            // Nota: Al editar, setModo se llama con el tipo correcto, asi que MODO es correcto.
+            if(MODO=='CONTADO') ruta='ventas_contado';
+            if(MODO=='ABONOS') ruta='abonos_clientes';
+            if(MODO=='FALTANTES') ruta='faltantes_cobro';
+            if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
+        }
+
+        // Datos especificos
+        if(ruta=='registros_milagro') {
+            obj.semana = document.getElementById('semana').value;
+            obj.ref = document.getElementById('ref').value;
+            obj.cobrador = document.getElementById('cobrador_op').value;
+            obj.zona = document.getElementById('zona_op').value;
+            obj.cuenta = document.getElementById('cuenta').value;
+            obj.origen = MODO; // 'OFICINA' o 'CAMPO'
+        }
+        else if(ruta=='ventas_contado') {
+            obj.vendedor = document.getElementById('vendedor').value;
+            obj.cuenta = document.getElementById('cta_contado').value;
+            obj.articulo = document.getElementById('art_contado').value;
+        }
+        else if(ruta=='abonos_clientes') {
+            obj.tarjeta = document.getElementById('abo_tar').value;
+            obj.articulo = document.getElementById('abo_art').value;
+            obj.saldo_restante = document.getElementById('abo_sal').value;
+            obj.cuenta = document.getElementById('cta_abono').value;
+        }
+        else if(ruta=='faltantes_cobro') {
+            obj.cobrador = document.getElementById('fal_cob').value;
+            obj.zona = document.getElementById('fal_zona').value;
+        }
+        else if(ruta=='excedente_tarjetas') {
+            obj.tarjeta = document.getElementById('exc_tar').value;
+            obj.articulo = document.getElementById('exc_art').value;
+            obj.cuenta = document.getElementById('cta_exc').value;
+        }
+
+        if(ID_EDIT) db.ref(ruta+"/"+ID_EDIT).update(obj).then(() => cancel());
+        else db.ref(ruta).push(obj).then(() => cancel());
+    };
+
+    window.editar = function(id, tipo, ruta) {
+        setModo(tipo); // Cambia vista y configura MODO
+        ID_EDIT = id;
+        document.getElementById('btn-cancel').style.display = 'block';
+        document.getElementById('btn-save').innerText = "ACTUALIZAR";
+        window.scrollTo(0,0);
+
+        // Buscar dato
+        let r;
+        if(ruta=='registros_milagro') r = REGISTROS.dep.find(x=>x.id==id);
+        if(ruta=='ventas_contado') r = REGISTROS.con.find(x=>x.id==id);
+        if(ruta=='abonos_clientes') r = REGISTROS.abo.find(x=>x.id==id);
+        if(ruta=='faltantes_cobro') r = REGISTROS.fal.find(x=>x.id==id);
+        if(ruta=='excedente_tarjetas') r = REGISTROS.exc.find(x=>x.id==id);
+
+        if(r) {
+            document.getElementById('fecha').value = r.fecha;
+            document.getElementById('monto').value = r.monto;
+            
+            if(ruta=='registros_milagro') {
+                document.getElementById('semana').value = r.semana;
+                document.getElementById('ref').value = r.ref;
+                document.getElementById('cobrador_op').value = r.cobrador;
+                cargarZonasOperativo(); // Recargar zonas
+                document.getElementById('zona_op').value = r.zona;
+                document.getElementById('cuenta').value = r.cuenta;
+            }
+            // ... rellenar resto si es necesario, logica similar
+            if(ruta=='ventas_contado') {
+                document.getElementById('vendedor').value = r.vendedor;
+                document.getElementById('cta_contado').value = r.cuenta;
+                document.getElementById('art_contado').value = r.articulo;
+            }
+            if(ruta=='abonos_clientes') {
+                document.getElementById('abo_tar').value = r.tarjeta;
+                document.getElementById('abo_art').value = r.articulo;
+                document.getElementById('abo_sal').value = r.saldo_restante;
+                document.getElementById('cta_abono').value = r.cuenta;
+            }
+            if(ruta=='faltantes_cobro') {
+                document.getElementById('fal_cob').value = r.cobrador;
+                cargarZonasFaltante();
+                document.getElementById('fal_zona').value = r.zona;
+            }
+            if(ruta=='excedente_tarjetas') {
+                document.getElementById('exc_tar').value = r.tarjeta;
+                document.getElementById('exc_art').value = r.articulo;
+                document.getElementById('cta_exc').value = r.cuenta;
+            }
+        }
+    };
+
+    window.del = function(id, ruta) { if(confirm("Borrar?")) db.ref(ruta+"/"+id).remove(); };
+    
+    window.cancel = function() {
+        ID_EDIT = null;
+        document.querySelectorAll('input').forEach(i => i.value = '');
+        document.getElementById('fecha').value = HOY;
+        document.getElementById('btn-cancel').style.display = 'none';
+        setModo(MODO); // Reset UI
+    };
+
+    // --- PINTAR ---
+    function pintar() {
+        let div = document.getElementById('lista-reportes');
+        div.innerHTML = "";
+        let granTotal = 0;
+        const fmt = n => "L. " + n.toLocaleString('en-US',{minimumFractionDigits:2});
+        const filtroFecha = r => (r.fecha_registro || r.fecha) == FILTRO;
+
+        // Si estoy en HISTORIAL, muestro TODO. Si no, solo lo de la pestaña MODO.
+        let verTodo = (MODO === 'HISTORIAL');
+
+        // 1. DEPOSITOS (Oficina y Campo)
+        let dep = REGISTROS.dep.filter(filtroFecha);
+        CUENTAS.forEach(cta => {
+            let list = dep.filter(r => r.cuenta == cta);
+            
+            // Filtro visual: Si no es historial, filtrar por origen
+            if(!verTodo) {
+                if(MODO=='OFICINA') list = list.filter(r => r.origen == 'OFICINA');
+                else if(MODO=='CAMPO') list = list.filter(r => r.origen == 'CAMPO');
+                else list = [];
+            }
+
+            if(list.length) {
+                let totalCta = list.reduce((a,b)=> a + Number(b.monto), 0);
+                granTotal += totalCta;
+                let h = `<div class="report-section ${COLORES[cta]||'border-david'}"><div class="account-title">${cta} <span>${fmt(totalCta)}</span></div><table>`;
+                let resumen = {};
+                list.forEach(r => {
+                    if(!resumen[r.zona]) resumen[r.zona]=0; resumen[r.zona]+=Number(r.monto);
+                    h += `<tr><td>${r.origen}</td><td>${r.zona}<br>${r.cobrador}</td><td>Ref:${r.ref}</td><td><b>${fmt(Number(r.monto))}</b></td>
+                    <td class="no-print"><button class="btn-edit btn-action" onclick="editar('${r.id}','${r.origen}','registros_milagro')">✏️</button><button class="btn-del btn-action" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`;
+                });
+                h += "</table><div class='zone-summary'><b>Resumen:</b>";
+                for(let z in resumen) h+=`<div class='zone-row'><span>${z}</span><span>${fmt(resumen[z])}</span></div>`;
+                h += "</div></div>";
+                div.innerHTML += h;
+            }
+        });
+
+        // 2. OTROS (Contado, Abonos, etc) - Logica similar de filtro visual
+        const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn) => {
+            if(!verTodo && MODO !== modoReq) return;
+            let items = lista.filter(filtroFecha);
+            if(items.length) {
+                let sub = items.reduce((a,b)=>a+Number(b.monto),0); granTotal += sub;
+                let h = `<div class="report-section border-mix"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
+                items.forEach(r => {
+                    let info = extraFn(r);
+                    h += `<tr>${info}<td><b>${fmt(Number(r.monto))}</b></td><td class="no-print"><button class="btn-edit btn-action" onclick="editar('${r.id}','${modoReq}','${rutaDb}')">✏️</button><button class="btn-del btn-action" onclick="del('${r.id}','${rutaDb}')">🗑️</button></td></tr>`;
+                });
+                div.innerHTML += h + "</table></div>";
+            }
+        };
+
+        pintarBloque(REGISTROS.con, "CONTADO", "CONTADO", "ventas_contado", r=>`<td>${r.vendedor}<br>${r.articulo}</td><td>(${r.cuenta})</td>`);
+        pintarBloque(REGISTROS.abo, "ABONOS", "ABONOS", "abonos_clientes", r=>`<td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td>`);
+        pintarBloque(REGISTROS.fal, "FALTANTES", "FALTANTES", "faltantes_cobro", r=>`<td>${r.cobrador}<br>${r.zona}</td>`);
+        pintarBloque(REGISTROS.exc, "EXCEDENTES", "EXCEDENTE", "excedente_tarjetas", r=>`<td>#${r.tarjeta}<br>${r.articulo}</td><td>(${r.cuenta})</td>`);
+
+        document.getElementById('gran-total').innerText = fmt(granTotal);
+        if(div.innerHTML == "") div.innerHTML = "<p style='text-align:center; color:#888'>Sin movimientos.</p>";
+    }
+</script>
+</body>
+</html>
