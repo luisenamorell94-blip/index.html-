@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA INTERNO V36</title>
+    <title>SISTEMA INTERNO V37 - FINAL</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxOTFBMjMiLz48cGF0aCBkPSJNNTcuNiAxMzQuNEw5NiA5NkwxMzQuNCA1Ny42TTEzNC40IDU3LjZWNTZNMTM0LjQgNTcuNkg5NiIgc3Ryb2tlPSIjQjlGRjY2IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMTkxQTIzIi8+PHBhdGggZD0iTTU3LjYgMTM0LjRMOTYgOTZMMTM0LjQgNTcuNk0xMzQuNCA1Ny42Vjk2TTEzNC40IDU3LjZIOTYiIHN0cm9rZT0iI0I5RkY2NiIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#191A23">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -17,26 +14,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        :root { --lime: #B9FF66; --black: #191A23; --gray: #F3F3F3; --white: #FFFFFF; --danger: #ff4d4d; }
+        :root { --lime: #B9FF66; --black: #191A23; --gray: #F3F3F3; --white: #FFFFFF; --danger: #ff4d4d; --edit: #2196F3; }
         body { font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--black); margin: 0; padding: 15px; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 1000px; margin: 0 auto; }
 
-        /* HEADER CON LOGO SVG */
-        header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin-bottom: 20px; 
-            background: var(--black); 
-            padding: 15px 20px; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .header-content { display: flex; align-items: center; gap: 15px; }
-        /* El SVG del logo se define aqui para que sea escalable */
-        .logo-svg { width: 40px; height: 40px; flex-shrink: 0; }
-        h2.logo-text { color: var(--white); margin: 0; font-size: 1.2rem; font-weight: 700; line-height: 1.2; text-align: left; }
-        h2.logo-text span { color: var(--lime); display: block; font-size: 0.9rem; font-weight: 500; }
+        /* HEADER */
+        header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; background: var(--black); padding: 15px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo-svg { width: 40px; height: 40px; margin-right: 15px; }
+        h2.logo-text { color: var(--white); margin: 0; font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
+        h2.logo-text span { color: var(--lime); display: block; font-size: 0.9rem; }
 
         /* TABS */
         .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
@@ -66,22 +52,23 @@
         /* CONFIGURACION */
         .config-box { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 2px solid #eee; }
         .item-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .tag { background: #f0f0f0; padding: 8px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; border: 2px solid var(--black); font-weight: bold; }
-        .tag span { cursor: pointer; color: var(--danger); font-weight: 900; font-size: 1.1rem; }
+        
+        /* TAGS DE CONFIG CON BOTONES EDITAR/BORRAR */
+        .tag { background: #f0f0f0; padding: 8px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; border: 2px solid var(--black); font-weight: bold; }
+        .tag-btn { cursor: pointer; font-size: 1.1rem; padding: 0 5px; transition: 0.2s; }
+        .tag-edit { color: var(--edit); }
+        .tag-del { color: var(--danger); }
+        .tag-btn:hover { transform: scale(1.2); }
 
         /* REPORTES */
         .report-section { background: var(--white); border: 2px solid var(--black); border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 0 var(--black); }
-        .border-david { border-left: 8px solid #1565c0; }
-        .border-lesly { border-left: 8px solid #ad1457; }
-        .border-mix { border-left: 8px solid #6a1b9a; }
-        .border-jose { border-left: 8px solid #2e7d32; }
+        .border-default { border-left: 8px solid var(--black); }
         
         .account-title { display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
         .btn-action { padding: 6px 10px; border: 2px solid var(--black); border-radius: 8px; cursor: pointer; margin-left: 5px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 0 var(--black); }
-        .btn-action:active { transform: translateY(2px); box-shadow: none; }
         .btn-edit { background: var(--lime); }
         .btn-del { background: #ffcccc; }
 
@@ -97,13 +84,11 @@
 
 <div class="container">
     <header class="no-print">
-        <div class="header-content">
-            <svg class="logo-svg" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="25" cy="25" r="25" fill="#B9FF66"/>
-                <path d="M15 35L25 25L35 15M35 15V25M35 15H25" stroke="#191A23" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <h2 class="logo-text">SISTEMA INTERNO<br><span>BY LUIS ENAMORADO</span></h2>
-        </div>
+        <svg class="logo-svg" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="25" cy="25" r="25" fill="#B9FF66"/>
+            <path d="M15 35L25 25L35 15M35 15V25M35 15H25" stroke="#191A23" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2 class="logo-text">SISTEMA INTERNO<br><span>BY LUIS ENAMORADO</span></h2>
     </header>
 
     <div class="tabs no-print">
@@ -118,28 +103,37 @@
     </div>
 
     <div id="panel-config" class="card hidden no-print">
-        <h3>⚙️ GESTIÓN DE RUTAS Y CUENTAS</h3>
+        <h3>⚙️ GESTIÓN TOTAL</h3>
         
         <div class="config-box">
-            <label>1. Gestión de Cobradores</label>
+            <label>1. Cobradores (Rutas)</label>
             <div style="display:flex; gap:10px; align-items: center;">
                 <input type="text" id="new_cobrador" placeholder="Nombre Cobrador" style="margin:0;">
-                <button onclick="crearCobrador()" style="width:auto; margin:0; padding: 12px 20px;">➕ AGREGAR</button>
+                <button onclick="crearCobrador()" style="width:auto; margin:0; padding: 12px 20px;">➕</button>
             </div>
             <div id="lista-cobradores" class="item-list"></div>
         </div>
 
         <div class="config-box">
-            <label>2. Gestión de Zonas (Selecciona un cobrador primero)</label>
+            <label>2. Zonas (Selecciona un cobrador)</label>
             <select id="sel_cobrador_config" onchange="verZonasDeCobrador()"></select>
             <div style="display:flex; gap:10px; margin-top:15px; align-items: center;">
                 <input type="text" id="new_zona" placeholder="Nombre Zona" style="margin:0;">
-                <button onclick="agregarZona()" style="width:auto; margin:0; padding: 12px 20px;">➕ ZONA</button>
+                <button onclick="agregarZona()" style="width:auto; margin:0; padding: 12px 20px;">➕</button>
             </div>
             <div id="lista-zonas" class="item-list"></div>
         </div>
 
-        <button class="btn-green" onclick="guardarConfigDB()" style="margin-top: 20px;">💾 GUARDAR CAMBIOS EN EL SISTEMA</button>
+        <div class="config-box">
+            <label>3. Cuentas (Disponibles en todas las pestañas)</label>
+            <div style="display:flex; gap:10px; align-items: center;">
+                <input type="text" id="new_cuenta" placeholder="Nombre Cuenta (ej. BANCO X)" style="margin:0;">
+                <button onclick="crearCuenta()" style="width:auto; margin:0; padding: 12px 20px;">➕</button>
+            </div>
+            <div id="lista-cuentas" class="item-list"></div>
+        </div>
+
+        <button class="btn-green" onclick="guardarConfigDB()" style="margin-top: 20px;">💾 GUARDAR CONFIGURACIÓN</button>
     </div>
 
     <div id="panel-form" class="card no-print">
@@ -157,7 +151,7 @@
         </div>
 
         <div id="form-contado" class="form-grid hidden">
-            <div><label>Vendedor</label><select id="vendedor"><option>SANTOS</option><option>NOE</option><option>CARLOS</option><option>RAMON</option><option>ORLANDO</option><option>DAVID</option></select></div>
+            <div><label>Vendedor</label><select id="vendedor"></select></div>
             <div><label>Cuenta</label><select id="cta_contado"></select></div>
             <div class="full"><label>Artículo</label><input type="text" id="art_contado"></div>
         </div>
@@ -180,15 +174,15 @@
             <div class="full"><label>Cuenta</label><select id="cta_exc"></select></div>
         </div>
 
-        <div id="input-monto" class="full" style="margin-top:20px;">
-            <label style="font-size:1.2rem;">Monto a Ingresar (L.)</label>
-            <input type="number" id="monto" style="font-size:1.8rem; font-weight:900; border:3px solid var(--black); color: var(--black);" step="0.01" placeholder="0.00">
-        </div>
-
         <div id="form-hist" class="hidden" style="text-align:center;">
             <h3>BUSCAR POR FECHA</h3>
             <input type="date" id="fecha_hist" style="max-width:250px; margin:0 auto 15px auto; display:block;">
             <button class="btn-green" onclick="verHistorial()">🔍 BUSCAR REPORTE</button>
+        </div>
+
+        <div id="input-monto" class="full" style="margin-top:20px;">
+            <label style="font-size:1.2rem;">Monto a Ingresar (L.)</label>
+            <input type="number" id="monto" style="font-size:1.8rem; font-weight:900; border:3px solid var(--black); color: var(--black);" step="0.01" placeholder="0.00">
         </div>
 
         <button id="btn-cancel" class="btn-cancel" onclick="cancelar()">CANCELAR EDICIÓN</button>
@@ -206,19 +200,17 @@
 </div>
 
 <script>
-    // --- CONFIGURACION FIREBASE ---
     const firebaseConfig = { apiKey: "AIzaSyAYJRmMQbV-j6hGfHCZyuCgtvmkY0C2L1g", authDomain: "ingreso-depositos.firebaseapp.com", databaseURL: "https://ingreso-depositos-default-rtdb.firebaseio.com", projectId: "ingreso-depositos", storageBucket: "ingreso-depositos.firebasestorage.app", messagingSenderId: "788432921819", appId: "1:788432921819:web:b5f792eecbe4b7b00498fe" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- DATOS GLOBALES ---
     let MODO = 'OFICINA';
     let ID_EDIT = null;
     let HOY = new Date().toISOString().split('T')[0];
     let FILTRO = HOY;
     let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
 
-    // --- DATOS MAESTROS (CONFIGURACION INICIAL) ---
+    // --- CONFIGURACION INICIAL (Por defecto) ---
     let RUTAS = {
         "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
         "ANGEL": ["Margen Izquierda","Saba Tocoa"],
@@ -227,15 +219,13 @@
         "JORGE": ["Planes Jutiapa","Sonaguera","Faust"]
     };
     let CUENTAS = ["DAVID", "LESLY", "DAVID_LESLY", "JOSE_RODINDER"];
-    const COLORES = { "DAVID":"border-david", "LESLY":"border-lesly", "DAVID_LESLY":"border-mix", "JOSE_RODINDER":"border-jose" };
 
-    // --- INICIALIZACION ---
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
         document.getElementById('fecha_hist').value = HOY;
 
-        // 1. CARGAR CONFIG DESDE NUBE
-        db.ref('configuracion_v2').once('value', s => {
+        // Cargar Config
+        db.ref('configuracion_v3').once('value', s => {
             if(s.exists()){
                 let c = s.val();
                 if(c.rutas) RUTAS = c.rutas;
@@ -246,7 +236,7 @@
             llenarListasDesplegables();
         });
 
-        // 2. CARGAR REGISTROS
+        // Cargar Datos
         db.ref('registros_milagro').on('value', s => { REGISTROS.dep = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('ventas_contado').on('value', s => { REGISTROS.con = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('abonos_clientes').on('value', s => { REGISTROS.abo = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
@@ -256,11 +246,18 @@
         setModo('OFICINA');
     };
 
-    // --- GESTION DE CONFIGURACION ---
-    function llenarListasDesplegables() {
-        const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config'];
-        const selectsCta = ['cta_contado', 'cta_abono', 'cta_exc'];
+    // --- FUNCIONES DE CONFIGURACION (CORE) ---
+    function guardarConfigDB() {
+        db.ref('configuracion_v3').set({ rutas: RUTAS, cuentas: CUENTAS })
+          .then(() => {
+              alert("✅ Configuración guardada y aplicada.");
+              llenarListasDesplegables(); // Refrescar todo
+          });
+    }
 
+    function llenarListasDesplegables() {
+        // 1. SELECTS DE COBRADORES (Vendedores)
+        const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config', 'vendedor'];
         selectsCob.forEach(id => {
             let el = document.getElementById(id);
             if(el) {
@@ -271,85 +268,121 @@
             }
         });
 
+        // 2. SELECTS DE CUENTAS (EN TODAS LAS PESTAÑAS)
+        // Aqui aplicamos "Agregar en cualquier pestaña": Llenamos TODO con TODO.
+        const selectsCta = ['cuenta', 'cta_contado', 'cta_abono', 'cta_exc'];
         selectsCta.forEach(id => {
             let el = document.getElementById(id);
             if(el) {
+                // Guardar valor actual por si acaso
+                let prevVal = el.value;
                 el.innerHTML = "";
+                // Llenar con TODAS las cuentas de la configuración
                 CUENTAS.forEach(c => {
-                    if(c !== 'LESLY') el.innerHTML += `<option value="${c}">${c}</option>`; 
+                    el.innerHTML += `<option value="${c}">${c}</option>`; 
                 });
-                if(id === 'cta_exc') el.innerHTML += `<option value="LESLY">LESLY</option>`;
+                // Intentar restaurar valor
+                if(prevVal) el.value = prevVal;
             }
         });
         
         renderConfigUI();
     }
 
+    // --- UI DE CONFIGURACION (CON EDICION) ---
     function renderConfigUI() {
+        // Render Cobradores
         let divCob = document.getElementById('lista-cobradores');
         divCob.innerHTML = "";
         Object.keys(RUTAS).forEach(c => {
-            divCob.innerHTML += `<div class="tag">${c} <span onclick="borrarCobrador('${c}')">×</span></div>`;
+            divCob.innerHTML += `<div class="tag">
+                ${c} 
+                <span class="tag-btn tag-edit" onclick="renombrarCobrador('${c}')">✎</span>
+                <span class="tag-btn tag-del" onclick="borrarCobrador('${c}')">×</span>
+            </div>`;
         });
+
+        // Render Cuentas
+        let divCta = document.getElementById('lista-cuentas');
+        divCta.innerHTML = "";
+        CUENTAS.forEach((c, idx) => {
+            divCta.innerHTML += `<div class="tag">
+                ${c}
+                <span class="tag-btn tag-edit" onclick="renombrarCuenta(${idx})">✎</span>
+                <span class="tag-btn tag-del" onclick="borrarCuenta(${idx})">×</span>
+            </div>`;
+        });
+
         verZonasDeCobrador();
     }
 
+    // --- LOGICA COBRADORES ---
     function crearCobrador() {
-        let nombre = document.getElementById('new_cobrador').value.toUpperCase().trim();
-        if(nombre && !RUTAS[nombre]) {
-            RUTAS[nombre] = [];
-            document.getElementById('new_cobrador').value = "";
-            llenarListasDesplegables();
+        let n = document.getElementById('new_cobrador').value.toUpperCase().trim();
+        if(n && !RUTAS[n]) { RUTAS[n] = []; document.getElementById('new_cobrador').value = ""; renderConfigUI(); }
+    }
+    function borrarCobrador(n) { if(confirm("¿Borrar "+n+"?")) { delete RUTAS[n]; renderConfigUI(); } }
+    function renombrarCobrador(oldName) {
+        let newName = prompt("Nuevo nombre para " + oldName + ":", oldName);
+        if(newName && newName !== oldName) {
+            newName = newName.toUpperCase().trim();
+            RUTAS[newName] = RUTAS[oldName]; // Copiar zonas
+            delete RUTAS[oldName]; // Borrar viejo
+            renderConfigUI();
         }
     }
 
-    function borrarCobrador(nombre) {
-        if(confirm("¿Eliminar cobrador " + nombre + " y sus zonas?")) {
-            delete RUTAS[nombre];
-            llenarListasDesplegables();
-        }
-    }
-
+    // --- LOGICA ZONAS ---
     function verZonasDeCobrador() {
         let cob = document.getElementById('sel_cobrador_config').value;
         let div = document.getElementById('lista-zonas');
         div.innerHTML = "";
         if(cob && RUTAS[cob]) {
-            RUTAS[cob].forEach((z, index) => {
-                div.innerHTML += `<div class="tag">${z} <span onclick="borrarZona('${cob}', ${index})">×</span></div>`;
+            RUTAS[cob].forEach((z, idx) => {
+                div.innerHTML += `<div class="tag">
+                    ${z}
+                    <span class="tag-btn tag-edit" onclick="renombrarZona('${cob}', ${idx})">✎</span>
+                    <span class="tag-btn tag-del" onclick="borrarZona('${cob}', ${idx})">×</span>
+                </div>`;
             });
         }
     }
-
     function agregarZona() {
         let cob = document.getElementById('sel_cobrador_config').value;
-        let zona = document.getElementById('new_zona').value.trim();
-        if(cob && zona) {
-            if(!RUTAS[cob]) RUTAS[cob] = [];
-            RUTAS[cob].push(zona);
-            document.getElementById('new_zona').value = "";
-            verZonasDeCobrador();
+        let z = document.getElementById('new_zona').value.trim();
+        if(cob && z) { 
+            if(!RUTAS[cob]) RUTAS[cob] = []; 
+            RUTAS[cob].push(z); 
+            document.getElementById('new_zona').value = ""; 
+            verZonasDeCobrador(); 
         }
     }
-
-    function borrarZona(cob, index) {
-        RUTAS[cob].splice(index, 1);
-        verZonasDeCobrador();
+    function borrarZona(cob, idx) { RUTAS[cob].splice(idx, 1); verZonasDeCobrador(); }
+    function renombrarZona(cob, idx) {
+        let oldName = RUTAS[cob][idx];
+        let newName = prompt("Nuevo nombre para zona:", oldName);
+        if(newName) { RUTAS[cob][idx] = newName; verZonasDeCobrador(); }
     }
 
-    function guardarConfigDB() {
-        db.ref('configuracion_v2').set({ rutas: RUTAS, cuentas: CUENTAS })
-          .then(() => alert("✅ Configuración guardada en la nube."));
+    // --- LOGICA CUENTAS ---
+    function crearCuenta() {
+        let n = document.getElementById('new_cuenta').value.toUpperCase().trim();
+        if(n && !CUENTAS.includes(n)) { CUENTAS.push(n); document.getElementById('new_cuenta').value = ""; renderConfigUI(); }
+    }
+    function borrarCuenta(idx) { if(confirm("¿Borrar cuenta?")) { CUENTAS.splice(idx, 1); renderConfigUI(); } }
+    function renombrarCuenta(idx) {
+        let oldName = CUENTAS[idx];
+        let newName = prompt("Nuevo nombre cuenta:", oldName);
+        if(newName) { CUENTAS[idx] = newName.toUpperCase().trim(); renderConfigUI(); }
     }
 
-    // --- LOGICA DE FORMULARIOS ---
+    // --- LOGICA OPERATIVA ---
     function cargarZonasOperativo() {
         let cob = document.getElementById('cobrador_op').value;
         let sel = document.getElementById('zona_op');
         sel.innerHTML = "";
         if(cob && RUTAS[cob]) RUTAS[cob].forEach(z => sel.innerHTML += `<option value="${z}">${z}</option>`);
     }
-
     function cargarZonasFaltante() {
         let cob = document.getElementById('fal_cob').value;
         let sel = document.getElementById('fal_zona');
@@ -359,9 +392,10 @@
 
     // --- NAVEGACION ---
     window.setModo = function(m) {
-        if(ID_EDIT) { if(!confirm("Cancelar edición?")) return; cancel(); }
+        if(ID_EDIT) { if(!confirm("Cancelar edición?")) return; cancelar(); }
         MODO = m;
         
+        // UI
         document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
         let tab = document.getElementById('tab-'+m.toLowerCase());
         if(tab) tab.classList.add(m=='CONFIG'?'active-config':'active-tab');
@@ -387,12 +421,8 @@
         if(m == 'OFICINA' || m == 'CAMPO') {
             document.getElementById('form-dep').classList.remove('hidden');
             document.getElementById('input-monto').classList.remove('hidden');
-            let cta = document.getElementById('cuenta');
-            if(m=='OFICINA') cta.innerHTML = "<option value='LESLY'>LESLY</option>";
-            else {
-                cta.innerHTML = "";
-                CUENTAS.forEach(c => { if(c!=='LESLY') cta.innerHTML+=`<option value="${c}">${c}</option>` });
-            }
+            // Se asegura que las listas esten llenas
+            llenarListasDesplegables(); 
         }
         else if(m == 'CONTADO') { document.getElementById('form-contado').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
         else if(m == 'ABONOS') { document.getElementById('form-abono').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
@@ -467,8 +497,8 @@
             obj.cuenta = document.getElementById('cta_exc').value;
         }
 
-        if(ID_EDIT) db.ref(ruta+"/"+ID_EDIT).update(obj).then(() => cancel());
-        else db.ref(ruta).push(obj).then(() => cancel());
+        if(ID_EDIT) db.ref(ruta+"/"+ID_EDIT).update(obj).then(() => cancelar());
+        else db.ref(ruta).push(obj).then(() => cancelar());
     };
 
     window.editar = function(id, tipo, ruta) {
@@ -523,7 +553,7 @@
 
     window.del = function(id, ruta) { if(confirm("Borrar?")) db.ref(ruta+"/"+id).remove(); };
     
-    window.cancel = function() {
+    window.cancelar = function() {
         ID_EDIT = null;
         document.querySelectorAll('input').forEach(i => i.value = '');
         document.getElementById('fecha').value = HOY;
@@ -531,7 +561,7 @@
         setModo(MODO);
     };
 
-    // --- PINTAR ---
+    // --- PINTAR REPORTES ---
     function pintar() {
         let div = document.getElementById('lista-reportes');
         div.innerHTML = "";
@@ -540,6 +570,7 @@
         const filtroFecha = r => (r.fecha_registro || r.fecha) == FILTRO;
         let verTodo = (MODO === 'HISTORIAL');
 
+        // DEPOSITOS
         let dep = REGISTROS.dep.filter(filtroFecha);
         CUENTAS.forEach(cta => {
             let list = dep.filter(r => r.cuenta == cta);
@@ -551,7 +582,7 @@
             if(list.length) {
                 let totalCta = list.reduce((a,b)=> a + Number(b.monto), 0);
                 granTotal += totalCta;
-                let h = `<div class="report-section ${COLORES[cta]||'border-david'}"><div class="account-title">${cta} <span>${fmt(totalCta)}</span></div><table>`;
+                let h = `<div class="report-section border-default"><div class="account-title">${cta} <span>${fmt(totalCta)}</span></div><table>`;
                 let resumen = {};
                 list.forEach(r => {
                     if(!resumen[r.zona]) resumen[r.zona]=0; resumen[r.zona]+=Number(r.monto);
@@ -565,12 +596,13 @@
             }
         });
 
+        // OTROS BLOQUES
         const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn) => {
             if(!verTodo && MODO !== modoReq) return;
             let items = lista.filter(filtroFecha);
             if(items.length) {
                 let sub = items.reduce((a,b)=>a+Number(b.monto),0); granTotal += sub;
-                let h = `<div class="report-section border-mix"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
+                let h = `<div class="report-section border-default"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
                 items.forEach(r => {
                     let info = extraFn(r);
                     h += `<tr>${info}<td><b>${fmt(Number(r.monto))}</b></td><td class="no-print" style="text-align:right;"><button class="btn-action btn-edit" onclick="editar('${r.id}','${modoReq}','${rutaDb}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','${rutaDb}')">🗑️</button></td></tr>`;
@@ -585,7 +617,7 @@
         pintarBloque(REGISTROS.exc, "EXCEDENTES", "EXCEDENTE", "excedente_tarjetas", r=>`<td>#${r.tarjeta}<br><small>${r.articulo}</small></td><td>(${r.cuenta})</td>`);
 
         document.getElementById('gran-total').innerText = fmt(granTotal);
-        if(div.innerHTML == "") div.innerHTML = "<p style='text-align:center; color:#888; margin-top:30px;'>No hay movimientos para esta fecha.</p>";
+        if(div.innerHTML == "") div.innerHTML = "<p style='text-align:center; color:#888; margin-top:30px;'>No hay movimientos.</p>";
     }
 </script>
 </body>
