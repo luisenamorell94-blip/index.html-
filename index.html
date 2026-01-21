@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA INTERNO V38 - RANGOS</title>
+    <title>SISTEMA INTERNO V39 - MANUEL AGREGADO</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxOTFBMjMiLz48cGF0aCBkPSJNNTcuNiAxMzQuNEw5NiA5NkwxMzQuNCA1Ny42TTEzNC40IDU3LjZWNTZNMTM0LjQgNTcuNkg5NiIgc3Ryb2tlPSIjQjlGRjY2IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
     <meta name="theme-color" content="#191A23">
@@ -75,7 +75,6 @@
         .total-box { background: var(--black); color: var(--lime); padding: 20px; text-align: right; font-weight: bold; font-size: 1.5rem; border-radius: 15px; margin-top: 30px; border: 3px solid var(--lime); box-shadow: 0 6px 0 rgba(185, 255, 102, 0.3); }
         .hidden { display: none; }
         
-        /* RANGE INPUTS */
         .range-inputs { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 15px; }
         .range-item { text-align: left; }
         .range-item label { font-size: 0.8rem; color: #555; }
@@ -127,7 +126,7 @@
         <div class="config-box">
             <label>3. Cuentas (Disponibles en todas las pestañas)</label>
             <div style="display:flex; gap:10px; align-items: center;">
-                <input type="text" id="new_cuenta" placeholder="Nombre Cuenta (ej. BANCO X)" style="margin:0;">
+                <input type="text" id="new_cuenta" placeholder="Nombre Cuenta" style="margin:0;">
                 <button onclick="crearCuenta()" style="width:auto; margin:0; padding: 12px 20px;">➕</button>
             </div>
             <div id="lista-cuentas" class="item-list"></div>
@@ -140,7 +139,7 @@
         <div id="div-fecha-operativa" class="full" style="margin-bottom:15px;">
             <label>Fecha de Ingreso:</label>
             <input type="date" id="fecha">
-            <small style="color:#666;">ℹ️ Si olvidaste agregar algo ayer, selecciona la fecha de ayer aquí y guárdalo.</small>
+            <small style="color:#666;">ℹ️ Si olvidaste agregar algo ayer, selecciona la fecha de ayer aquí.</small>
         </div>
 
         <div id="div-fecha-rango" class="hidden" style="text-align:center; padding-bottom:15px; border-bottom:1px dashed #ccc;">
@@ -221,13 +220,15 @@
     let F_FIN = HOY;
     let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
 
-    // --- CONFIGURACION INICIAL ---
+    // --- CONFIGURACION INICIAL (AGREGADO MANUEL) ---
+    // NOTA: Se usa 'configuracion_v4' para forzar la actualización de Manuel si ya usaste el sistema.
     let RUTAS = {
         "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
         "ANGEL": ["Margen Izquierda","Saba Tocoa"],
         "FERNANDO": ["Vicinia","Trujillo","Honduras Aguan"],
         "AMALET": ["Balfate","Bonito Oriental"],
-        "JORGE": ["Planes Jutiapa","Sonaguera","Faust"]
+        "JORGE": ["Planes Jutiapa","Sonaguera","Faust"],
+        "MANUEL": ["Ruta Manuel"] // Nuevo Agregado
     };
     let CUENTAS = ["DAVID", "LESLY", "DAVID_LESLY", "JOSE_RODINDER"];
 
@@ -237,13 +238,13 @@
         document.getElementById('fecha_fin').value = HOY;
 
         // Cargar Config
-        db.ref('configuracion_v3').once('value', s => {
+        db.ref('configuracion_v4').once('value', s => {
             if(s.exists()){
                 let c = s.val();
                 if(c.rutas) RUTAS = c.rutas;
                 if(c.cuentas) CUENTAS = c.cuentas;
             } else {
-                guardarConfigDB(); 
+                guardarConfigDB(); // Guardar valores por defecto (incluido Manuel)
             }
             llenarListasDesplegables();
         });
@@ -260,7 +261,7 @@
 
     // --- FUNCIONES CONFIGURACION ---
     function guardarConfigDB() {
-        db.ref('configuracion_v3').set({ rutas: RUTAS, cuentas: CUENTAS })
+        db.ref('configuracion_v4').set({ rutas: RUTAS, cuentas: CUENTAS })
           .then(() => { alert("✅ Configuración guardada."); llenarListasDesplegables(); });
     }
 
@@ -378,14 +379,12 @@
         else if(m == 'FALTANTES') document.getElementById('form-fal').classList.remove('hidden');
         else if(m == 'EXCEDENTE') document.getElementById('form-exc').classList.remove('hidden');
         else if(m == 'HISTORIAL') { 
-            // Modo historial: Oculta input monto y boton guardar, muestra rango
             document.getElementById('div-fecha-operativa').classList.add('hidden');
             document.getElementById('input-monto').classList.add('hidden');
             document.getElementById('btn-save').style.display='none';
             document.getElementById('div-fecha-rango').classList.remove('hidden');
         }
 
-        // Si no es historial, reseteamos filtro a hoy
         if(m !== 'HISTORIAL') {
             F_INI = HOY; F_FIN = HOY;
             document.getElementById('titulo-rep').innerText = "REPORTE DE HOY ("+HOY+")";
@@ -413,11 +412,10 @@
         let obj = { fecha: f, fecha_registro: HOY, monto: m };
         let ruta = "";
 
-        // Determinar ruta
         let target = MODO;
-        if(ID_EDIT && RUTA_EDIT) target = ''; // Si edito, la ruta ya la se
+        if(ID_EDIT && RUTA_EDIT) target = ''; 
         
-        if(!target) ruta = RUTA_EDIT; // Edicion
+        if(!target) ruta = RUTA_EDIT; 
         else {
             if(target=='OFICINA'||target=='CAMPO') ruta='registros_milagro';
             if(target=='CONTADO') ruta='ventas_contado';
@@ -526,16 +524,11 @@
         let granTotal = 0;
         const fmt = n => "L. " + n.toLocaleString('en-US',{minimumFractionDigits:2});
         
-        // FILTRO POR RANGO DE FECHAS
-        const filtroFecha = r => {
-            return r.fecha >= F_INI && r.fecha <= F_FIN;
-        };
-
+        const filtroFecha = r => { return r.fecha >= F_INI && r.fecha <= F_FIN; };
         let verTodo = (MODO === 'HISTORIAL');
 
         // DEPOSITOS
         let dep = REGISTROS.dep.filter(filtroFecha);
-        // Ordenar por fecha
         dep.sort((a,b) => a.fecha.localeCompare(b.fecha));
 
         CUENTAS.forEach(cta => {
@@ -562,11 +555,10 @@
             }
         });
 
-        // OTROS BLOQUES
         const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn) => {
             if(!verTodo && MODO !== modoReq) return;
             let items = lista.filter(filtroFecha);
-            items.sort((a,b) => a.fecha.localeCompare(b.fecha)); // Ordenar
+            items.sort((a,b) => a.fecha.localeCompare(b.fecha));
             
             if(items.length) {
                 let sub = items.reduce((a,b)=>a+Number(b.monto),0); granTotal += sub;
