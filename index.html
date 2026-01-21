@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA INTERNO V40 - MEMORIA</title>
+    <title>SISTEMA INTERNO V41 - CRÉDITOS</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxOTFBMjMiLz48cGF0aCBkPSJNNTcuNiAxMzQuNEw5NiA5NkwxMzQuNCA1Ny42TTEzNC40IDU3LjZWNTZNMTM0LjQgNTcuNkg5NiIgc3Ryb2tlPSIjQjlGRjY2IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
     <meta name="theme-color" content="#191A23">
@@ -14,7 +14,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        :root { --lime: #B9FF66; --black: #191A23; --gray: #F3F3F3; --white: #FFFFFF; --danger: #ff4d4d; --edit: #2196F3; }
+        :root { 
+            --lime: #B9FF66; 
+            --yellow: #FBC02D; /* Color para Créditos */
+            --black: #191A23; 
+            --gray: #F3F3F3; 
+            --white: #FFFFFF; 
+            --danger: #ff4d4d; 
+            --edit: #2196F3; 
+        }
         body { font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--black); margin: 0; padding: 15px; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 1000px; margin: 0 auto; }
 
@@ -29,7 +37,9 @@
         .tabs::-webkit-scrollbar { display: none; }
         .tab { padding: 10px 15px; border: 1px solid var(--black); border-radius: 12px; cursor: pointer; background: var(--white); box-shadow: 0 3px 0 var(--black); transition: 0.1s; white-space: nowrap; font-weight: bold; font-size: 0.85rem; }
         .tab:active { transform: translateY(3px); box-shadow: none; }
+        
         .active-tab { background: var(--lime) !important; box-shadow: 0 3px 0 #8acb4d !important; }
+        .active-creditos { background: var(--yellow) !important; box-shadow: 0 3px 0 #c49000 !important; } /* Tab Créditos */
         .active-config { background: #333 !important; color: var(--lime) !important; }
 
         /* CARD */
@@ -46,6 +56,7 @@
         button:active { transform: translateY(4px); box-shadow: none; }
         .btn-green { background: var(--black); color: var(--white); }
         .btn-green:hover { background: #333; color: var(--lime); }
+        .btn-yellow { background: var(--black); color: var(--yellow); } /* Boton Créditos */
         .btn-cancel { background: var(--white); color: var(--black); display: none; }
         .btn-danger { background: var(--danger); color: white; }
 
@@ -60,6 +71,7 @@
         /* REPORTES */
         .report-section { background: var(--white); border: 2px solid var(--black); border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 0 var(--black); }
         .border-default { border-left: 8px solid var(--black); }
+        .border-yellow { border-left: 8px solid var(--yellow); } /* Borde Reporte Créditos */
         
         .account-title { display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -97,7 +109,7 @@
         <div id="tab-oficina" class="tab active-tab" onclick="setModo('OFICINA')">OFICINA</div>
         <div id="tab-campo" class="tab" onclick="setModo('CAMPO')">CAMPO</div>
         <div id="tab-contado" class="tab" onclick="setModo('CONTADO')">CONTADO</div>
-        <div id="tab-abonos" class="tab" onclick="setModo('ABONOS')">ABONOS</div>
+        <div id="tab-creditos" class="tab" onclick="setModo('CREDITOS')" style="background:var(--yellow);">CRÉDITOS</div> <div id="tab-abonos" class="tab" onclick="setModo('ABONOS')">ABONOS</div>
         <div id="tab-faltantes" class="tab" onclick="setModo('FALTANTES')">FALTANTES</div>
         <div id="tab-excedente" class="tab" onclick="setModo('EXCEDENTE')">EXCEDENTE</div>
         <div id="tab-historial" class="tab" onclick="setModo('HISTORIAL')">HISTORIAL</div>
@@ -106,14 +118,16 @@
 
     <div id="panel-config" class="card hidden no-print">
         <h3>⚙️ GESTIÓN TOTAL</h3>
+        
         <div class="config-box">
-            <label>1. Cobradores (Rutas)</label>
+            <label>1. Cobradores de Ruta (Campo)</label>
             <div style="display:flex; gap:10px; align-items: center;">
-                <input type="text" id="new_cobrador" placeholder="Nombre Cobrador" style="margin:0;">
+                <input type="text" id="new_cobrador" placeholder="Nombre" style="margin:0;">
                 <button onclick="crearCobrador()" style="width:auto; margin:0; padding: 12px 20px;">➕</button>
             </div>
             <div id="lista-cobradores" class="item-list"></div>
         </div>
+
         <div class="config-box">
             <label>2. Zonas (Selecciona un cobrador)</label>
             <select id="sel_cobrador_config" onchange="verZonasDeCobrador()"></select>
@@ -123,6 +137,7 @@
             </div>
             <div id="lista-zonas" class="item-list"></div>
         </div>
+
         <div class="config-box">
             <label>3. Cuentas (Disponibles en todas las pestañas)</label>
             <div style="display:flex; gap:10px; align-items: center;">
@@ -131,6 +146,16 @@
             </div>
             <div id="lista-cuentas" class="item-list"></div>
         </div>
+
+        <div class="config-box" style="border: 2px solid var(--yellow);">
+            <label>4. Vendedores Internos (Contado y Créditos)</label>
+            <div style="display:flex; gap:10px; align-items: center;">
+                <input type="text" id="new_vendedor" placeholder="Nombre Vendedor" style="margin:0;">
+                <button onclick="crearVendedor()" style="width:auto; margin:0; padding: 12px 20px; background:var(--yellow); color:black;">➕</button>
+            </div>
+            <div id="lista-vendedores" class="item-list"></div>
+        </div>
+
         <button class="btn-green" onclick="guardarConfigDB()" style="margin-top: 20px;">💾 GUARDAR CONFIGURACIÓN</button>
     </div>
 
@@ -145,14 +170,8 @@
         <div id="div-fecha-rango" class="hidden" style="text-align:center; padding-bottom:15px; border-bottom:1px dashed #ccc;">
             <h3 style="margin-top:0;">BUSCAR POR RANGO</h3>
             <div class="range-inputs">
-                <div class="range-item">
-                    <label>Desde:</label>
-                    <input type="date" id="fecha_inicio" style="max-width:160px;">
-                </div>
-                <div class="range-item">
-                    <label>Hasta:</label>
-                    <input type="date" id="fecha_fin" style="max-width:160px;">
-                </div>
+                <div class="range-item"><label>Desde:</label><input type="date" id="fecha_inicio" style="max-width:160px;"></div>
+                <div class="range-item"><label>Hasta:</label><input type="date" id="fecha_fin" style="max-width:160px;"></div>
             </div>
             <button class="btn-green" onclick="verHistorialRango()">🔍 ACTUALIZAR REPORTE</button>
         </div>
@@ -169,6 +188,13 @@
             <div><label>Vendedor</label><select id="vendedor"></select></div>
             <div><label>Cuenta</label><select id="cta_contado"></select></div>
             <div class="full"><label>Artículo</label><input type="text" id="art_contado"></div>
+        </div>
+
+        <div id="form-creditos" class="form-grid hidden">
+            <div><label>Vendedor (Deudor)</label><select id="cred_vendedor"></select></div>
+            <div><label>Concepto / Descripción</label><input type="text" id="cred_concepto" placeholder="Ej. Abono Cama"></div>
+            <div><label>Saldo Actual (L.)</label><input type="number" id="cred_saldo" step="0.01"></div>
+            <div><label>Cuenta Destino</label><select id="cta_credito"></select></div>
         </div>
 
         <div id="form-abono" class="form-grid hidden">
@@ -190,7 +216,7 @@
         </div>
 
         <div id="input-monto" class="full" style="margin-top:20px;">
-            <label style="font-size:1.2rem;">Monto a Ingresar (L.)</label>
+            <label style="font-size:1.2rem;">Monto del Abono / Ingreso (L.)</label>
             <input type="number" id="monto" style="font-size:1.8rem; font-weight:900; border:3px solid var(--black); color: var(--black);" step="0.01" placeholder="0.00">
         </div>
 
@@ -215,40 +241,47 @@
 
     let MODO = 'OFICINA';
     let ID_EDIT = null;
+    let RUTA_EDIT = null; 
     let HOY = new Date().toISOString().split('T')[0];
-    // VARIABLES DE MEMORIA DE HISTORIAL
     let F_INI = HOY;
     let F_FIN = HOY;
     
-    let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
+    // REGISTROS: Agregamos 'cred' para creditos
+    let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[], cred:[] };
 
-    // CONFIGURACION INICIAL
+    // --- CONFIGURACION INICIAL ---
+    // NOTA: 'configuracion_v5' para forzar actualizacion de estructura
     let RUTAS = {
         "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
         "ANGEL": ["Margen Izquierda","Saba Tocoa"],
         "FERNANDO": ["Vicinia","Trujillo","Honduras Aguan"],
         "AMALET": ["Balfate","Bonito Oriental"],
-        "JORGE": ["Planes Jutiapa","Sonaguera","Faust"],
-        "MANUEL": ["Ruta Manuel"]
+        "JORGE": ["Planes Jutiapa","Sonaguera","Faust"]
     };
     let CUENTAS = ["DAVID", "LESLY", "DAVID_LESLY", "JOSE_RODINDER"];
+    // NUEVA LISTA DE VENDEDORES (Inicial)
+    let VENDEDORES = ["SANTOS", "NOE", "CARLOS", "RAMON", "ORLANDO", "DAVID", "MANUEL"];
 
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
         document.getElementById('fecha_inicio').value = HOY;
         document.getElementById('fecha_fin').value = HOY;
 
-        db.ref('configuracion_v4').once('value', s => {
+        // Cargar Config
+        db.ref('configuracion_v5').once('value', s => {
             if(s.exists()){
                 let c = s.val();
                 if(c.rutas) RUTAS = c.rutas;
                 if(c.cuentas) CUENTAS = c.cuentas;
+                if(c.vendedores) VENDEDORES = c.vendedores;
             } else { guardarConfigDB(); }
             llenarListasDesplegables();
         });
 
+        // Cargar Datos
         db.ref('registros_milagro').on('value', s => { REGISTROS.dep = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('ventas_contado').on('value', s => { REGISTROS.con = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
+        db.ref('creditos_vendedores').on('value', s => { REGISTROS.cred = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); }); // NUEVO
         db.ref('abonos_clientes').on('value', s => { REGISTROS.abo = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('faltantes_cobro').on('value', s => { REGISTROS.fal = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('excedente_tarjetas').on('value', s => { REGISTROS.exc = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
@@ -256,13 +289,17 @@
         setModo('OFICINA');
     };
 
+    // --- FUNCIONES CONFIGURACION ---
     function guardarConfigDB() {
-        db.ref('configuracion_v4').set({ rutas: RUTAS, cuentas: CUENTAS })
+        db.ref('configuracion_v5').set({ rutas: RUTAS, cuentas: CUENTAS, vendedores: VENDEDORES })
           .then(() => { alert("✅ Configuración guardada."); llenarListasDesplegables(); });
     }
 
     function llenarListasDesplegables() {
-        const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config', 'vendedor'];
+        const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config'];
+        const selectsVend = ['vendedor', 'cred_vendedor']; // Selects para vendedores internos
+        const selectsCta = ['cuenta', 'cta_contado', 'cta_abono', 'cta_exc', 'cta_credito'];
+
         selectsCob.forEach(id => {
             let el = document.getElementById(id);
             if(el) {
@@ -273,7 +310,16 @@
             }
         });
 
-        const selectsCta = ['cuenta', 'cta_contado', 'cta_abono', 'cta_exc'];
+        selectsVend.forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                let val = el.value;
+                el.innerHTML = '<option value="">-- Seleccionar --</option>';
+                VENDEDORES.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+                el.value = val;
+            }
+        });
+
         selectsCta.forEach(id => {
             let el = document.getElementById(id);
             if(el) {
@@ -283,6 +329,7 @@
                 if(prevVal) el.value = prevVal;
             }
         });
+        
         renderConfigUI();
     }
 
@@ -298,13 +345,22 @@
         CUENTAS.forEach((c, idx) => {
             divCta.innerHTML += `<div class="tag">${c} <span class="tag-btn tag-edit" onclick="renombrarCuenta(${idx})">✎</span><span class="tag-btn tag-del" onclick="borrarCuenta(${idx})">×</span></div>`;
         });
+
+        let divVend = document.getElementById('lista-vendedores');
+        divVend.innerHTML = "";
+        VENDEDORES.forEach((v, idx) => {
+            divVend.innerHTML += `<div class="tag" style="border-color:var(--yellow);">${v} <span class="tag-btn tag-edit" onclick="renombrarVendedor(${idx})">✎</span><span class="tag-btn tag-del" onclick="borrarVendedor(${idx})">×</span></div>`;
+        });
+
         verZonasDeCobrador();
     }
 
+    // --- LOGICA CONFIG ---
+    // Cobradores
     function crearCobrador() { let n=document.getElementById('new_cobrador').value.toUpperCase().trim(); if(n&&!RUTAS[n]){RUTAS[n]=[]; document.getElementById('new_cobrador').value=""; renderConfigUI();} }
     function borrarCobrador(n) { if(confirm("Borrar?")){ delete RUTAS[n]; renderConfigUI(); } }
     function renombrarCobrador(old) { let n=prompt("Nuevo nombre:",old); if(n&&n!=old){ n=n.toUpperCase().trim(); RUTAS[n]=RUTAS[old]; delete RUTAS[old]; renderConfigUI(); } }
-    
+    // Zonas
     function verZonasDeCobrador() {
         let cob = document.getElementById('sel_cobrador_config').value;
         let div = document.getElementById('lista-zonas');
@@ -318,11 +374,16 @@
     function agregarZona() { let cob=document.getElementById('sel_cobrador_config').value; let z=document.getElementById('new_zona').value.trim(); if(cob&&z){if(!RUTAS[cob])RUTAS[cob]=[]; RUTAS[cob].push(z); document.getElementById('new_zona').value=""; verZonasDeCobrador();} }
     function borrarZona(c,i) { RUTAS[c].splice(i,1); verZonasDeCobrador(); }
     function renombrarZona(c,i) { let n=prompt("Nombre:",RUTAS[c][i]); if(n) { RUTAS[c][i]=n; verZonasDeCobrador(); } }
-
+    // Cuentas
     function crearCuenta() { let n=document.getElementById('new_cuenta').value.toUpperCase().trim(); if(n&&!CUENTAS.includes(n)){CUENTAS.push(n); document.getElementById('new_cuenta').value=""; renderConfigUI();} }
     function borrarCuenta(i) { if(confirm("Borrar?")){ CUENTAS.splice(i,1); renderConfigUI(); } }
     function renombrarCuenta(i) { let n=prompt("Nombre:",CUENTAS[i]); if(n){ CUENTAS[i]=n.toUpperCase().trim(); renderConfigUI(); } }
+    // Vendedores Internos
+    function crearVendedor() { let n=document.getElementById('new_vendedor').value.toUpperCase().trim(); if(n&&!VENDEDORES.includes(n)){VENDEDORES.push(n); document.getElementById('new_vendedor').value=""; renderConfigUI();} }
+    function borrarVendedor(i) { if(confirm("Borrar vendedor?")){ VENDEDORES.splice(i,1); renderConfigUI(); } }
+    function renombrarVendedor(i) { let n=prompt("Nombre:",VENDEDORES[i]); if(n){ VENDEDORES[i]=n.toUpperCase().trim(); renderConfigUI(); } }
 
+    // --- OPERATIVO ---
     function cargarZonasOperativo() {
         let cob = document.getElementById('cobrador_op').value;
         let sel = document.getElementById('zona_op');
@@ -343,13 +404,17 @@
         
         document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
         let tab = document.getElementById('tab-'+m.toLowerCase());
-        if(tab) tab.classList.add(m=='CONFIG'?'active-config':'active-tab');
+        if(tab) {
+            tab.classList.add('active-tab');
+            if(m=='CREDITOS') tab.classList.add('active-creditos');
+            if(m=='CONFIG') tab.classList.add('active-config');
+        }
 
         document.getElementById('panel-config').classList.add('hidden');
         document.getElementById('panel-form').classList.add('hidden');
         document.getElementById('area-reportes').classList.remove('hidden');
         
-        ['form-dep','form-contado','form-abono','form-fal','form-exc'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        ['form-dep','form-contado','form-creditos','form-abono','form-fal','form-exc'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('div-fecha-operativa').classList.remove('hidden');
         document.getElementById('div-fecha-rango').classList.add('hidden');
         document.getElementById('input-monto').classList.remove('hidden');
@@ -368,6 +433,7 @@
             llenarListasDesplegables(); 
         }
         else if(m == 'CONTADO') document.getElementById('form-contado').classList.remove('hidden');
+        else if(m == 'CREDITOS') document.getElementById('form-creditos').classList.remove('hidden'); // NUEVO
         else if(m == 'ABONOS') document.getElementById('form-abono').classList.remove('hidden');
         else if(m == 'FALTANTES') document.getElementById('form-fal').classList.remove('hidden');
         else if(m == 'EXCEDENTE') document.getElementById('form-exc').classList.remove('hidden');
@@ -375,8 +441,6 @@
             document.getElementById('div-fecha-operativa').classList.add('hidden');
             document.getElementById('input-monto').classList.add('hidden');
             document.getElementById('btn-save').style.display='none';
-            
-            // AQUI ESTA LA MAGIA: RESTAURAR FECHAS GUARDADAS EN LAS VARIABLES
             document.getElementById('div-fecha-rango').classList.remove('hidden');
             document.getElementById('fecha_inicio').value = F_INI;
             document.getElementById('fecha_fin').value = F_FIN;
@@ -384,12 +448,17 @@
 
         pintar();
         document.getElementById('btn-save').innerText = `GUARDAR ${m}`;
+        
+        // Colores botones
+        let btn = document.getElementById('btn-save');
+        btn.className = "btn-green";
+        if(m == 'CREDITOS') btn.className = "btn-yellow";
     };
 
     window.verHistorialRango = function() {
         F_INI = document.getElementById('fecha_inicio').value;
         F_FIN = document.getElementById('fecha_fin').value;
-        pintar(); // Al hacer clic en BUSCAR, se actualiza el reporte con las nuevas fechas
+        pintar(); 
     }
 
     window.guardar = function() {
@@ -407,6 +476,7 @@
         else {
             if(target=='OFICINA'||target=='CAMPO') ruta='registros_milagro';
             if(target=='CONTADO') ruta='ventas_contado';
+            if(target=='CREDITOS') ruta='creditos_vendedores'; // NUEVA RUTA
             if(target=='ABONOS') ruta='abonos_clientes';
             if(target=='FALTANTES') ruta='faltantes_cobro';
             if(target=='EXCEDENTE') ruta='excedente_tarjetas';
@@ -424,6 +494,12 @@
             obj.vendedor = document.getElementById('vendedor').value;
             obj.cuenta = document.getElementById('cta_contado').value;
             obj.articulo = document.getElementById('art_contado').value;
+        }
+        else if(ruta=='creditos_vendedores') { // NUEVO OBJETO
+            obj.vendedor = document.getElementById('cred_vendedor').value;
+            obj.concepto = document.getElementById('cred_concepto').value;
+            obj.saldo = document.getElementById('cred_saldo').value;
+            obj.cuenta = document.getElementById('cta_credito').value;
         }
         else if(ruta=='abonos_clientes') {
             obj.tarjeta = document.getElementById('abo_tar').value;
@@ -456,6 +532,7 @@
         let r;
         if(ruta=='registros_milagro') r = REGISTROS.dep.find(x=>x.id==id);
         if(ruta=='ventas_contado') r = REGISTROS.con.find(x=>x.id==id);
+        if(ruta=='creditos_vendedores') r = REGISTROS.cred.find(x=>x.id==id); // NUEVO
         if(ruta=='abonos_clientes') r = REGISTROS.abo.find(x=>x.id==id);
         if(ruta=='faltantes_cobro') r = REGISTROS.fal.find(x=>x.id==id);
         if(ruta=='excedente_tarjetas') r = REGISTROS.exc.find(x=>x.id==id);
@@ -476,6 +553,12 @@
                 document.getElementById('vendedor').value = r.vendedor;
                 document.getElementById('cta_contado').value = r.cuenta;
                 document.getElementById('art_contado').value = r.articulo;
+            }
+            if(ruta=='creditos_vendedores') { // NUEVO EDITAR
+                document.getElementById('cred_vendedor').value = r.vendedor;
+                document.getElementById('cred_concepto').value = r.concepto;
+                document.getElementById('cred_saldo').value = r.saldo;
+                document.getElementById('cta_credito').value = r.cuenta;
             }
             if(ruta=='abonos_clientes') {
                 document.getElementById('abo_tar').value = r.tarjeta;
@@ -512,17 +595,7 @@
         let granTotal = 0;
         const fmt = n => "L. " + n.toLocaleString('en-US',{minimumFractionDigits:2});
         
-        let filtroFecha;
-        if(MODO === 'HISTORIAL') {
-            // EN HISTORIAL: Usamos las fechas de los inputs guardadas en F_INI y F_FIN
-            filtroFecha = r => r.fecha >= F_INI && r.fecha <= F_FIN;
-            document.getElementById('titulo-rep').innerText = `HISTORIAL (${F_INI} al ${F_FIN})`;
-        } else {
-            // EN OPERATIVO: Solo mostramos lo que se creó/editó HOY (Fecha de Registro) para ver el progreso diario
-            filtroFecha = r => (r.fecha_registro || r.fecha) === HOY;
-            document.getElementById('titulo-rep').innerText = "INGRESADO HOY";
-        }
-
+        const filtroFecha = r => { return r.fecha >= F_INI && r.fecha <= F_FIN; };
         let verTodo = (MODO === 'HISTORIAL');
 
         // DEPOSITOS
@@ -553,14 +626,14 @@
             }
         });
 
-        const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn) => {
+        const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn, colorClase) => {
             if(!verTodo && MODO !== modoReq) return;
             let items = lista.filter(filtroFecha);
             items.sort((a,b) => a.fecha.localeCompare(b.fecha));
             
             if(items.length) {
                 let sub = items.reduce((a,b)=>a+Number(b.monto),0); granTotal += sub;
-                let h = `<div class="report-section border-default"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
+                let h = `<div class="report-section ${colorClase || 'border-default'}"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
                 items.forEach(r => {
                     let info = extraFn(r);
                     h += `<tr><td><small>${r.fecha.slice(5)}</small></td>${info}<td><b>${fmt(Number(r.monto))}</b></td><td class="no-print" style="text-align:right;"><button class="btn-action btn-edit" onclick="editar('${r.id}','${modoReq}','${rutaDb}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','${rutaDb}')">🗑️</button></td></tr>`;
@@ -570,6 +643,9 @@
         };
 
         pintarBloque(REGISTROS.con, "CONTADO", "CONTADO", "ventas_contado", r=>`<td>${r.vendedor}<br><small>${r.articulo}</small></td><td>(${r.cuenta})</td>`);
+        // BLOQUE DE CREDITOS (NUEVO)
+        pintarBloque(REGISTROS.cred, "ABONOS VENDEDORES", "CREDITOS", "creditos_vendedores", r=>`<td>${r.vendedor}<br><small>${r.concepto}</small></td><td>(Sald: ${fmt(Number(r.saldo))})</td>`, "border-yellow");
+        
         pintarBloque(REGISTROS.abo, "ABONOS", "ABONOS", "abonos_clientes", r=>`<td>#${r.tarjeta}<br><small>${r.articulo}</small></td><td>(${r.cuenta})</td>`);
         pintarBloque(REGISTROS.fal, "FALTANTES", "FALTANTES", "faltantes_cobro", r=>`<td>${r.cobrador}<br>${r.zona}</td>`);
         pintarBloque(REGISTROS.exc, "EXCEDENTES", "EXCEDENTE", "excedente_tarjetas", r=>`<td>#${r.tarjeta}<br><small>${r.articulo}</small></td><td>(${r.cuenta})</td>`);
