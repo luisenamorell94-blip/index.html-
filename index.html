@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA INTERNO V37 - FINAL</title>
+    <title>SISTEMA INTERNO V38 - RANGOS</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxOTFBMjMiLz48cGF0aCBkPSJNNTcuNiAxMzQuNEw5NiA5NkwxMzQuNCA1Ny42TTEzNC40IDU3LjZWNTZNMTM0LjQgNTcuNkg5NiIgc3Ryb2tlPSIjQjlGRjY2IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
     <meta name="theme-color" content="#191A23">
@@ -52,13 +52,10 @@
         /* CONFIGURACION */
         .config-box { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 2px solid #eee; }
         .item-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        
-        /* TAGS DE CONFIG CON BOTONES EDITAR/BORRAR */
         .tag { background: #f0f0f0; padding: 8px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; border: 2px solid var(--black); font-weight: bold; }
         .tag-btn { cursor: pointer; font-size: 1.1rem; padding: 0 5px; transition: 0.2s; }
         .tag-edit { color: var(--edit); }
         .tag-del { color: var(--danger); }
-        .tag-btn:hover { transform: scale(1.2); }
 
         /* REPORTES */
         .report-section { background: var(--white); border: 2px solid var(--black); border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 0 var(--black); }
@@ -77,6 +74,12 @@
 
         .total-box { background: var(--black); color: var(--lime); padding: 20px; text-align: right; font-weight: bold; font-size: 1.5rem; border-radius: 15px; margin-top: 30px; border: 3px solid var(--lime); box-shadow: 0 6px 0 rgba(185, 255, 102, 0.3); }
         .hidden { display: none; }
+        
+        /* RANGE INPUTS */
+        .range-inputs { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 15px; }
+        .range-item { text-align: left; }
+        .range-item label { font-size: 0.8rem; color: #555; }
+
         @media print { .no-print { display: none; } .card { border: none; shadow: none; } header { background: none; color: black; box-shadow: none; } h2.logo-text { color: black; } h2.logo-text span { color: #666; } .logo-svg circle { fill: black; } }
     </style>
 </head>
@@ -104,7 +107,6 @@
 
     <div id="panel-config" class="card hidden no-print">
         <h3>⚙️ GESTIÓN TOTAL</h3>
-        
         <div class="config-box">
             <label>1. Cobradores (Rutas)</label>
             <div style="display:flex; gap:10px; align-items: center;">
@@ -113,7 +115,6 @@
             </div>
             <div id="lista-cobradores" class="item-list"></div>
         </div>
-
         <div class="config-box">
             <label>2. Zonas (Selecciona un cobrador)</label>
             <select id="sel_cobrador_config" onchange="verZonasDeCobrador()"></select>
@@ -123,7 +124,6 @@
             </div>
             <div id="lista-zonas" class="item-list"></div>
         </div>
-
         <div class="config-box">
             <label>3. Cuentas (Disponibles en todas las pestañas)</label>
             <div style="display:flex; gap:10px; align-items: center;">
@@ -132,14 +132,30 @@
             </div>
             <div id="lista-cuentas" class="item-list"></div>
         </div>
-
         <button class="btn-green" onclick="guardarConfigDB()" style="margin-top: 20px;">💾 GUARDAR CONFIGURACIÓN</button>
     </div>
 
     <div id="panel-form" class="card no-print">
-        <div class="full" style="margin-bottom:15px;">
-            <label>Fecha:</label>
+        
+        <div id="div-fecha-operativa" class="full" style="margin-bottom:15px;">
+            <label>Fecha de Ingreso:</label>
             <input type="date" id="fecha">
+            <small style="color:#666;">ℹ️ Si olvidaste agregar algo ayer, selecciona la fecha de ayer aquí y guárdalo.</small>
+        </div>
+
+        <div id="div-fecha-rango" class="hidden" style="text-align:center; padding-bottom:15px; border-bottom:1px dashed #ccc;">
+            <h3 style="margin-top:0;">BUSCAR POR RANGO</h3>
+            <div class="range-inputs">
+                <div class="range-item">
+                    <label>Desde:</label>
+                    <input type="date" id="fecha_inicio" style="max-width:160px;">
+                </div>
+                <div class="range-item">
+                    <label>Hasta:</label>
+                    <input type="date" id="fecha_fin" style="max-width:160px;">
+                </div>
+            </div>
+            <button class="btn-green" onclick="verHistorialRango()">🔍 BUSCAR RANGO</button>
         </div>
 
         <div id="form-dep" class="form-grid">
@@ -174,12 +190,6 @@
             <div class="full"><label>Cuenta</label><select id="cta_exc"></select></div>
         </div>
 
-        <div id="form-hist" class="hidden" style="text-align:center;">
-            <h3>BUSCAR POR FECHA</h3>
-            <input type="date" id="fecha_hist" style="max-width:250px; margin:0 auto 15px auto; display:block;">
-            <button class="btn-green" onclick="verHistorial()">🔍 BUSCAR REPORTE</button>
-        </div>
-
         <div id="input-monto" class="full" style="margin-top:20px;">
             <label style="font-size:1.2rem;">Monto a Ingresar (L.)</label>
             <input type="number" id="monto" style="font-size:1.8rem; font-weight:900; border:3px solid var(--black); color: var(--black);" step="0.01" placeholder="0.00">
@@ -207,10 +217,11 @@
     let MODO = 'OFICINA';
     let ID_EDIT = null;
     let HOY = new Date().toISOString().split('T')[0];
-    let FILTRO = HOY;
+    let F_INI = HOY;
+    let F_FIN = HOY;
     let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
 
-    // --- CONFIGURACION INICIAL (Por defecto) ---
+    // --- CONFIGURACION INICIAL ---
     let RUTAS = {
         "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
         "ANGEL": ["Margen Izquierda","Saba Tocoa"],
@@ -222,7 +233,8 @@
 
     window.onload = function() {
         document.getElementById('fecha').value = HOY;
-        document.getElementById('fecha_hist').value = HOY;
+        document.getElementById('fecha_inicio').value = HOY;
+        document.getElementById('fecha_fin').value = HOY;
 
         // Cargar Config
         db.ref('configuracion_v3').once('value', s => {
@@ -246,17 +258,13 @@
         setModo('OFICINA');
     };
 
-    // --- FUNCIONES DE CONFIGURACION (CORE) ---
+    // --- FUNCIONES CONFIGURACION ---
     function guardarConfigDB() {
         db.ref('configuracion_v3').set({ rutas: RUTAS, cuentas: CUENTAS })
-          .then(() => {
-              alert("✅ Configuración guardada y aplicada.");
-              llenarListasDesplegables(); // Refrescar todo
-          });
+          .then(() => { alert("✅ Configuración guardada."); llenarListasDesplegables(); });
     }
 
     function llenarListasDesplegables() {
-        // 1. SELECTS DE COBRADORES (Vendedores)
         const selectsCob = ['cobrador_op', 'fal_cob', 'sel_cobrador_config', 'vendedor'];
         selectsCob.forEach(id => {
             let el = document.getElementById(id);
@@ -268,20 +276,13 @@
             }
         });
 
-        // 2. SELECTS DE CUENTAS (EN TODAS LAS PESTAÑAS)
-        // Aqui aplicamos "Agregar en cualquier pestaña": Llenamos TODO con TODO.
         const selectsCta = ['cuenta', 'cta_contado', 'cta_abono', 'cta_exc'];
         selectsCta.forEach(id => {
             let el = document.getElementById(id);
             if(el) {
-                // Guardar valor actual por si acaso
                 let prevVal = el.value;
                 el.innerHTML = "";
-                // Llenar con TODAS las cuentas de la configuración
-                CUENTAS.forEach(c => {
-                    el.innerHTML += `<option value="${c}">${c}</option>`; 
-                });
-                // Intentar restaurar valor
+                CUENTAS.forEach(c => { el.innerHTML += `<option value="${c}">${c}</option>`; });
                 if(prevVal) el.value = prevVal;
             }
         });
@@ -289,94 +290,45 @@
         renderConfigUI();
     }
 
-    // --- UI DE CONFIGURACION (CON EDICION) ---
     function renderConfigUI() {
-        // Render Cobradores
         let divCob = document.getElementById('lista-cobradores');
         divCob.innerHTML = "";
         Object.keys(RUTAS).forEach(c => {
-            divCob.innerHTML += `<div class="tag">
-                ${c} 
-                <span class="tag-btn tag-edit" onclick="renombrarCobrador('${c}')">✎</span>
-                <span class="tag-btn tag-del" onclick="borrarCobrador('${c}')">×</span>
-            </div>`;
+            divCob.innerHTML += `<div class="tag">${c} <span class="tag-btn tag-edit" onclick="renombrarCobrador('${c}')">✎</span><span class="tag-btn tag-del" onclick="borrarCobrador('${c}')">×</span></div>`;
         });
 
-        // Render Cuentas
         let divCta = document.getElementById('lista-cuentas');
         divCta.innerHTML = "";
         CUENTAS.forEach((c, idx) => {
-            divCta.innerHTML += `<div class="tag">
-                ${c}
-                <span class="tag-btn tag-edit" onclick="renombrarCuenta(${idx})">✎</span>
-                <span class="tag-btn tag-del" onclick="borrarCuenta(${idx})">×</span>
-            </div>`;
+            divCta.innerHTML += `<div class="tag">${c} <span class="tag-btn tag-edit" onclick="renombrarCuenta(${idx})">✎</span><span class="tag-btn tag-del" onclick="borrarCuenta(${idx})">×</span></div>`;
         });
-
         verZonasDeCobrador();
     }
 
-    // --- LOGICA COBRADORES ---
-    function crearCobrador() {
-        let n = document.getElementById('new_cobrador').value.toUpperCase().trim();
-        if(n && !RUTAS[n]) { RUTAS[n] = []; document.getElementById('new_cobrador').value = ""; renderConfigUI(); }
-    }
-    function borrarCobrador(n) { if(confirm("¿Borrar "+n+"?")) { delete RUTAS[n]; renderConfigUI(); } }
-    function renombrarCobrador(oldName) {
-        let newName = prompt("Nuevo nombre para " + oldName + ":", oldName);
-        if(newName && newName !== oldName) {
-            newName = newName.toUpperCase().trim();
-            RUTAS[newName] = RUTAS[oldName]; // Copiar zonas
-            delete RUTAS[oldName]; // Borrar viejo
-            renderConfigUI();
-        }
-    }
-
-    // --- LOGICA ZONAS ---
+    // --- LOGICA CONFIG ---
+    function crearCobrador() { let n=document.getElementById('new_cobrador').value.toUpperCase().trim(); if(n&&!RUTAS[n]){RUTAS[n]=[]; document.getElementById('new_cobrador').value=""; renderConfigUI();} }
+    function borrarCobrador(n) { if(confirm("Borrar?")){ delete RUTAS[n]; renderConfigUI(); } }
+    function renombrarCobrador(old) { let n=prompt("Nuevo nombre:",old); if(n&&n!=old){ n=n.toUpperCase().trim(); RUTAS[n]=RUTAS[old]; delete RUTAS[old]; renderConfigUI(); } }
+    
     function verZonasDeCobrador() {
         let cob = document.getElementById('sel_cobrador_config').value;
         let div = document.getElementById('lista-zonas');
         div.innerHTML = "";
         if(cob && RUTAS[cob]) {
             RUTAS[cob].forEach((z, idx) => {
-                div.innerHTML += `<div class="tag">
-                    ${z}
-                    <span class="tag-btn tag-edit" onclick="renombrarZona('${cob}', ${idx})">✎</span>
-                    <span class="tag-btn tag-del" onclick="borrarZona('${cob}', ${idx})">×</span>
-                </div>`;
+                div.innerHTML += `<div class="tag">${z} <span class="tag-btn tag-edit" onclick="renombrarZona('${cob}', ${idx})">✎</span><span class="tag-btn tag-del" onclick="borrarZona('${cob}', ${idx})">×</span></div>`;
             });
         }
     }
-    function agregarZona() {
-        let cob = document.getElementById('sel_cobrador_config').value;
-        let z = document.getElementById('new_zona').value.trim();
-        if(cob && z) { 
-            if(!RUTAS[cob]) RUTAS[cob] = []; 
-            RUTAS[cob].push(z); 
-            document.getElementById('new_zona').value = ""; 
-            verZonasDeCobrador(); 
-        }
-    }
-    function borrarZona(cob, idx) { RUTAS[cob].splice(idx, 1); verZonasDeCobrador(); }
-    function renombrarZona(cob, idx) {
-        let oldName = RUTAS[cob][idx];
-        let newName = prompt("Nuevo nombre para zona:", oldName);
-        if(newName) { RUTAS[cob][idx] = newName; verZonasDeCobrador(); }
-    }
+    function agregarZona() { let cob=document.getElementById('sel_cobrador_config').value; let z=document.getElementById('new_zona').value.trim(); if(cob&&z){if(!RUTAS[cob])RUTAS[cob]=[]; RUTAS[cob].push(z); document.getElementById('new_zona').value=""; verZonasDeCobrador();} }
+    function borrarZona(c,i) { RUTAS[c].splice(i,1); verZonasDeCobrador(); }
+    function renombrarZona(c,i) { let n=prompt("Nombre:",RUTAS[c][i]); if(n) { RUTAS[c][i]=n; verZonasDeCobrador(); } }
 
-    // --- LOGICA CUENTAS ---
-    function crearCuenta() {
-        let n = document.getElementById('new_cuenta').value.toUpperCase().trim();
-        if(n && !CUENTAS.includes(n)) { CUENTAS.push(n); document.getElementById('new_cuenta').value = ""; renderConfigUI(); }
-    }
-    function borrarCuenta(idx) { if(confirm("¿Borrar cuenta?")) { CUENTAS.splice(idx, 1); renderConfigUI(); } }
-    function renombrarCuenta(idx) {
-        let oldName = CUENTAS[idx];
-        let newName = prompt("Nuevo nombre cuenta:", oldName);
-        if(newName) { CUENTAS[idx] = newName.toUpperCase().trim(); renderConfigUI(); }
-    }
+    function crearCuenta() { let n=document.getElementById('new_cuenta').value.toUpperCase().trim(); if(n&&!CUENTAS.includes(n)){CUENTAS.push(n); document.getElementById('new_cuenta').value=""; renderConfigUI();} }
+    function borrarCuenta(i) { if(confirm("Borrar?")){ CUENTAS.splice(i,1); renderConfigUI(); } }
+    function renombrarCuenta(i) { let n=prompt("Nombre:",CUENTAS[i]); if(n){ CUENTAS[i]=n.toUpperCase().trim(); renderConfigUI(); } }
 
-    // --- LOGICA OPERATIVA ---
+    // --- OPERATIVO ---
     function cargarZonasOperativo() {
         let cob = document.getElementById('cobrador_op').value;
         let sel = document.getElementById('zona_op');
@@ -395,7 +347,6 @@
         if(ID_EDIT) { if(!confirm("Cancelar edición?")) return; cancelar(); }
         MODO = m;
         
-        // UI
         document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
         let tab = document.getElementById('tab-'+m.toLowerCase());
         if(tab) tab.classList.add(m=='CONFIG'?'active-config':'active-tab');
@@ -404,10 +355,11 @@
         document.getElementById('panel-form').classList.add('hidden');
         document.getElementById('area-reportes').classList.remove('hidden');
         
-        ['form-dep','form-contado','form-abono','form-fal','form-exc','form-hist','input-monto'].forEach(id => {
-            let el = document.getElementById(id);
-            if(el) el.classList.add('hidden');
-        });
+        ['form-dep','form-contado','form-abono','form-fal','form-exc'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('div-fecha-operativa').classList.remove('hidden');
+        document.getElementById('div-fecha-rango').classList.add('hidden');
+        document.getElementById('input-monto').classList.remove('hidden');
+        document.getElementById('btn-save').style.display='block';
 
         if(m === 'CONFIG') {
             document.getElementById('panel-config').classList.remove('hidden');
@@ -416,36 +368,43 @@
         }
 
         document.getElementById('panel-form').classList.remove('hidden');
-        document.getElementById('btn-save').style.display = 'block';
 
         if(m == 'OFICINA' || m == 'CAMPO') {
             document.getElementById('form-dep').classList.remove('hidden');
-            document.getElementById('input-monto').classList.remove('hidden');
-            // Se asegura que las listas esten llenas
             llenarListasDesplegables(); 
         }
-        else if(m == 'CONTADO') { document.getElementById('form-contado').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
-        else if(m == 'ABONOS') { document.getElementById('form-abono').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
-        else if(m == 'FALTANTES') { document.getElementById('form-fal').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
-        else if(m == 'EXCEDENTE') { document.getElementById('form-exc').classList.remove('hidden'); document.getElementById('input-monto').classList.remove('hidden'); }
+        else if(m == 'CONTADO') document.getElementById('form-contado').classList.remove('hidden');
+        else if(m == 'ABONOS') document.getElementById('form-abono').classList.remove('hidden');
+        else if(m == 'FALTANTES') document.getElementById('form-fal').classList.remove('hidden');
+        else if(m == 'EXCEDENTE') document.getElementById('form-exc').classList.remove('hidden');
         else if(m == 'HISTORIAL') { 
-            document.getElementById('form-hist').classList.remove('hidden'); 
+            // Modo historial: Oculta input monto y boton guardar, muestra rango
+            document.getElementById('div-fecha-operativa').classList.add('hidden');
+            document.getElementById('input-monto').classList.add('hidden');
             document.getElementById('btn-save').style.display='none';
+            document.getElementById('div-fecha-rango').classList.remove('hidden');
         }
 
-        FILTRO = HOY;
-        document.getElementById('titulo-rep').innerText = "REPORTE DE HOY ("+HOY+")";
+        // Si no es historial, reseteamos filtro a hoy
+        if(m !== 'HISTORIAL') {
+            F_INI = HOY; F_FIN = HOY;
+            document.getElementById('titulo-rep').innerText = "REPORTE DE HOY ("+HOY+")";
+        }
         pintar();
         document.getElementById('btn-save').innerText = `GUARDAR ${m}`;
     };
 
-    window.verHistorial = function() {
-        FILTRO = document.getElementById('fecha_hist').value;
-        document.getElementById('titulo-rep').innerText = "HISTORIAL DEL: " + FILTRO;
-        pintar();
+    window.verHistorialRango = function() {
+        F_INI = document.getElementById('fecha_inicio').value;
+        F_FIN = document.getElementById('fecha_fin').value;
+        if(F_INI && F_FIN) {
+            document.getElementById('titulo-rep').innerText = `REPORTE DEL ${F_INI} AL ${F_FIN}`;
+            pintar();
+        } else {
+            alert("Selecciona ambas fechas");
+        }
     }
 
-    // --- GUARDAR Y EDITAR ---
     window.guardar = function() {
         let f = document.getElementById('fecha').value;
         let m = parseFloat(document.getElementById('monto').value);
@@ -454,18 +413,17 @@
         let obj = { fecha: f, fecha_registro: HOY, monto: m };
         let ruta = "";
 
-        if(!ID_EDIT) {
-            if(MODO=='OFICINA' || MODO=='CAMPO') ruta='registros_milagro';
-            else if(MODO=='CONTADO') ruta='ventas_contado';
-            else if(MODO=='ABONOS') ruta='abonos_clientes';
-            else if(MODO=='FALTANTES') ruta='faltantes_cobro';
-            else if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
-        } else {
-            if(MODO=='OFICINA' || MODO=='CAMPO') ruta='registros_milagro'; 
-            if(MODO=='CONTADO') ruta='ventas_contado';
-            if(MODO=='ABONOS') ruta='abonos_clientes';
-            if(MODO=='FALTANTES') ruta='faltantes_cobro';
-            if(MODO=='EXCEDENTE') ruta='excedente_tarjetas';
+        // Determinar ruta
+        let target = MODO;
+        if(ID_EDIT && RUTA_EDIT) target = ''; // Si edito, la ruta ya la se
+        
+        if(!target) ruta = RUTA_EDIT; // Edicion
+        else {
+            if(target=='OFICINA'||target=='CAMPO') ruta='registros_milagro';
+            if(target=='CONTADO') ruta='ventas_contado';
+            if(target=='ABONOS') ruta='abonos_clientes';
+            if(target=='FALTANTES') ruta='faltantes_cobro';
+            if(target=='EXCEDENTE') ruta='excedente_tarjetas';
         }
 
         if(ruta=='registros_milagro') {
@@ -504,6 +462,7 @@
     window.editar = function(id, tipo, ruta) {
         setModo(tipo);
         ID_EDIT = id;
+        RUTA_EDIT = ruta;
         document.getElementById('btn-cancel').style.display = 'block';
         document.getElementById('btn-save').innerText = "ACTUALIZAR";
         window.scrollTo(0,0);
@@ -561,17 +520,24 @@
         setModo(MODO);
     };
 
-    // --- PINTAR REPORTES ---
     function pintar() {
         let div = document.getElementById('lista-reportes');
         div.innerHTML = "";
         let granTotal = 0;
         const fmt = n => "L. " + n.toLocaleString('en-US',{minimumFractionDigits:2});
-        const filtroFecha = r => (r.fecha_registro || r.fecha) == FILTRO;
+        
+        // FILTRO POR RANGO DE FECHAS
+        const filtroFecha = r => {
+            return r.fecha >= F_INI && r.fecha <= F_FIN;
+        };
+
         let verTodo = (MODO === 'HISTORIAL');
 
         // DEPOSITOS
         let dep = REGISTROS.dep.filter(filtroFecha);
+        // Ordenar por fecha
+        dep.sort((a,b) => a.fecha.localeCompare(b.fecha));
+
         CUENTAS.forEach(cta => {
             let list = dep.filter(r => r.cuenta == cta);
             if(!verTodo) {
@@ -586,7 +552,7 @@
                 let resumen = {};
                 list.forEach(r => {
                     if(!resumen[r.zona]) resumen[r.zona]=0; resumen[r.zona]+=Number(r.monto);
-                    h += `<tr><td><span style="font-size:0.8em; background:${r.origen=='OFICINA'?'var(--lime)':'#e0e0e0'}; padding:2px 5px; border-radius:4px;">${r.origen.substr(0,3)}</span></td><td>${r.zona}<br><small>${r.cobrador}</small></td><td>Ref:${r.ref}</td><td><b>${fmt(Number(r.monto))}</b></td>
+                    h += `<tr><td><span style="font-size:0.8em; background:${r.origen=='OFICINA'?'var(--lime)':'#e0e0e0'}; padding:2px 5px; border-radius:4px;">${r.fecha.slice(5)}</span></td><td>${r.zona}<br><small>${r.cobrador}</small></td><td>Ref:${r.ref}</td><td><b>${fmt(Number(r.monto))}</b></td>
                     <td class="no-print" style="text-align:right;"><button class="btn-action btn-edit" onclick="editar('${r.id}','${r.origen}','registros_milagro')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','registros_milagro')">🗑️</button></td></tr>`;
                 });
                 h += "</table><div class='zone-summary'><b>Resumen:</b>";
@@ -600,12 +566,14 @@
         const pintarBloque = (lista, titulo, modoReq, rutaDb, extraFn) => {
             if(!verTodo && MODO !== modoReq) return;
             let items = lista.filter(filtroFecha);
+            items.sort((a,b) => a.fecha.localeCompare(b.fecha)); // Ordenar
+            
             if(items.length) {
                 let sub = items.reduce((a,b)=>a+Number(b.monto),0); granTotal += sub;
                 let h = `<div class="report-section border-default"><div class="account-title">${titulo} <span>${fmt(sub)}</span></div><table>`;
                 items.forEach(r => {
                     let info = extraFn(r);
-                    h += `<tr>${info}<td><b>${fmt(Number(r.monto))}</b></td><td class="no-print" style="text-align:right;"><button class="btn-action btn-edit" onclick="editar('${r.id}','${modoReq}','${rutaDb}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','${rutaDb}')">🗑️</button></td></tr>`;
+                    h += `<tr><td><small>${r.fecha.slice(5)}</small></td>${info}<td><b>${fmt(Number(r.monto))}</b></td><td class="no-print" style="text-align:right;"><button class="btn-action btn-edit" onclick="editar('${r.id}','${modoReq}','${rutaDb}')">✏️</button><button class="btn-action btn-del" onclick="del('${r.id}','${rutaDb}')">🗑️</button></td></tr>`;
                 });
                 div.innerHTML += h + "</table></div>";
             }
@@ -617,7 +585,7 @@
         pintarBloque(REGISTROS.exc, "EXCEDENTES", "EXCEDENTE", "excedente_tarjetas", r=>`<td>#${r.tarjeta}<br><small>${r.articulo}</small></td><td>(${r.cuenta})</td>`);
 
         document.getElementById('gran-total').innerText = fmt(granTotal);
-        if(div.innerHTML == "") div.innerHTML = "<p style='text-align:center; color:#888; margin-top:30px;'>No hay movimientos.</p>";
+        if(div.innerHTML == "") div.innerHTML = "<p style='text-align:center; color:#888; margin-top:30px;'>No hay movimientos en este rango.</p>";
     }
 </script>
 </body>
