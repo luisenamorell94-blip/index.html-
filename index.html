@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA INTERNO V39 - MANUEL AGREGADO</title>
+    <title>SISTEMA INTERNO V40 - MEMORIA</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxOTFBMjMiLz48cGF0aCBkPSJNNTcuNiAxMzQuNEw5NiA5NkwxMzQuNCA1Ny42TTEzNC40IDU3LjZWNTZNMTM0LjQgNTcuNkg5NiIgc3Ryb2tlPSIjQjlGRjY2IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
     <meta name="theme-color" content="#191A23">
@@ -139,7 +139,7 @@
         <div id="div-fecha-operativa" class="full" style="margin-bottom:15px;">
             <label>Fecha de Ingreso:</label>
             <input type="date" id="fecha">
-            <small style="color:#666;">ℹ️ Si olvidaste agregar algo ayer, selecciona la fecha de ayer aquí.</small>
+            <small style="color:#666;">ℹ️ Si ingresas algo antiguo, recuerda seleccionarlo aquí.</small>
         </div>
 
         <div id="div-fecha-rango" class="hidden" style="text-align:center; padding-bottom:15px; border-bottom:1px dashed #ccc;">
@@ -154,7 +154,7 @@
                     <input type="date" id="fecha_fin" style="max-width:160px;">
                 </div>
             </div>
-            <button class="btn-green" onclick="verHistorialRango()">🔍 BUSCAR RANGO</button>
+            <button class="btn-green" onclick="verHistorialRango()">🔍 ACTUALIZAR REPORTE</button>
         </div>
 
         <div id="form-dep" class="form-grid">
@@ -216,19 +216,20 @@
     let MODO = 'OFICINA';
     let ID_EDIT = null;
     let HOY = new Date().toISOString().split('T')[0];
+    // VARIABLES DE MEMORIA DE HISTORIAL
     let F_INI = HOY;
     let F_FIN = HOY;
+    
     let REGISTROS = { dep:[], con:[], abo:[], fal:[], exc:[] };
 
-    // --- CONFIGURACION INICIAL (AGREGADO MANUEL) ---
-    // NOTA: Se usa 'configuracion_v4' para forzar la actualización de Manuel si ya usaste el sistema.
+    // CONFIGURACION INICIAL
     let RUTAS = {
         "MIGUEL": ["Elixir","Saba Olanchito","Zona Saba"],
         "ANGEL": ["Margen Izquierda","Saba Tocoa"],
         "FERNANDO": ["Vicinia","Trujillo","Honduras Aguan"],
         "AMALET": ["Balfate","Bonito Oriental"],
         "JORGE": ["Planes Jutiapa","Sonaguera","Faust"],
-        "MANUEL": ["Ruta Manuel"] // Nuevo Agregado
+        "MANUEL": ["Ruta Manuel"]
     };
     let CUENTAS = ["DAVID", "LESLY", "DAVID_LESLY", "JOSE_RODINDER"];
 
@@ -237,19 +238,15 @@
         document.getElementById('fecha_inicio').value = HOY;
         document.getElementById('fecha_fin').value = HOY;
 
-        // Cargar Config
         db.ref('configuracion_v4').once('value', s => {
             if(s.exists()){
                 let c = s.val();
                 if(c.rutas) RUTAS = c.rutas;
                 if(c.cuentas) CUENTAS = c.cuentas;
-            } else {
-                guardarConfigDB(); // Guardar valores por defecto (incluido Manuel)
-            }
+            } else { guardarConfigDB(); }
             llenarListasDesplegables();
         });
 
-        // Cargar Datos
         db.ref('registros_milagro').on('value', s => { REGISTROS.dep = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('ventas_contado').on('value', s => { REGISTROS.con = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
         db.ref('abonos_clientes').on('value', s => { REGISTROS.abo = s.val() ? Object.entries(s.val()).map(([k,v])=>({id:k,...v})) : []; pintar(); });
@@ -259,7 +256,6 @@
         setModo('OFICINA');
     };
 
-    // --- FUNCIONES CONFIGURACION ---
     function guardarConfigDB() {
         db.ref('configuracion_v4').set({ rutas: RUTAS, cuentas: CUENTAS })
           .then(() => { alert("✅ Configuración guardada."); llenarListasDesplegables(); });
@@ -287,7 +283,6 @@
                 if(prevVal) el.value = prevVal;
             }
         });
-        
         renderConfigUI();
     }
 
@@ -306,7 +301,6 @@
         verZonasDeCobrador();
     }
 
-    // --- LOGICA CONFIG ---
     function crearCobrador() { let n=document.getElementById('new_cobrador').value.toUpperCase().trim(); if(n&&!RUTAS[n]){RUTAS[n]=[]; document.getElementById('new_cobrador').value=""; renderConfigUI();} }
     function borrarCobrador(n) { if(confirm("Borrar?")){ delete RUTAS[n]; renderConfigUI(); } }
     function renombrarCobrador(old) { let n=prompt("Nuevo nombre:",old); if(n&&n!=old){ n=n.toUpperCase().trim(); RUTAS[n]=RUTAS[old]; delete RUTAS[old]; renderConfigUI(); } }
@@ -329,7 +323,6 @@
     function borrarCuenta(i) { if(confirm("Borrar?")){ CUENTAS.splice(i,1); renderConfigUI(); } }
     function renombrarCuenta(i) { let n=prompt("Nombre:",CUENTAS[i]); if(n){ CUENTAS[i]=n.toUpperCase().trim(); renderConfigUI(); } }
 
-    // --- OPERATIVO ---
     function cargarZonasOperativo() {
         let cob = document.getElementById('cobrador_op').value;
         let sel = document.getElementById('zona_op');
@@ -382,13 +375,13 @@
             document.getElementById('div-fecha-operativa').classList.add('hidden');
             document.getElementById('input-monto').classList.add('hidden');
             document.getElementById('btn-save').style.display='none';
+            
+            // AQUI ESTA LA MAGIA: RESTAURAR FECHAS GUARDADAS EN LAS VARIABLES
             document.getElementById('div-fecha-rango').classList.remove('hidden');
+            document.getElementById('fecha_inicio').value = F_INI;
+            document.getElementById('fecha_fin').value = F_FIN;
         }
 
-        if(m !== 'HISTORIAL') {
-            F_INI = HOY; F_FIN = HOY;
-            document.getElementById('titulo-rep').innerText = "REPORTE DE HOY ("+HOY+")";
-        }
         pintar();
         document.getElementById('btn-save').innerText = `GUARDAR ${m}`;
     };
@@ -396,12 +389,7 @@
     window.verHistorialRango = function() {
         F_INI = document.getElementById('fecha_inicio').value;
         F_FIN = document.getElementById('fecha_fin').value;
-        if(F_INI && F_FIN) {
-            document.getElementById('titulo-rep').innerText = `REPORTE DEL ${F_INI} AL ${F_FIN}`;
-            pintar();
-        } else {
-            alert("Selecciona ambas fechas");
-        }
+        pintar(); // Al hacer clic en BUSCAR, se actualiza el reporte con las nuevas fechas
     }
 
     window.guardar = function() {
@@ -524,7 +512,17 @@
         let granTotal = 0;
         const fmt = n => "L. " + n.toLocaleString('en-US',{minimumFractionDigits:2});
         
-        const filtroFecha = r => { return r.fecha >= F_INI && r.fecha <= F_FIN; };
+        let filtroFecha;
+        if(MODO === 'HISTORIAL') {
+            // EN HISTORIAL: Usamos las fechas de los inputs guardadas en F_INI y F_FIN
+            filtroFecha = r => r.fecha >= F_INI && r.fecha <= F_FIN;
+            document.getElementById('titulo-rep').innerText = `HISTORIAL (${F_INI} al ${F_FIN})`;
+        } else {
+            // EN OPERATIVO: Solo mostramos lo que se creó/editó HOY (Fecha de Registro) para ver el progreso diario
+            filtroFecha = r => (r.fecha_registro || r.fecha) === HOY;
+            document.getElementById('titulo-rep').innerText = "INGRESADO HOY";
+        }
+
         let verTodo = (MODO === 'HISTORIAL');
 
         // DEPOSITOS
